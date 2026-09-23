@@ -10,7 +10,22 @@ require_once __DIR__ . '/includes/customer_header.php';
 
 $filter = $_GET['status'] ?? 'all';
 
-// Fetch orders for current customer
+// 1. Calculate order counts for all tabs
+$countStmt = $pdo->prepare("SELECT 
+    COUNT(*) as total,
+    SUM(CASE WHEN order_status IN ('placed', 'accepted', 'ready_for_pickup') THEN 1 ELSE 0 END) as active,
+    SUM(CASE WHEN order_status = 'completed' THEN 1 ELSE 0 END) as completed,
+    SUM(CASE WHEN order_status IN ('cancelled', 'declined') THEN 1 ELSE 0 END) as cancelled
+    FROM orders WHERE customer_id = :uid");
+$countStmt->execute([':uid' => $currentUserId]);
+$orderCounts = $countStmt->fetch();
+
+$totalOrdersCount = (int)($orderCounts['total'] ?? 0);
+$activeOrdersCount = (int)($orderCounts['active'] ?? 0);
+$completedOrdersCount = (int)($orderCounts['completed'] ?? 0);
+$cancelledOrdersCount = (int)($orderCounts['cancelled'] ?? 0);
+
+// 2. Fetch orders for current customer based on active filter
 $where = ["o.customer_id = :uid"];
 $params = [':uid' => $currentUserId];
 
@@ -22,14 +37,19 @@ if ($filter === 'active') {
     $where[] = "o.order_status IN ('cancelled', 'declined')";
 }
 
-$sql = "SELECT o.*, fp.stall_name, fp.contact_person, fp.business_phone, fp.order_cutoff_time,
-               m.market_name, m.address as market_address,
-               fms.stall_number_location,
+$sql = "SELECT o.*, 
+               COALESCE(fp.stall_name, 'Local Farmer Stall') as stall_name, 
+               COALESCE(fp.contact_person, 'Farmer') as contact_person, 
+               COALESCE(fp.business_phone, 'N/A') as business_phone, 
+               fp.order_cutoff_time,
+               COALESCE(m.market_name, 'Local Farmers Market') as market_name, 
+               COALESCE(m.address, 'Market Location') as market_address,
+               COALESCE(fms.stall_number_location, 'Stall Area') as stall_number_location,
                ps.start_time, ps.end_time,
                (SELECT COUNT(*) FROM farmer_reviews fr WHERE fr.order_id = o.order_id) as has_farmer_review
         FROM orders o
-        JOIN farmer_profiles fp ON o.farmer_id = fp.farmer_id
-        JOIN markets m ON o.market_id = m.market_id
+        LEFT JOIN farmer_profiles fp ON o.farmer_id = fp.farmer_id
+        LEFT JOIN markets m ON o.market_id = m.market_id
         LEFT JOIN farmer_market_stalls fms ON o.stall_id = fms.stall_id
         LEFT JOIN pickup_slots ps ON o.pickup_slot_id = ps.pickup_slot_id
         WHERE " . implode(' AND ', $where) . "
@@ -45,9 +65,12 @@ $itemsByOrder = [];
 
 if (!empty($orderIds)) {
     $inClause = implode(',', array_map('intval', $orderIds));
-    $itemSql = "SELECT oi.*, p.product_name, p.unit, p.image_url 
+    $itemSql = "SELECT oi.*, 
+                       COALESCE(p.product_name, 'Produce Item') as product_name, 
+                       COALESCE(p.unit, 'item') as unit, 
+                       COALESCE(p.image_url, 'assets/images/logo.svg') as image_url 
                 FROM order_items oi
-                JOIN products p ON oi.product_id = p.product_id
+                LEFT JOIN products p ON oi.product_id = p.product_id
                 WHERE oi.order_id IN ($inClause)";
     $items = $pdo->query($itemSql)->fetchAll();
     foreach ($items as $it) {
@@ -77,10 +100,10 @@ if (!empty($orderIds)) {
     🌱 Active Pre-Orders (<?= $activeOrdersCount ?>)
   </a>
   <a href="<?= BASE_URL ?>/customer/orders.php?status=completed" class="filter-pill <?= ($filter === 'completed') ? 'active' : '' ?>">
-    ✔ Picked Up & Completed
+    ✔ Picked Up & Completed (<?= $completedOrdersCount ?>)
   </a>
   <a href="<?= BASE_URL ?>/customer/orders.php?status=cancelled" class="filter-pill <?= ($filter === 'cancelled') ? 'active' : '' ?>">
-    ✖ Cancelled / Declined
+    ✖ Cancelled / Declined (<?= $cancelledOrdersCount ?>)
   </a>
 </div>
 

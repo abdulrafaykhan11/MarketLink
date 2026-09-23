@@ -768,10 +768,17 @@
 .filter-pills-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.65rem;
-  overflow-x: auto;
-  padding-bottom: 0.75rem;
+  overflow: visible;
+  padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.filter-pills-row::-webkit-scrollbar {
+  display: none;
 }
 
 .filter-pill {
