@@ -1,0 +1,419 @@
+﻿/* ==========================================================================
+   MarketLink - About Us Page Styles
+   ========================================================================== */
+
+/* ---- About Hero ---- */
+.about-hero {
+  position: relative;
+  min-height: 75vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 25% 30%, rgba(56,189,248,0.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 70%, rgba(74,222,128,0.18) 0%, transparent 55%),
+    var(--bg-primary);
+  padding: 8rem 1.5rem 5rem;
+}
+
+.about-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(56,189,248,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.about-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.abt-eyebrow {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--sky-400);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-sky);
+  padding: 0.35rem 1rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 1.5rem;
+}
+
+.about-hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.abt-grad-green {
+  background: linear-gradient(130deg, #86efac 0%, #4ade80 50%, #22c55e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.abt-grad-sky {
+  background: linear-gradient(130deg, #bae6fd 0%, #38bdf8 50%, #0ea5e9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.about-hero-lead {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+/* ---- General Section ---- */
+.abt-section {
+  padding: 6rem 1.5rem;
+}
+
+/* ---- Mission & Vision Grid ---- */
+.abt-mv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) { .abt-mv-grid { grid-template-columns: 1fr; } }
+
+.abt-mv-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.abt-mv-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+}
+
+.card-mission::before { background: linear-gradient(90deg, #4ade80, #22c55e); }
+.card-vision::before  { background: linear-gradient(90deg, #38bdf8, #0ea5e9); }
+
+.abt-mv-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px -10px rgba(0,0,0,0.4);
+}
+
+.abt-mv-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.abt-mv-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.abt-mv-desc {
+  font-size: 0.975rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.abt-mv-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.abt-mv-list li {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.abt-mv-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--primary-400);
+  font-weight: 700;
+}
+
+/* ---- Problem / Stats ---- */
+.abt-problem-section {
+  padding: 6rem 1.5rem;
+  background:
+    radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(16,185,129,0.10) 0%, transparent 50%),
+    var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.abt-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+@media (max-width: 900px) { .abt-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .abt-stats-grid { grid-template-columns: 1fr; } }
+
+.abt-stat-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.abt-stat-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--border-hover);
+}
+
+.abt-stat-num {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.03em;
+}
+
+.abt-stat-label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ---- Principles Grid ---- */
+.abt-principles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 900px) { .abt-principles-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .abt-principles-grid { grid-template-columns: 1fr; } }
+
+.abt-principle-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 2rem 1.5rem;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.abt-principle-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--border-hover);
+  box-shadow: 0 15px 35px -10px rgba(34,197,94,0.25);
+}
+
+.abt-principle-icon { font-size: 2rem; margin-bottom: 1rem; }
+
+.abt-principle-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.65rem;
+}
+
+.abt-principle-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+/* ---- Founding Story ---- */
+.abt-story-section {
+  padding: 6rem 1.5rem;
+  background:
+    radial-gradient(ellipse at 15% 50%, rgba(56,189,248,0.10) 0%, transparent 50%),
+    var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.abt-story-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .abt-story-layout {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .abt-story-visual { order: -1; }
+}
+
+.abt-story-heading {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  margin-top: 1rem;
+}
+
+.abt-story-para {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  margin-bottom: 1.1rem;
+}
+
+.abt-story-img-frame {
+  position: relative;
+  border-radius: 62% 38% 46% 54% / 58% 44% 56% 42%;
+  overflow: hidden;
+  height: 420px;
+  border: 3px solid rgba(56,189,248,0.5);
+  box-shadow: 0 25px 60px -15px rgba(0,0,0,0.6), 0 0 40px rgba(56,189,248,0.25);
+  animation: abtMorph 14s ease-in-out infinite alternate;
+}
+
+@keyframes abtMorph {
+  0%   { border-radius: 62% 38% 46% 54% / 58% 44% 56% 42%; }
+  50%  { border-radius: 48% 52% 64% 36% / 42% 58% 40% 60%; }
+  100% { border-radius: 38% 62% 52% 48% / 56% 40% 60% 44%; }
+}
+
+.abt-story-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.abt-story-badge {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid var(--border-hover);
+  border-radius: var(--radius-full);
+  padding: 0.65rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  white-space: nowrap;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+}
+
+/* ---- CTA Section ---- */
+.abt-cta-section {
+  padding: 5rem 1.5rem;
+}
+
+.abt-cta-box {
+  background: linear-gradient(135deg, #09261a 0%, #0c3826 40%, #0e2942 100%);
+  border: 2px solid var(--border-hover);
+  border-radius: var(--radius-xl);
+  padding: 4.5rem 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 60px -15px rgba(0,0,0,0.5);
+}
+
+.abt-cta-box::before {
+  content: '';
+  position: absolute;
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: 500px; height: 260px;
+  background: radial-gradient(ellipse, rgba(52,211,153,0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.abt-cta-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.abt-cta-sub {
+  color: #bae6fd;
+  font-size: 1.1rem;
+  line-height: 1.65;
+  margin-bottom: 2.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.abt-cta-btns {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Contact Hero (reuses about-hero base) ---- */
+.contact-hero {
+  position: relative;
+  min-height: 55vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(56,189,248,0.20) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, rgba(74,222,128,0.16) 0%, transparent 55%),
+    var(--bg-primary);
+  padding: 9rem 1.5rem 5rem;
+}
+
+.contact-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(56,189,248,0.10) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.contact-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 680px;
+  margin: 0 auto;
+}

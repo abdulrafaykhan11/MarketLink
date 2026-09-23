@@ -8,7 +8,7 @@
    ========================================================================== */
 
 .site-header {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -18,7 +18,8 @@
   -webkit-backdrop-filter: none !important;
   border-bottom: 1px solid transparent !important;
   box-shadow: none !important;
-  transition: all var(--transition-base);
+  transition: background 0.4s ease, backdrop-filter 0.4s ease,
+              border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .site-header.scrolled {
@@ -247,6 +248,15 @@
 
 /* Image stretches to cover every pixel */
 .hero-fullscreen-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+
+/* Video stretches to cover every pixel */
+.hero-fullscreen-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -2000,3 +2010,82 @@
     font-size: 1.85rem;
   }
 }
+
+/* ==========================================================================
+   LIGHT THEME: Section-Level Color Overrides
+   Fix all hardcoded dark backgrounds so text is rich & readable in light mode
+   ========================================================================== */
+
+[data-theme="light"] .story-section {
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #f0fdf4 0%, #ffffff 50%, #f0fdf4 100%);
+}
+[data-theme="light"] .contrast-section {
+  background: linear-gradient(175deg, #f8fafc 0%, #f0fdf4 100%);
+}
+[data-theme="light"] .stalls-section {
+  background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+}
+[data-theme="light"] .audience-section {
+  background: linear-gradient(180deg, #f0fdf4 0%, #f0f9ff 100%);
+}
+[data-theme="light"] .faq-section { background: #ffffff; }
+
+[data-theme="light"] .site-header:not(.scrolled) .nav-link,
+[data-theme="light"] .site-header:not(.scrolled) .nav-link-login {
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+[data-theme="light"] .site-header.scrolled .nav-link { color: #0c1a12; text-shadow: none; }
+[data-theme="light"] .site-header.scrolled .nav-link:hover { color: #15803d; }
+[data-theme="light"] .site-header.scrolled .nav-link-login { color: #0c1a12; text-shadow: none; }
+
+[data-theme="light"] .journey-step-card { background: #ffffff; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+[data-theme="light"] .stall-card { background: #ffffff; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+
+[data-theme="light"] .customer-card { background: linear-gradient(135deg, #f0fdf4 0%, #e6fff4 100%); border-color: #bbf7d0; }
+[data-theme="light"] .farmer-card   { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-color: #fde68a; }
+
+[data-theme="light"] .hero-badge-tag { background: rgba(255,255,255,0.92); color: #15803d; border-color: rgba(22,163,74,0.4); }
+[data-theme="light"] .metric-val { color: #0c1a12; }
+[data-theme="light"] .metric-val .green { color: #15803d; }
+[data-theme="light"] .metric-val .gold  { color: #b45309; }
+
+[data-theme="light"] .faq-item { background: #ffffff; border-color: #c7e8d4; }
+[data-theme="light"] .faq-question-btn { color: #0c1a12; }
+[data-theme="light"] .faq-answer { color: #1e4035; }
+
+[data-theme="light"] .section-tag { color: #15803d; background: #f0fdf4; border-color: #bbf7d0; }
+[data-theme="light"] .section-tag-gold { color: #b45309; border-color: #fde68a; }
+[data-theme="light"] .section-tag-cyan { color: #0891b2; border-color: rgba(14,165,233,0.35); }
+
+[data-theme="light"] .site-footer { background: linear-gradient(180deg, #f0fdf4 0%, #e6fff4 100%); border-top: 1px solid #c7e8d4; }
+[data-theme="light"] .footer-col-title { color: #0c1a12; }
+[data-theme="light"] .footer-links-list a { color: #1e4035; }
+[data-theme="light"] .footer-links-list a:hover { color: #15803d; }
+[data-theme="light"] .footer-desc { color: #1e4035; }
+[data-theme="light"] .footer-bottom { color: #4a7c65; border-color: #c7e8d4; }
+[data-theme="light"] .newsletter-input { background: #ffffff; border-color: #c7e8d4; color: #0c1a12; }
+
+[data-theme="light"] .pulse-dot { background: #15803d; box-shadow: 0 0 8px rgba(22,163,74,0.5); }
+
+[data-theme="light"] .highlight-green {
+  background: linear-gradient(130deg, #15803d 0%, #16a34a 50%, #22c55e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="light"] .section-title { color: #0c1a12; }
+[data-theme="light"] .section-subtitle { color: #1e4035; }
+[data-theme="light"] .step-card-title { color: #0c1a12; }
+[data-theme="light"] .step-card-desc  { color: #1e4035; }
+[data-theme="light"] .stall-name      { color: #0c1a12; }
+[data-theme="light"] .stall-rating    { color: #b45309; }
+[data-theme="light"] .audience-title  { color: #0c1a12; }
+[data-theme="light"] .audience-desc   { color: #1e4035; }
+[data-theme="light"] .audience-features-list li { color: #1e4035; }
+[data-theme="light"] .contrast-cell-bad  strong { color: #0c1a12; }
+[data-theme="light"] .telemetry-title { color: #0c1a12; }
+[data-theme="light"] .telemetry-desc  { color: #1e4035; }

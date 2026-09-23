@@ -24,10 +24,10 @@ $user = currentUser();
     <nav class="nav-menu" id="navMenu">
       <ul class="nav-list">
         <li><a href="<?= BASE_URL ?>/#how-it-works" class="nav-link">The Journey</a></li>
-        <li><a href="<?= BASE_URL ?>/#fresh-harvest" class="nav-link">Seasonal Harvest</a></li>
         <li><a href="<?= BASE_URL ?>/#local-stalls" class="nav-link">Local Stalls</a></li>
         <li><a href="<?= BASE_URL ?>/#farm-contrast" class="nav-link">Why Direct?</a></li>
-        <li><a href="<?= BASE_URL ?>/#faq" class="nav-link">FAQ</a></li>
+        <li><a href="<?= BASE_URL ?>/about.php" class="nav-link">About Us</a></li>
+        <li><a href="<?= BASE_URL ?>/contact.php" class="nav-link">Contact</a></li>
       </ul>
     </nav>
 
