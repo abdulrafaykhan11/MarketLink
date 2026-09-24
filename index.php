@@ -15,9 +15,14 @@ require_once __DIR__ . '/includes/auth_guard.php';
 
 $pdo = getDBConnection();
 
-// Fetch sample active stalls from database or fallback
+// Fetch sample active approved stalls from database or fallback
+$stallsQuery = "SELECT fp.stall_name as name, fp.contact_person as farmer,
+                       COALESCE(m.market_name, 'Local Farmers Market') as location,
+                       fp.order_cutoff_time
                 FROM farmer_profiles fp 
                 JOIN users u ON fp.farmer_id = u.user_id 
+                LEFT JOIN farmer_market_stalls fms ON fp.farmer_id = fms.farmer_id AND fms.status = 'active'
+                LEFT JOIN markets m ON fms.market_id = m.market_id
                 WHERE fp.approval_status = 'approved'
                 LIMIT 6";
 $dbStalls = [];
@@ -28,7 +33,7 @@ try {
 }
 
 // Fallback showcase stalls if database is fresh
-$showcaseStalls = [
+$fallbackStalls = [
     [
         'name' => 'Sunrise Organic Orchard',
         'farmer' => 'Tariq Mehmood',
@@ -57,6 +62,23 @@ $showcaseStalls = [
         'slots' => '6 slots available'
     ]
 ];
+
+if (!empty($dbStalls)) {
+    $showcaseStalls = [];
+    foreach ($dbStalls as $dStall) {
+        $showcaseStalls[] = [
+            'name' => $dStall['name'] ?: 'Local Organic Stall',
+            'farmer' => $dStall['farmer'] ?: 'Verified Producer',
+            'location' => $dStall['location'] ?: 'Physical Market Hub',
+            'rating' => '4.95 ★ (Verified)',
+            'tags' => ['Farm Fresh', 'Seasonal Harvest', 'Pesticide-Free'],
+            'cutoff' => !empty($dStall['order_cutoff_time']) ? date('h:i A', strtotime($dStall['order_cutoff_time'])) : '06:00 PM',
+            'slots' => 'Pickup Slots Available'
+        ];
+    }
+} else {
+    $showcaseStalls = $fallbackStalls;
+}
 
 $pageTitle = 'Direct Farmers Marketplace • Fresh From Soil To Table';
 require_once __DIR__ . '/includes/header.php';

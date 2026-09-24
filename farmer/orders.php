@@ -336,6 +336,11 @@ if ($viewOrderId > 0) {
                       </button>
                     <?php endif; ?>
 
+                    <a href="<?= BASE_URL ?>/farmer/chat.php?order_id=<?= $ord['order_id'] ?>" class="farmer-btn-action" style="background:rgba(16,185,129,0.12); color:var(--emerald-600); border:1px solid rgba(16,185,129,0.3);" title="Chat with Customer">
+                      <i data-lucide="message-square" style="width: 14px; height: 14px;"></i>
+                      <span>Chat</span>
+                    </a>
+
                     <a href="?view_order=<?= $ord['order_id'] ?><?= !empty($statusFilter) ? '&status='.$statusFilter : '' ?>" class="farmer-btn-action btn-action-view" title="Inspect items &amp; print slip">
                       <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
                       <span>Details</span>

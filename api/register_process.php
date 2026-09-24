@@ -196,10 +196,14 @@ try {
 
     $pdo->commit();
 
+    // Dispatch welcome email via PHPMailer
+    require_once __DIR__ . '/../includes/mailer.php';
+    sendWelcomeEmail($email, $username, $displayName, $role);
+
     // Do NOT auto-login user: redirect to login page with prefilled username
     $loginRedirect = BASE_URL . "/login.php?registered=" . urlencode($username);
 
-    sendResponse(true, "Account created successfully! Please sign in with your credentials to access your dashboard.", $loginRedirect);
+    sendResponse(true, "Account created successfully! A welcome confirmation email has been dispatched to your address.", $loginRedirect);
 
 } catch (Exception $e) {
     if (isset($pdo) && $pdo->inTransaction()) {

@@ -44,8 +44,10 @@ if ($selectedMarket > 0) {
 }
 
 if (!empty($search)) {
-    $where[] = "(p.product_name LIKE :search OR p.description LIKE :search OR fp.stall_name LIKE :search)";
-    $params[':search'] = "%{$search}%";
+    $where[] = "(p.product_name LIKE :s1 OR p.description LIKE :s2 OR fp.stall_name LIKE :s3)";
+    $params[':s1'] = "%{$search}%";
+    $params[':s2'] = "%{$search}%";
+    $params[':s3'] = "%{$search}%";
 }
 
 if ($minPrice > 0) {
@@ -147,11 +149,12 @@ $products = $stmt->fetchAll();
   <div class="products-catalog-grid">
     <?php foreach ($products as $prod): ?>
       <div class="product-item-card">
-        <div class="product-thumb-container">
+        <div class="product-thumb-container" onclick="window.location.href='<?= BASE_URL ?>/customer/product_detail.php?id=<?= $prod['product_id'] ?>'" style="cursor:pointer;">
           <img src="<?= BASE_URL ?>/<?= htmlspecialchars($prod['image_url']) ?>" alt="<?= htmlspecialchars($prod['product_name']) ?>" class="product-thumb-img">
           
           <button type="button" class="product-fav-btn js-fav-toggle <?= $prod['is_fav'] ? 'is-favorite' : '' ?>" 
-                  data-type="product" data-id="<?= $prod['product_id'] ?>" title="Save to Favorites" aria-label="Save to Favorites">
+                  data-type="product" data-id="<?= $prod['product_id'] ?>" title="Save to Favorites" aria-label="Save to Favorites"
+                  onclick="event.stopPropagation();">
             <?= $prod['is_fav'] ? '❤️' : '🤍' ?>
           </button>
 
@@ -162,7 +165,11 @@ $products = $stmt->fetchAll();
 
         <div class="product-card-body">
           <div class="product-category-label"><?= htmlspecialchars($prod['category_name']) ?></div>
-          <h3 class="product-card-title"><?= htmlspecialchars($prod['product_name']) ?></h3>
+          <h3 class="product-card-title">
+            <a href="<?= BASE_URL ?>/customer/product_detail.php?id=<?= $prod['product_id'] ?>" style="color:inherit; text-decoration:none;">
+              <?= htmlspecialchars($prod['product_name']) ?>
+            </a>
+          </h3>
           
           <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.4; margin-bottom:0.75rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
             <?= htmlspecialchars($prod['description'] ?? 'Harvested fresh for local market pickup.') ?>
@@ -170,7 +177,9 @@ $products = $stmt->fetchAll();
 
           <div class="product-farmer-meta">
             <span>🏡</span> 
-            <strong><?= htmlspecialchars($prod['stall_name']) ?></strong>
+            <a href="<?= BASE_URL ?>/customer/product_detail.php?id=<?= $prod['product_id'] ?>" style="color:inherit; text-decoration:none;">
+              <strong><?= htmlspecialchars($prod['stall_name']) ?></strong>
+            </a>
           </div>
           <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.85rem;">
             📍 <?= htmlspecialchars($prod['market_name']) ?>

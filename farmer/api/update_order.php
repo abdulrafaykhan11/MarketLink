@@ -97,6 +97,10 @@ try {
         ]);
     }
 
+    // Dispatch status update email to customer via PHPMailer
+    require_once __DIR__ . '/../../includes/mailer.php';
+    sendOrderStatusEmail($orderId, $newStatus, $reason);
+
     echo json_encode([
         'status' => 'success',
         'message' => "Order #{$orderNum} status changed to " . ucfirst(str_replace('_', ' ', $newStatus))

@@ -49,6 +49,14 @@ $prodStmt = $pdo->prepare("SELECT p.*, pc.category_name,
 $prodStmt->execute($params);
 $products = $prodStmt->fetchAll();
 
+// Attach gallery images for each product
+foreach ($products as &$p) {
+    $gStmt = $pdo->prepare("SELECT image_url, is_primary, display_order FROM product_images WHERE product_id = :pid ORDER BY is_primary DESC, display_order ASC");
+    $gStmt->execute([':pid' => $p['product_id']]);
+    $p['gallery'] = $gStmt->fetchAll();
+}
+unset($p);
+
 // Filter by stock status if requested
 if ($stockStatus === 'in_stock') {
     $products = array_filter($products, fn($p) => (int)$p['is_available'] === 1 && (float)$p['stock_quantity'] > 0);
@@ -320,31 +328,60 @@ if ($editProductId > 0) {
           <textarea class="farmer-form-textarea" id="formDesc" name="description" rows="3" placeholder="Grown pesticide-free, harvested at dawn of market day, non-GMO heirloom seeds..."></textarea>
         </div>
 
-        <!-- Product Photo Upload (Required for new, optional for edit) -->
+        <!-- Product Photos (5 Photos Allowance: 1 Compulsory + 4 Optional) -->
         <div class="farmer-form-group">
-          <label class="farmer-form-label" for="productPhotoInput">
+          <label class="farmer-form-label">
             <i data-lucide="camera" style="width:14px;height:14px;vertical-align:middle;color:var(--primary-500);"></i>
-            Product Photo <span id="photoRequiredLabel" style="color:#ef4444;">*</span>
-            <span id="photoOptionalLabel" style="color:var(--slate-400);font-weight:400;font-size:0.75rem;display:none;">(optional – keep current if not changed)</span>
+            Harvest Photos (1 Primary Required + Up to 4 Optional Gallery Shots)
           </label>
 
-          <!-- Image preview + upload zone -->
-          <div style="display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
-            <!-- Current / Preview image -->
-            <div id="productImgPreviewWrap" style="width: 80px; height: 80px; border-radius: var(--radius-md); overflow: hidden; border: 2px dashed var(--border-color); background: var(--bg-surface-elevated); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-              <img id="productImgPreview" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
-              <i id="productImgPlaceholder" data-lucide="image" style="width:28px;height:28px;color:var(--slate-500);"></i>
+          <!-- Primary Photo (Compulsory) -->
+          <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; margin-bottom:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+              <span style="font-size:0.8125rem; font-weight:700; color:var(--text-primary);">
+                ⭐ 1. Cover Photo <span id="photoRequiredLabel" style="color:#ef4444;">(Compulsory *)</span>
+                <span id="photoOptionalLabel" style="color:var(--slate-400);font-weight:400;font-size:0.75rem;display:none;">(keep current or replace)</span>
+              </span>
+              <span style="font-size:0.72rem; color:var(--primary-400); font-weight:600;">Main Marketplace Showcase</span>
             </div>
 
-            <!-- Upload zone -->
-            <div style="flex:1;min-width:180px;">
-              <div onclick="document.getElementById('productPhotoInput').click()" style="border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-500)'" onmouseout="this.style.borderColor='var(--border-color)'">
-                <i data-lucide="upload" style="width:20px;height:20px;color:var(--primary-500);margin-bottom:0.35rem;"></i>
-                <div style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">Click to upload photo</div>
-                <div style="font-size:0.72rem;color:var(--slate-400);">JPG, PNG, WEBP · max 8MB</div>
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+              <div id="productImgPreviewWrap" style="width: 80px; height: 80px; border-radius: var(--radius-md); overflow: hidden; border: 2px dashed var(--border-color); background: var(--bg-surface); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                <img id="productImgPreview" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
+                <i id="productImgPlaceholder" data-lucide="image" style="width:28px;height:28px;color:var(--slate-500);"></i>
               </div>
-              <input type="file" id="productPhotoInput" name="product_photo" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none;" onchange="previewProductPhoto(this)">
-              <div id="productPhotoName" style="font-size:0.72rem;color:var(--primary-400);margin-top:0.35rem;display:none;"></div>
+
+              <div style="flex:1;min-width:180px;">
+                <div onclick="document.getElementById('productPhotoInput').click()" style="border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 0.85rem; text-align: center; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-500)'" onmouseout="this.style.borderColor='var(--border-color)'">
+                  <i data-lucide="upload" style="width:18px;height:18px;color:var(--primary-500);margin-bottom:0.25rem;"></i>
+                  <div style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">Select Cover Photo</div>
+                  <div style="font-size:0.7rem;color:var(--slate-400);">JPG, PNG, WEBP &bull; Max 8MB</div>
+                </div>
+                <input type="file" id="productPhotoInput" name="product_photo" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none;" onchange="previewProductPhoto(this)">
+                <div id="productPhotoName" style="font-size:0.72rem;color:var(--primary-400);margin-top:0.35rem;display:none;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Optional Additional Photos -->
+          <div>
+            <div style="font-size:0.8125rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.5rem;">
+              📸 Additional Gallery Photos <span style="font-weight:400; font-size:0.75rem; color:var(--slate-400);">(Optional &bull; Up to 4 extra angles / packaging / farm soil shots)</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:0.65rem;">
+              <?php for ($slot = 2; $slot <= 5; $slot++): ?>
+                <div style="background:var(--bg-surface-elevated); border:1px dashed var(--border-color); border-radius:var(--radius-md); padding:0.6rem; text-align:center; position:relative;">
+                  <div id="extraPreviewWrap_<?= $slot ?>" style="width:100%; aspect-ratio:1; border-radius:6px; overflow:hidden; background:var(--bg-surface); display:flex; align-items:center; justify-content:center; margin-bottom:0.4rem;">
+                    <img id="extraPreviewImg_<?= $slot ?>" src="" alt="" style="width:100%; height:100%; object-fit:cover; display:none;">
+                    <span id="extraPlaceholder_<?= $slot ?>" style="font-size:0.75rem; color:var(--slate-500); font-weight:600;">+ Slot <?= $slot ?></span>
+                  </div>
+                  <button type="button" onclick="document.getElementById('extraInput_<?= $slot ?>').click()" class="farmer-btn-secondary" style="width:100%; padding:0.3rem 0.4rem; font-size:0.7rem;">
+                    Upload <?= $slot ?>
+                  </button>
+                  <input type="file" id="extraInput_<?= $slot ?>" name="photo_<?= $slot ?>" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none;" onchange="previewExtraPhoto(this, <?= $slot ?>)">
+                </div>
+              <?php endfor; ?>
             </div>
           </div>
         </div>
@@ -391,6 +428,23 @@ function previewProductPhoto(input) {
   }
 }
 
+// Extra gallery photos live preview (Slots 2 to 5)
+function previewExtraPhoto(input, slot) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.getElementById(`extraPreviewImg_${slot}`);
+    const placeholder = document.getElementById(`extraPlaceholder_${slot}`);
+    if (img) {
+      img.src = e.target.result;
+      img.style.display = 'block';
+    }
+    if (placeholder) placeholder.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
 // Open Add / Edit Modal
 function openProductModal(prod = null) {
   const modal = document.getElementById('productModal');
@@ -405,6 +459,16 @@ function openProductModal(prod = null) {
   // Reset photo field and name display
   document.getElementById('productPhotoInput').value = '';
   if (photoNameEl) { photoNameEl.textContent = ''; photoNameEl.style.display = 'none'; }
+
+  // Reset extra photo slots
+  for (let s = 2; s <= 5; s++) {
+    const extraIn = document.getElementById(`extraInput_${s}`);
+    if (extraIn) extraIn.value = '';
+    const extraImg = document.getElementById(`extraPreviewImg_${s}`);
+    if (extraImg) { extraImg.src = ''; extraImg.style.display = 'none'; }
+    const extraPh = document.getElementById(`extraPlaceholder_${s}`);
+    if (extraPh) extraPh.style.display = 'block';
+  }
 
   if (prod) {
     document.getElementById('formProdId').value = prod.product_id;
@@ -425,6 +489,23 @@ function openProductModal(prod = null) {
     } else {
       imgPreview.style.display = 'none';
       if (imgPlaceholder) imgPlaceholder.style.display = '';
+    }
+
+    // Populate existing extra gallery photos
+    if (prod.gallery && prod.gallery.length > 0) {
+      let slotIdx = 2;
+      prod.gallery.forEach(g => {
+        if (!parseInt(g.is_primary) && slotIdx <= 5) {
+          const exImg = document.getElementById(`extraPreviewImg_${slotIdx}`);
+          const exPh = document.getElementById(`extraPlaceholder_${slotIdx}`);
+          if (exImg) {
+            exImg.src = window.BASE_URL + '/' + g.image_url;
+            exImg.style.display = 'block';
+          }
+          if (exPh) exPh.style.display = 'none';
+          slotIdx++;
+        }
+      });
     }
 
     // Photo is optional when editing (existing image preserved)

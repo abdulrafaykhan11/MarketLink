@@ -228,9 +228,15 @@ try {
 
         $pdo->commit();
 
+        // Dispatch order confirmation emails to customer and farmer via PHPMailer
+        require_once __DIR__ . '/../../includes/mailer.php';
+        foreach ($createdOrderIds as $newOid) {
+            sendOrderConfirmationEmails((int)$newOid);
+        }
+
         echo json_encode([
             'status' => 'success',
-            'message' => 'Your harvest pre-order has been placed successfully! 🌿',
+            'message' => 'Your harvest pre-order has been placed successfully! 🌿 Confirmation emails have been sent.',
             'order_numbers' => $orderNumbers,
             'redirect_url' => BASE_URL . '/customer/orders.php'
         ]);

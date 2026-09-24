@@ -260,6 +260,13 @@ if (!empty($orderIds)) {
         <!-- Order Action Buttons -->
         <div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border-subtle); padding-top:1rem; flex-wrap:wrap;">
           
+          <!-- Direct Chat with Farmer/Seller -->
+          <a href="<?= BASE_URL ?>/customer/chat.php?order_id=<?= $ord['order_id'] ?>" 
+             class="<?= in_array($st, ['placed', 'accepted', 'ready_for_pickup']) ? 'btn-primary' : 'btn-secondary' ?>" 
+             style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1.15rem; font-size:0.85rem; text-decoration:none; <?= in_array($st, ['placed', 'accepted', 'ready_for_pickup']) ? 'background:var(--emerald-600);' : '' ?>">
+            <span>💬</span> <?= in_array($st, ['placed', 'accepted', 'ready_for_pickup']) ? 'Chat with Seller' : 'View Chat History' ?>
+          </a>
+
           <!-- Quick 1-Click Reorder -->
           <button type="button" class="btn-secondary" onclick="quickReorder(<?= $ord['order_id'] ?>)" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1.15rem; font-size:0.85rem;">
             <span>🔄</span> Reorder These Items

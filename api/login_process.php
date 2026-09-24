@@ -130,6 +130,10 @@ try {
         setcookie('marketlink_login_id', $user['username'], time() + (30 * 24 * 60 * 60), '/', '', false, true);
     }
 
+    // Dispatch login security notification via PHPMailer
+    require_once __DIR__ . '/../includes/mailer.php';
+    sendLoginAlertEmail($user['email'], $user['username'], $displayName);
+
     sendResponse(true, "Welcome back, " . htmlspecialchars($displayName) . "!", $redirectUrl);
 
 } catch (Exception $e) {

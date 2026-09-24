@@ -203,7 +203,7 @@ async function viewOrderItems(orderId, orderNum) {
   document.getElementById('orderItemsModalBackdrop').classList.add('open');
 
   try {
-    const res = await fetch(`<?= BASE_URL ?>/customer/api/order_details.php?order_id=${orderId}`);
+    const res = await fetch(`<?= BASE_URL ?>/admin/api/order_details.php?order_id=${orderId}`);
     const data = await res.json();
     if (data.success && data.items) {
       let html = `

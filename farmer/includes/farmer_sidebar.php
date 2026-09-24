@@ -47,6 +47,15 @@
       <?php endif; ?>
     </a>
 
+    <a href="<?= BASE_URL ?>/farmer/chat.php" class="farmer-sidebar-link <?= ($activePage === 'chat') ? 'active' : '' ?>">
+      <div class="farmer-sidebar-link-content">
+        <span class="farmer-sidebar-icon">
+          <i data-lucide="message-square"></i>
+        </span>
+        <span>Order Messages</span>
+      </div>
+    </a>
+
     <a href="<?= BASE_URL ?>/farmer/pickup-slots.php" class="farmer-sidebar-link <?= ($activePage === 'pickup-slots') ? 'active' : '' ?>">
       <div class="farmer-sidebar-link-content">
         <span class="farmer-sidebar-icon">

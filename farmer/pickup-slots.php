@@ -9,14 +9,21 @@ $activePage = 'pickup-slots';
 require_once __DIR__ . '/includes/farmer_header.php';
 
 // 1. Fetch Farmer Stalls
-$stallsQuery = $pdo->prepare("SELECT fms.*, m.market_name, m.city 
+$stallsQuery = $pdo->prepare("SELECT fms.*, m.market_name, m.city, m.address as market_address 
                               FROM farmer_market_stalls fms 
                               JOIN markets m ON fms.market_id = m.market_id 
-                              WHERE fms.farmer_id = :fid");
+                              WHERE fms.farmer_id = :fid
+                              ORDER BY fms.status ASC, fms.assigned_at DESC");
 $stallsQuery->execute([':fid' => $farmerId]);
 $stalls = $stallsQuery->fetchAll();
 
 $stallIds = array_column($stalls, 'stall_id');
+
+// Fetch all active markets to allow joining multiple markets
+$allMarkets = $pdo->query("SELECT market_id, market_name, city, address, operating_days 
+                           FROM markets 
+                           WHERE status = 'active' 
+                           ORDER BY market_name ASC")->fetchAll();
 
 // 2. Fetch Pickup Slots for these stalls
 $slots = [];
@@ -127,6 +134,84 @@ $totalBooked = array_sum(array_column($slots, 'booked_count'));
         💡 Each slot limits simultaneous traffic at your stall to prevent lines and maintain premium shopper satisfaction.
       </div>
     </div>
+  </div>
+
+  <!-- Multi-Market Stalls Section -->
+  <div class="farmer-card" style="margin-bottom: 2rem;">
+    <div class="farmer-card-header">
+      <div class="farmer-card-title-group">
+        <h3 class="farmer-card-title">
+          <i data-lucide="store" style="width: 20px; height: 20px; color: var(--primary-500);"></i>
+          <span>My Market Stalls &amp; Physical Hubs (<?= count($stalls) ?>)</span>
+        </h3>
+        <span class="farmer-card-subtitle">
+          Operate stalls in multiple community markets simultaneously to reach shoppers across different neighborhoods and market days.
+        </span>
+      </div>
+      <button type="button" class="farmer-btn-primary" onclick="openRegisterStallModal()">
+        <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i>
+        <span>Register Stall in Another Market</span>
+      </button>
+    </div>
+
+    <?php if (empty($stalls)): ?>
+      <div style="text-align: center; padding: 3rem 1.5rem; color: var(--slate-400);">
+        <i data-lucide="store" style="width: 44px; height: 44px; margin-bottom: 0.75rem; color: var(--slate-500);"></i>
+        <h4 style="color: var(--text-primary); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.35rem;">No Market Stalls Registered</h4>
+        <p style="font-size: 0.875rem; max-width: 450px; margin: 0 auto 1.25rem;">
+          Register your physical stall in a local farmers market to begin publishing pickup windows and receiving pre-orders.
+        </p>
+        <button type="button" class="farmer-btn-primary" onclick="openRegisterStallModal()">
+          <i data-lucide="plus" style="width: 15px; height: 15px;"></i>
+          <span>Register Your First Market Stall</span>
+        </button>
+      </div>
+    <?php else: ?>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.25rem;">
+        <?php foreach ($stalls as $st): ?>
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; transition: transform 0.2s ease, border-color 0.2s ease;">
+            <div>
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <div style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: var(--text-primary); line-height: 1.3;">
+                  <?= htmlspecialchars($st['market_name']) ?>
+                </div>
+                <?php if ($st['status'] === 'active'): ?>
+                  <span class="farmer-badge-role" style="font-size: 0.7rem; background: rgba(34, 197, 94, 0.15); color: var(--primary-400); border: 1px solid rgba(34, 197, 94, 0.3);">Active Stall</span>
+                <?php else: ?>
+                  <span class="farmer-badge-role" style="font-size: 0.7rem; background: rgba(148, 163, 184, 0.15); color: var(--slate-400); border: 1px solid var(--border-color);">Inactive</span>
+                <?php endif; ?>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.35rem;">
+                <i data-lucide="map-pin" style="width: 14px; height: 14px; color: var(--sky-400); flex-shrink: 0;"></i>
+                <span><?= htmlspecialchars($st['city']) ?> &bull; <?= htmlspecialchars($st['market_address'] ?: 'City Center') ?></span>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+                <i data-lucide="tag" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
+                <span>Stall / Bay: <strong style="color: var(--text-primary);"><?= htmlspecialchars($st['stall_number_location'] ?: 'Main Bay') ?></strong></span>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8125rem; color: var(--text-muted);">
+                <i data-lucide="calendar" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
+                <span>Days: <?= htmlspecialchars($st['operating_days'] ?: 'Saturday, Sunday') ?></span>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+              <button type="button" class="farmer-btn-action <?= $st['status'] === 'active' ? 'btn-action-decline' : 'btn-action-accept' ?>" onclick="toggleStallStatus(<?= $st['stall_id'] ?>, '<?= $st['status'] === 'active' ? 'inactive' : 'active' ?>')">
+                <i data-lucide="<?= $st['status'] === 'active' ? 'pause-circle' : 'play-circle' ?>" style="width: 13px; height: 13px;"></i>
+                <span><?= $st['status'] === 'active' ? 'Pause Stall' : 'Activate' ?></span>
+              </button>
+              <button type="button" class="farmer-btn-pill" onclick="openAddSlotForStall(<?= $st['stall_id'] ?>)" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+                <i data-lucide="plus" style="width: 13px; height: 13px;"></i>
+                <span>Add Slot Here</span>
+              </button>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
   </div>
 
   <!-- Pickup Slots Schedule Table -->
@@ -415,6 +500,132 @@ function toggleSlotStatus(slotId, status) {
     FarmerApp.showToast('error', 'Network Error', 'Could not update slot.');
   });
 }
+
+// Multi-Market Stall Management Functions
+function openRegisterStallModal() {
+  document.getElementById('registerStallModal').classList.add('active');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function closeRegisterStallModal() {
+  document.getElementById('registerStallModal').classList.remove('active');
+}
+
+function openAddSlotForStall(stallId) {
+  const select = document.getElementById('slotStallId');
+  if (select) {
+    select.value = stallId;
+  }
+  openAddSlotModal();
+}
+
+function submitRegisterStall(e) {
+  e.preventDefault();
+  const btn = document.getElementById('saveStallBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span>Registering...</span>';
+
+  const formData = new FormData(document.getElementById('registerStallForm'));
+
+  fetch('<?= BASE_URL ?>/farmer/api/stall_action.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.innerHTML = '<span>Register Stall</span>';
+    if (data.status === 'success') {
+      FarmerApp.showToast('success', 'Stall Registered', data.message);
+      closeRegisterStallModal();
+      setTimeout(() => location.reload(), 700);
+    } else {
+      FarmerApp.showToast('error', 'Error', data.message || 'Could not register stall.');
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.innerHTML = '<span>Register Stall</span>';
+    FarmerApp.showToast('error', 'Server Error', 'Please check server connection.');
+  });
+}
+
+function toggleStallStatus(stallId, newStatus) {
+  const formData = new FormData();
+  formData.append('action', 'toggle_status');
+  formData.append('stall_id', stallId);
+  formData.append('status', newStatus);
+
+  fetch('<?= BASE_URL ?>/farmer/api/stall_action.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === 'success') {
+      FarmerApp.showToast('success', 'Stall Updated', data.message);
+      setTimeout(() => location.reload(), 600);
+    } else {
+      FarmerApp.showToast('error', 'Error', data.message || 'Could not update stall status.');
+    }
+  })
+  .catch(err => {
+    FarmerApp.showToast('error', 'Server Error', 'Could not update stall.');
+  });
+}
 </script>
+
+<!-- Modal: Register Stall in Another Market -->
+<div class="farmer-modal-backdrop" id="registerStallModal">
+  <div class="farmer-modal" style="max-width: 520px;">
+    <div class="farmer-modal-header">
+      <h4 class="farmer-modal-title">
+        <i data-lucide="store" style="width: 20px; height: 20px; color: var(--primary-500);"></i>
+        <span>Register Stall in Farmers Market</span>
+      </h4>
+      <button type="button" class="farmer-modal-close-btn" onclick="closeRegisterStallModal()">✕</button>
+    </div>
+    <form id="registerStallForm" onsubmit="submitRegisterStall(event)">
+      <div class="farmer-modal-body">
+        <input type="hidden" name="action" value="add_stall">
+
+        <!-- Select Market -->
+        <div class="farmer-form-group">
+          <label class="farmer-form-label" for="regMarketId">Choose Farmers Market <span style="color:#ef4444;">*</span></label>
+          <select class="farmer-form-select" id="regMarketId" name="market_id" required>
+            <option value="" disabled selected>-- Select a Community Farmers Market --</option>
+            <?php foreach ($allMarkets as $m): ?>
+              <option value="<?= $m['market_id'] ?>">
+                <?= htmlspecialchars($m['market_name']) ?> (<?= htmlspecialchars($m['city']) ?>) &bull; <?= htmlspecialchars($m['operating_days'] ?: 'Weekend') ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
+            You can register and operate stalls in as many markets as you harvest for!
+          </div>
+        </div>
+
+        <!-- Stall / Bay Number -->
+        <div class="farmer-form-group">
+          <label class="farmer-form-label" for="regStallNumber">Assigned Stall or Bay Number <span style="color:#ef4444;">*</span></label>
+          <input type="text" class="farmer-form-input" id="regStallNumber" name="stall_number_location" placeholder="e.g. Bay 14, East Canopy, Stall B-4" required>
+        </div>
+
+        <!-- Operating Days -->
+        <div class="farmer-form-group">
+          <label class="farmer-form-label" for="regOperatingDays">Operating / Market Days</label>
+          <input type="text" class="farmer-form-input" id="regOperatingDays" name="operating_days" value="Saturday, Sunday" placeholder="e.g. Saturday, Sunday">
+        </div>
+      </div>
+
+      <div class="farmer-modal-footer">
+        <button type="button" class="farmer-btn-secondary" onclick="closeRegisterStallModal()">Cancel</button>
+        <button type="submit" class="farmer-btn-primary" id="saveStallBtn">
+          <span>Register Stall</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <?php require_once __DIR__ . '/includes/farmer_footer.php'; ?>

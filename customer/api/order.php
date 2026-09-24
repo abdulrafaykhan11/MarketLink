@@ -61,6 +61,10 @@ try {
                 ':msg' => "Your pre-order has been cancelled. Reason: " . htmlspecialchars($reason)
             ]);
 
+        // Dispatch cancellation email via PHPMailer
+        require_once __DIR__ . '/../../includes/mailer.php';
+        sendOrderStatusEmail($orderId, 'cancelled', $reason);
+
         echo json_encode([
             'status' => 'success',
             'message' => 'Pre-order cancelled successfully.'

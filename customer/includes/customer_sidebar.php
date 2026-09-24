@@ -56,6 +56,13 @@
       </div>
     </a>
 
+    <a href="<?= BASE_URL ?>/customer/chat.php" class="sidebar-link <?= ($activePage === 'chat') ? 'active' : '' ?>">
+      <div class="sidebar-link-content">
+        <span class="sidebar-link-icon">💬</span>
+        <span>Seller Order Chat</span>
+      </div>
+    </a>
+
     <a href="<?= BASE_URL ?>/customer/favorites.php" class="sidebar-link <?= ($activePage === 'favorites') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
         <span class="sidebar-link-icon">❤️</span>

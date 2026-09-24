@@ -1,7 +1,7 @@
 <?php
 /**
  * MarketLink - Farmer API: Add or Update Produce Listing
- * Updated: Handles product photo upload (required per SRS)
+ * Multi-Photo Support: 1 Compulsory Cover Photo + up to 4 Optional Gallery Photos
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -39,23 +39,24 @@ if ($price <= 0) {
     exit;
 }
 
-// --- Handle photo upload ---
-$imageUrl = $existingImage;
+/**
+ * Upload Helper for Product Photos
+ */
+function uploadProductImageFile(array $file, int $userId): ?string {
+    if (empty($file) || $file['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
 
-if (!empty($_FILES['product_photo']) && $_FILES['product_photo']['error'] === UPLOAD_ERR_OK) {
-    $file = $_FILES['product_photo'];
     $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mimeType = $finfo->file($file['tmp_name']);
 
     if (!in_array($mimeType, $allowedMimes)) {
-        echo json_encode(['status' => 'error', 'message' => 'Only JPG, PNG or WEBP product images accepted.']);
-        exit;
+        return null;
     }
 
     if ($file['size'] > 8 * 1024 * 1024) {
-        echo json_encode(['status' => 'error', 'message' => 'Product image must be under 8MB.']);
-        exit;
+        return null;
     }
 
     $ext = match($mimeType) {
@@ -70,44 +71,84 @@ if (!empty($_FILES['product_photo']) && $_FILES['product_photo']['error'] === UP
         mkdir($uploadDir, 0755, true);
     }
 
-    // Remove old product image if exists and is from uploads dir
-    if (!empty($existingImage) && strpos($existingImage, 'uploads/') === 0 && file_exists(__DIR__ . '/../../' . $existingImage)) {
-        @unlink(__DIR__ . '/../../' . $existingImage);
-    }
-
-    $filename = 'product_' . $userId . '_' . time() . '_' . rand(100, 999) . '.' . $ext;
+    $filename = 'product_' . $userId . '_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
     $destination = $uploadDir . $filename;
 
     if (move_uploaded_file($file['tmp_name'], $destination)) {
-        $imageUrl = 'uploads/products/' . $filename;
+        return 'uploads/products/' . $filename;
+    }
+
+    return null;
+}
+
+// 1. Handle Primary Compulsory Photo
+$primaryImageUrl = $existingImage;
+
+if (!empty($_FILES['product_photo']) && $_FILES['product_photo']['error'] === UPLOAD_ERR_OK) {
+    $uploaded = uploadProductImageFile($_FILES['product_photo'], $userId);
+    if ($uploaded) {
+        $primaryImageUrl = $uploaded;
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to save product image. Check server permissions.']);
+        echo json_encode(['status' => 'error', 'message' => 'Primary photo must be a valid JPG, PNG, or WEBP under 8MB.']);
         exit;
     }
-} elseif (empty($imageUrl) && $productId === 0) {
-    // New product with no image — require it
-    echo json_encode(['status' => 'error', 'message' => 'A product photo is required. Customers need to see what they are ordering.']);
+} elseif (empty($primaryImageUrl) && $productId === 0) {
+    // New product requires primary photo
+    echo json_encode(['status' => 'error', 'message' => 'A primary product photo is compulsory. Customers need to see what they are purchasing.']);
     exit;
 }
 
 // Fallback image for categories if still empty (edge case)
-if (empty($imageUrl)) {
+if (empty($primaryImageUrl)) {
     $categoryName = $pdo->prepare("SELECT category_name FROM product_categories WHERE category_id = :cid");
     $categoryName->execute([':cid' => $categoryId]);
     $cat = $categoryName->fetchColumn();
 
     if (stripos($cat, 'Fruit') !== false) {
-        $imageUrl = 'assets/images/products/apples.svg';
+        $primaryImageUrl = 'assets/images/products/apples.svg';
     } elseif (stripos($cat, 'Dairy') !== false || stripos($cat, 'Egg') !== false) {
-        $imageUrl = 'assets/images/products/eggs.svg';
+        $primaryImageUrl = 'assets/images/products/eggs.svg';
     } elseif (stripos($cat, 'Bakery') !== false) {
-        $imageUrl = 'assets/images/products/sourdough.svg';
+        $primaryImageUrl = 'assets/images/products/sourdough.svg';
     } elseif (stripos($cat, 'Honey') !== false) {
-        $imageUrl = 'assets/images/products/honey.svg';
+        $primaryImageUrl = 'assets/images/products/honey.svg';
     } elseif (stripos($cat, 'Herb') !== false) {
-        $imageUrl = 'assets/images/products/herbs.svg';
+        $primaryImageUrl = 'assets/images/products/herbs.svg';
     } else {
-        $imageUrl = 'assets/images/products/tomatoes.jpg';
+        $primaryImageUrl = 'assets/images/products/tomatoes.jpg';
+    }
+}
+
+// 2. Handle Up to 4 Optional Additional Photos
+$additionalUploadedPaths = [];
+for ($i = 2; $i <= 5; $i++) {
+    $fieldKey = 'photo_' . $i;
+    if (!empty($_FILES[$fieldKey]) && $_FILES[$fieldKey]['error'] === UPLOAD_ERR_OK) {
+        $path = uploadProductImageFile($_FILES[$fieldKey], $userId);
+        if ($path) {
+            $additionalUploadedPaths[] = ['path' => $path, 'order' => $i];
+        }
+    }
+}
+
+// Also check multiple file input array if used
+if (!empty($_FILES['additional_photos']['name'][0])) {
+    $files = $_FILES['additional_photos'];
+    $count = count($files['name']);
+    for ($j = 0; $j < min($count, 4); $j++) {
+        if ($files['error'][$j] === UPLOAD_ERR_OK) {
+            $singleFile = [
+                'name'     => $files['name'][$j],
+                'type'     => $files['type'][$j],
+                'tmp_name' => $files['tmp_name'][$j],
+                'error'    => $files['error'][$j],
+                'size'     => $files['size'][$j],
+            ];
+            $path = uploadProductImageFile($singleFile, $userId);
+            if ($path) {
+                $additionalUploadedPaths[] = ['path' => $path, 'order' => count($additionalUploadedPaths) + 2];
+            }
+        }
     }
 }
 
@@ -129,7 +170,7 @@ try {
             ':pdesc'    => $description,
             ':unit'     => $unit,
             ':recur'    => $isRecurring,
-            ':img'      => $imageUrl,
+            ':img'      => $primaryImageUrl,
             ':pid'      => $productId,
             ':fid'      => $userId,
             ':is_admin' => $_SESSION['role'] ?? ''
@@ -143,7 +184,28 @@ try {
             ':pid'   => $productId
         ]);
 
-        echo json_encode(['status' => 'success', 'message' => 'Produce listing updated successfully!']);
+        // Update primary image in product_images
+        $checkPrimary = $pdo->prepare("SELECT image_id FROM product_images WHERE product_id = :pid AND is_primary = 1 LIMIT 1");
+        $checkPrimary->execute([':pid' => $productId]);
+        if ($checkPrimary->fetch()) {
+            $pdo->prepare("UPDATE product_images SET image_url = :img WHERE product_id = :pid AND is_primary = 1")
+                ->execute([':img' => $primaryImageUrl, ':pid' => $productId]);
+        } else {
+            $pdo->prepare("INSERT INTO product_images (product_id, image_url, is_primary, display_order, created_at) VALUES (:pid, :img, 1, 1, NOW())")
+                ->execute([':pid' => $productId, ':img' => $primaryImageUrl]);
+        }
+
+        // Insert newly added additional gallery photos
+        $imgInsertStmt = $pdo->prepare("INSERT INTO product_images (product_id, image_url, is_primary, display_order, created_at) VALUES (:pid, :img, 0, :ord, NOW())");
+        foreach ($additionalUploadedPaths as $addPhoto) {
+            $imgInsertStmt->execute([
+                ':pid' => $productId,
+                ':img' => $addPhoto['path'],
+                ':ord' => $addPhoto['order']
+            ]);
+        }
+
+        echo json_encode(['status' => 'success', 'message' => 'Produce listing and photos updated successfully!']);
     } else {
         // Create new product
         $stmt = $pdo->prepare("INSERT INTO products (farmer_id, category_id, product_name, description, unit, is_recurring_template, image_url, created_at)
@@ -155,18 +217,32 @@ try {
             ':pdesc' => $description,
             ':unit'  => $unit,
             ':recur' => $isRecurring,
-            ':img'   => $imageUrl
+            ':img'   => $primaryImageUrl
         ]);
         $newProdId = (int)$pdo->lastInsertId();
 
+        // 1. Insert primary photo into product_images
+        $pdo->prepare("INSERT INTO product_images (product_id, image_url, is_primary, display_order, created_at) VALUES (:pid, :img, 1, 1, NOW())")
+            ->execute([':pid' => $newProdId, ':img' => $primaryImageUrl]);
+
+        // 2. Insert any optional additional photos (up to 4)
+        $imgInsertStmt = $pdo->prepare("INSERT INTO product_images (product_id, image_url, is_primary, display_order, created_at) VALUES (:pid, :img, 0, :ord, NOW())");
+        foreach ($additionalUploadedPaths as $addPhoto) {
+            $imgInsertStmt->execute([
+                ':pid' => $newProdId,
+                ':img' => $addPhoto['path'],
+                ':ord' => $addPhoto['order']
+            ]);
+        }
+
         // Retrieve farmer's stalls
-        $stallStmt = $pdo->prepare("SELECT stall_id FROM farmer_market_stalls WHERE farmer_id = :fid");
+        $stallStmt = $pdo->prepare("SELECT stall_id FROM farmer_market_stalls WHERE farmer_id = :fid AND status = 'active'");
         $stallStmt->execute([':fid' => $userId]);
         $stalls = $stallStmt->fetchAll(PDO::FETCH_COLUMN);
 
         if (empty($stalls)) {
-            // Check if there is any stall or create default
-            $marketId = (int)$pdo->query("SELECT market_id FROM markets LIMIT 1")->fetchColumn();
+            // Check if there is any active market or assign stall 1
+            $marketId = (int)$pdo->query("SELECT market_id FROM markets WHERE status = 'active' LIMIT 1")->fetchColumn();
             if ($marketId) {
                 $pStall = $pdo->prepare("INSERT INTO farmer_market_stalls (farmer_id, market_id, stall_number_location, operating_days, status, assigned_at)
                                          VALUES (:fid, :mid, 'Stall 1', 'Saturday, Sunday', 'active', NOW())");
@@ -192,7 +268,10 @@ try {
             }
         }
 
-        echo json_encode(['status' => 'success', 'message' => 'New produce listed successfully!']);
+        echo json_encode([
+            'status' => 'success', 
+            'message' => 'New produce listed with ' . (1 + count($additionalUploadedPaths)) . ' photo(s) successfully!'
+        ]);
     }
 } catch (Exception $e) {
     error_log("Save Product Error: " . $e->getMessage());

@@ -313,11 +313,12 @@ $upcomingMarkets = $marketsStmt->fetchAll();
   <div class="products-catalog-grid">
     <?php foreach ($featuredProducts as $prod): ?>
       <div class="product-item-card">
-        <div class="product-thumb-container">
+        <div class="product-thumb-container" onclick="window.location.href='<?= BASE_URL ?>/customer/product_detail.php?id=<?= $prod['product_id'] ?>'" style="cursor:pointer;">
           <img src="<?= BASE_URL ?>/<?= htmlspecialchars($prod['image_url']) ?>" alt="<?= htmlspecialchars($prod['product_name']) ?>" class="product-thumb-img">
           
           <button type="button" class="product-fav-btn js-fav-toggle <?= $prod['is_fav'] ? 'is-favorite' : '' ?>" 
-                  data-type="product" data-id="<?= $prod['product_id'] ?>" title="Save to Favorites" aria-label="Save to Favorites">
+                  data-type="product" data-id="<?= $prod['product_id'] ?>" title="Save to Favorites" aria-label="Save to Favorites"
+                  onclick="event.stopPropagation();">
             <?= $prod['is_fav'] ? '❤️' : '🤍' ?>
           </button>
 
@@ -328,9 +329,16 @@ $upcomingMarkets = $marketsStmt->fetchAll();
 
         <div class="product-card-body">
           <div class="product-category-label"><?= htmlspecialchars($prod['category_name']) ?></div>
-          <h4 class="product-card-title"><?= htmlspecialchars($prod['product_name']) ?></h4>
+          <h4 class="product-card-title">
+            <a href="<?= BASE_URL ?>/customer/product_detail.php?id=<?= $prod['product_id'] ?>" style="color:inherit; text-decoration:none;">
+              <?= htmlspecialchars($prod['product_name']) ?>
+            </a>
+          </h4>
           <div class="product-farmer-meta">
-            <span>🏡</span> <span><?= htmlspecialchars($prod['stall_name']) ?></span>
+            <span>🏡</span> 
+            <a href="<?= BASE_URL ?>/customer/product_detail.php?id=<?= $prod['product_id'] ?>" style="color:inherit; text-decoration:none;">
+              <span><?= htmlspecialchars($prod['stall_name']) ?></span>
+            </a>
           </div>
 
           <div class="product-card-price-row">
