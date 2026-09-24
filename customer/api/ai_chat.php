@@ -39,7 +39,7 @@ try {
                 JOIN weekly_inventory wi ON p.product_id = wi.product_id
                 JOIN farmer_market_stalls fms ON wi.stall_id = fms.stall_id
                 JOIN markets m ON fms.market_id = m.market_id
-                WHERE " . implode(' OR ', $likeClauses) . " AND wi.is_available = 1
+                WHERE " . implode(' OR ', $likeClauses) . " AND wi.is_available = 1 AND fp.approval_status = 'approved'
                 GROUP BY p.product_id LIMIT 3";
         $pStmt = $pdo->prepare($sql);
         $pStmt->execute($params);

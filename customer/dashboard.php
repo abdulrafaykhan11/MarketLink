@@ -67,7 +67,7 @@ $featuredStmt = $pdo->query("SELECT p.product_id, p.product_name, p.unit, p.imag
                              JOIN product_categories pc ON p.category_id = pc.category_id
                              JOIN farmer_profiles fp ON p.farmer_id = fp.farmer_id
                              JOIN weekly_inventory wi ON p.product_id = wi.product_id
-                             WHERE wi.is_available = 1
+                             WHERE wi.is_available = 1 AND fp.approval_status = 'approved'
                              GROUP BY p.product_id
                              ORDER BY p.product_id ASC LIMIT 4");
 $featuredProducts = $featuredStmt->fetchAll();

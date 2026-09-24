@@ -21,7 +21,7 @@ $favProdStmt = $pdo->prepare("SELECT fp_fav.favorite_id, fp_fav.created_at as sa
                               JOIN product_categories pc ON p.category_id = pc.category_id
                               JOIN farmer_profiles fp ON p.farmer_id = fp.farmer_id
                               LEFT JOIN weekly_inventory wi ON p.product_id = wi.product_id
-                              WHERE fp_fav.customer_id = :uid
+                              WHERE fp_fav.customer_id = :uid AND fp.approval_status = 'approved'
                               GROUP BY p.product_id
                               ORDER BY fp_fav.favorite_id DESC");
 $favProdStmt->execute([':uid' => $currentUserId]);
@@ -36,7 +36,7 @@ $favFarmStmt = $pdo->prepare("SELECT ff.favorite_id, ff.created_at as saved_at,
                               JOIN farmer_profiles fp ON ff.farmer_id = fp.farmer_id
                               LEFT JOIN farmer_market_stalls fms ON fp.farmer_id = fms.farmer_id
                               LEFT JOIN markets m ON fms.market_id = m.market_id
-                              WHERE ff.customer_id = :uid
+                              WHERE ff.customer_id = :uid AND fp.approval_status = 'approved'
                               GROUP BY fp.farmer_id
                               ORDER BY ff.favorite_id DESC");
 $favFarmStmt->execute([':uid' => $currentUserId]);

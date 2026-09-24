@@ -84,6 +84,15 @@ $stmt = $pdo->prepare("SELECT u.username, u.email, u.phone_number, cp.full_name,
                        WHERE u.user_id = :uid LIMIT 1");
 $stmt->execute([':uid' => $currentUserId]);
 $profileData = $stmt->fetch();
+
+// Fetch order counts for account summary card
+$tcStmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE customer_id = :uid");
+$tcStmt->execute([':uid' => $currentUserId]);
+$totalOrdersCount = (int)$tcStmt->fetchColumn();
+
+$acStmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE customer_id = :uid AND order_status IN ('placed','accepted','ready_for_pickup')");
+$acStmt->execute([':uid' => $currentUserId]);
+$activeOrdersCount = (int)$acStmt->fetchColumn();
 ?>
 
 <!-- Page Header -->

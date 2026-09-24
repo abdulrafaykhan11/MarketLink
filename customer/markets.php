@@ -19,7 +19,7 @@ $stallStmt = $pdo->query("SELECT fms.*, fp.stall_name, fp.contact_person, fp.bus
                           FROM farmer_market_stalls fms
                           JOIN farmer_profiles fp ON fms.farmer_id = fp.farmer_id
                           JOIN markets m ON fms.market_id = m.market_id
-                          WHERE fms.status = 'active'
+                          WHERE fms.status = 'active' AND fp.approval_status = 'approved'
                           ORDER BY fms.stall_number_location ASC");
 $allStalls = $stallStmt->fetchAll();
 

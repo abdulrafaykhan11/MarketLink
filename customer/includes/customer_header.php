@@ -3,6 +3,13 @@
  * MarketLink - Customer Dashboard Portal Header
  */
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!ob_get_level()) {
+    ob_start();
+}
+
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_guard.php';
 

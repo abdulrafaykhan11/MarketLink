@@ -16,9 +16,9 @@ require_once __DIR__ . '/includes/auth_guard.php';
 $pdo = getDBConnection();
 
 // Fetch sample active stalls from database or fallback
-$stallsQuery = "SELECT fp.farmer_id, fp.stall_name, fp.contact_person, fp.address, fp.approval_status, u.username, u.email 
                 FROM farmer_profiles fp 
                 JOIN users u ON fp.farmer_id = u.user_id 
+                WHERE fp.approval_status = 'approved'
                 LIMIT 6";
 $dbStalls = [];
 try {
@@ -77,7 +77,7 @@ require_once __DIR__ . '/includes/header.php';
       autoplay muted loop playsinline
       poster="<?= BASE_URL ?>/assets/images/farm_fresh_hero.jpg"
     >
-      <source src="<?= BASE_URL ?>/assets/videos/farm_fresh_to_your_table.mp4" type="video/mp4">
+      <source src="<?= BASE_URL ?>/assets/videos/Grass_text_sways_in_breeze_20260924102508.mp4" type="video/mp4">
     </video>
     <!-- Subtle dark overlay for navbar readability -->
     <div class="hero-fullscreen-overlay"></div>

@@ -30,7 +30,7 @@ $marketsStmt = $pdo->query("SELECT market_id, market_name FROM markets WHERE sta
 $allMarkets = $marketsStmt->fetchAll();
 
 // 3. Build Products Query
-$where = ["wi.is_available = 1"];
+$where = ["wi.is_available = 1", "fp.approval_status = 'approved'"];
 $params = [];
 
 if ($selectedCat > 0) {
