@@ -143,8 +143,9 @@ $relatedProducts = $relatedStmt->fetchAll();
   <!-- Left: Media / Multi-Image Gallery Column -->
   <div>
     <div style="position:relative; width:100%; aspect-ratio:4/3; border-radius:var(--radius-lg); overflow:hidden; background:var(--bg-secondary); border:1px solid var(--border-color);">
-      <img id="mainHeroImg" src="<?= BASE_URL ?>/<?= htmlspecialchars($mainHeroImage) ?>" 
+      <img id="mainHeroImg" src="<?= htmlspecialchars(resolveImageUrl($mainHeroImage)) ?>" 
            alt="<?= htmlspecialchars($product['product_name']) ?>" 
+           onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';"
            style="width:100%; height:100%; object-fit:cover; display:block; transition:all 0.25s ease;">
 
       <!-- Badges overlay -->
@@ -175,10 +176,12 @@ $relatedProducts = $relatedStmt->fetchAll();
     <?php if (count($galleryImages) > 1): ?>
       <div style="display:flex; align-items:center; gap:0.65rem; margin-top:0.85rem; overflow-x:auto; padding-bottom:4px;">
         <?php foreach ($galleryImages as $idx => $gImg): ?>
-          <button type="button" onclick="switchGalleryPhoto('<?= BASE_URL ?>/<?= htmlspecialchars($gImg['image_url']) ?>', this)" 
+          <button type="button" onclick="switchGalleryPhoto('<?= htmlspecialchars(resolveImageUrl($gImg['image_url'])) ?>', this)" 
                   class="gallery-thumb-btn <?= $idx === 0 ? 'active' : '' ?>" 
                   style="width:68px; height:68px; border-radius:var(--radius-md); overflow:hidden; border:2px solid <?= $idx === 0 ? 'var(--primary-500)' : 'var(--border-color)' ?>; background:var(--bg-secondary); padding:0; cursor:pointer; flex-shrink:0; transition:all 0.2s;">
-            <img src="<?= BASE_URL ?>/<?= htmlspecialchars($gImg['image_url']) ?>" style="width:100%; height:100%; object-fit:cover; display:block;">
+            <img src="<?= htmlspecialchars(resolveImageUrl($gImg['image_url'])) ?>" 
+                 onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';"
+                 style="width:100%; height:100%; object-fit:cover; display:block;">
           </button>
         <?php endforeach; ?>
       </div>
@@ -323,7 +326,7 @@ $relatedProducts = $relatedStmt->fetchAll();
         <div class="product-item-card">
           <a href="<?= BASE_URL ?>/customer/product_detail.php?id=<?= $mItem['product_id'] ?>" style="text-decoration:none; color:inherit; display:block;">
             <div class="product-thumb-container" style="aspect-ratio:4/3;">
-              <img src="<?= BASE_URL ?>/<?= htmlspecialchars($mItem['image_url']) ?>" alt="<?= htmlspecialchars($mItem['product_name']) ?>" class="product-thumb-img">
+              <img src="<?= htmlspecialchars(resolveImageUrl($mItem['image_url'])) ?>" alt="<?= htmlspecialchars($mItem['product_name']) ?>" class="product-thumb-img" onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
               <span class="product-stock-tag">
                 ● <?= (float)$mItem['stock_quantity'] ?> in stock
               </span>
@@ -359,7 +362,7 @@ $relatedProducts = $relatedStmt->fetchAll();
         <div class="product-item-card">
           <a href="<?= BASE_URL ?>/customer/product_detail.php?id=<?= $rItem['product_id'] ?>" style="text-decoration:none; color:inherit; display:block;">
             <div class="product-thumb-container" style="aspect-ratio:4/3;">
-              <img src="<?= BASE_URL ?>/<?= htmlspecialchars($rItem['image_url']) ?>" alt="<?= htmlspecialchars($rItem['product_name']) ?>" class="product-thumb-img">
+              <img src="<?= htmlspecialchars(resolveImageUrl($rItem['image_url'])) ?>" alt="<?= htmlspecialchars($rItem['product_name']) ?>" class="product-thumb-img" onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
               <span class="product-stock-tag">
                 ● <?= (float)$rItem['stock_quantity'] ?> in stock
               </span>

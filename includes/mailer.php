@@ -418,3 +418,106 @@ function sendOrderStatusEmail(int $orderId, string $newStatus, string $reason = 
         return false;
     }
 }
+
+/**
+ * 5. Contact Form User Confirmation Email
+ */
+function sendContactConfirmationEmail(string $name, string $email, string $subject, string $message, int $inquiryId): bool {
+    $ticketNum = 'INQ-' . str_pad((string)$inquiryId, 5, '0', STR_PAD_LEFT);
+    $emailSubject = "We Received Your Message [{$ticketNum}] • MarketLink Support 📬";
+    $preheader = "Thank you for reaching out to MarketLink. Our administration is reviewing your message.";
+
+    $body = '
+      <h2 style="margin-top:0; color:#0f172a; font-size:22px;">Message Received!</h2>
+      <p>Hello <strong>' . htmlspecialchars($name) . '</strong>,</p>
+      <p>Thank you for getting in touch with <strong>MarketLink</strong>. We have successfully logged your inquiry in our system under ticket reference <strong>#' . $ticketNum . '</strong>.</p>
+      
+      <div class="info-card">
+        <div style="font-size:15px; font-weight:700; color:#065f46; margin-bottom:10px;">Inquiry Summary</div>
+        <div style="font-size:14px; margin-bottom:6px;"><strong>Reference:</strong> #' . $ticketNum . '</div>
+        <div style="font-size:14px; margin-bottom:6px;"><strong>Subject:</strong> ' . htmlspecialchars($subject) . '</div>
+        <div style="font-size:14px; margin-bottom:6px;"><strong>Date &amp; Time:</strong> ' . date('d M Y, h:i A') . ' (PKT)</div>
+        <div style="font-size:14px; margin-top:10px; padding:12px; background:#ffffff; border-radius:8px; border:1px solid #e2e8f0; color:#334155; white-space:pre-wrap;">' . nl2br(htmlspecialchars($message)) . '</div>
+      </div>
+
+      <p style="font-size:14px; color:#475569;">Our administrative team actively reviews all incoming communications. You will receive an official response directly to this email address within <strong>24 business hours</strong>.</p>
+      
+      <div style="text-align:center; margin:28px 0;">
+        <a href="http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/index.php" class="btn-action">Return to MarketLink &rarr;</a>
+      </div>';
+
+    return sendMarketLinkEmail($email, $name, $emailSubject, $body, $preheader);
+}
+
+/**
+ * 6. Contact Form Admin Notification Alert
+ */
+function sendAdminContactAlertEmail(string $name, string $email, string $phone, string $subject, string $message, int $inquiryId): bool {
+    $ticketNum = 'INQ-' . str_pad((string)$inquiryId, 5, '0', STR_PAD_LEFT);
+    $adminSubject = "🚨 [New Inquiry #{$ticketNum}] {$subject} — from {$name}";
+    $preheader = "New contact form message submitted on MarketLink platform.";
+
+    $adminUrl = 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/admin/inquiries.php?id=' . $inquiryId;
+
+    $body = '
+      <h2 style="margin-top:0; color:#991b1b; font-size:22px;">New Contact Inquiry Received</h2>
+      <p>A new visitor or customer message has just been submitted via the <strong>MarketLink Contact Form</strong>.</p>
+      
+      <div class="info-card">
+        <div style="font-size:15px; font-weight:700; color:#0f172a; margin-bottom:10px;">Customer &amp; Message Details</div>
+        <div style="font-size:14px; margin-bottom:6px;"><strong>Ticket Number:</strong> #' . $ticketNum . '</div>
+        <div style="font-size:14px; margin-bottom:6px;"><strong>Sender Name:</strong> ' . htmlspecialchars($name) . '</div>
+        <div style="font-size:14px; margin-bottom:6px;"><strong>Email Address:</strong> <a href="mailto:' . htmlspecialchars($email) . '">' . htmlspecialchars($email) . '</a></div>
+        <div style="font-size:14px; margin-bottom:6px;"><strong>Phone Number:</strong> ' . htmlspecialchars($phone ?: 'Not provided') . '</div>
+        <div style="font-size:14px; margin-bottom:6px;"><strong>Subject:</strong> ' . htmlspecialchars($subject) . '</div>
+        <div style="font-size:14px; margin-bottom:6px;"><strong>Timestamp:</strong> ' . date('d M Y, h:i A') . ' (PKT)</div>
+        <div style="font-size:14px; margin-top:12px; padding:14px; background:#ffffff; border-radius:8px; border:1px solid #cbd5e1; color:#0f172a; line-height:1.6; white-space:pre-wrap;">' . nl2br(htmlspecialchars($message)) . '</div>
+      </div>
+
+      <div style="text-align:center; margin:28px 0;">
+        <a href="' . $adminUrl . '" class="btn-action" style="background:#0f766e;">Open &amp; Reply in Admin Portal &rarr;</a>
+      </div>
+      <p style="font-size:13px; color:#64748b; text-align:center;">You can also respond directly from the MarketLink Admin Dashboard.</p>';
+
+    // Send to admin email and platform support mailbox
+    sendMarketLinkEmail('admin@marketlink.com', 'MarketLink Admin', $adminSubject, $body, $preheader);
+    return sendMarketLinkEmail('arifrafay551@gmail.com', 'MarketLink Operations', $adminSubject, $body, $preheader);
+}
+
+/**
+ * 7. Admin Official Reply Email to Customer
+ */
+function sendAdminReplyEmail(string $customerName, string $customerEmail, string $originalSubject, string $originalMessage, string $adminReply, string $adminName = 'MarketLink Support Team'): bool {
+    $emailSubject = "Response to Your Inquiry: {$originalSubject} • MarketLink 🌿";
+    $preheader = "MarketLink Administration has responded to your message.";
+
+    $body = '
+      <h2 style="margin-top:0; color:#047857; font-size:22px;">Response from MarketLink Support</h2>
+      <p>Hello <strong>' . htmlspecialchars($customerName) . '</strong>,</p>
+      <p>Our administration team has reviewed your inquiry regarding <strong>' . htmlspecialchars($originalSubject) . '</strong>. Please find our official response below:</p>
+      
+      <!-- Official Admin Reply Highlight Box -->
+      <div style="background:#ecfdf5; border:1.5px solid #10b981; border-radius:12px; padding:20px; margin:22px 0;">
+        <div style="font-size:13px; font-weight:700; color:#065f46; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">
+          💬 Official Reply from ' . htmlspecialchars($adminName) . '
+        </div>
+        <div style="font-size:15px; color:#064e3b; line-height:1.7; white-space:pre-wrap;">' . nl2br(htmlspecialchars($adminReply)) . '</div>
+        <div style="font-size:12px; color:#047857; margin-top:12px; border-top:1px dashed #6ee7b7; padding-top:8px;">
+          Dispatched on ' . date('d M Y, h:i A') . ' (PKT)
+        </div>
+      </div>
+
+      <!-- Original Inquiry Reference -->
+      <div class="info-card">
+        <div style="font-size:13px; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:6px;">Your Original Message:</div>
+        <div style="font-size:13px; color:#475569; line-height:1.5; font-style:italic; white-space:pre-wrap;">' . nl2br(htmlspecialchars($originalMessage)) . '</div>
+      </div>
+
+      <p style="font-size:14px; color:#475569;">If you have any further questions or require further assistance, simply reply directly to this email or visit our community portal.</p>
+      
+      <div style="text-align:center; margin:28px 0;">
+        <a href="http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/index.php" class="btn-action">Visit MarketLink &rarr;</a>
+      </div>';
+
+    return sendMarketLinkEmail($customerEmail, $customerName, $emailSubject, $body, $preheader);
+}

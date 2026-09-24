@@ -77,6 +77,16 @@
       <?php endif; ?>
     </a>
 
+    <a href="<?= BASE_URL ?>/admin/inquiries.php" class="admin-nav-link <?= ($activeNav === 'inquiries') ? 'active' : '' ?>">
+      <div class="admin-nav-link-inner">
+        <i data-lucide="mail"></i>
+        <span>Contact Inquiries</span>
+      </div>
+      <?php if (!empty($unreadInquiriesCount) && $unreadInquiriesCount > 0): ?>
+        <span class="admin-badge-count urgent" title="<?= $unreadInquiriesCount ?> unread inquiries!"><?= $unreadInquiriesCount ?></span>
+      <?php endif; ?>
+    </a>
+
     <a href="<?= BASE_URL ?>/admin/announcements.php" class="admin-nav-link <?= ($activeNav === 'announcements') ? 'active' : '' ?>">
       <div class="admin-nav-link-inner">
         <i data-lucide="megaphone"></i>

@@ -232,7 +232,7 @@ if (!empty($orderIds)) {
               <tr>
                 <td>
                   <div class="cart-item-info">
-                    <img src="<?= BASE_URL ?>/<?= htmlspecialchars($item['image_url']) ?>" alt="" class="cart-item-thumb">
+                    <img src="<?= htmlspecialchars(resolveImageUrl($item['image_url'])) ?>" alt="" class="cart-item-thumb" onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
                     <div>
                       <div style="font-weight:700; font-size:0.9rem; color:var(--text-primary);">
                         <?= htmlspecialchars($item['product_name']) ?>

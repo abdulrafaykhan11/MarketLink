@@ -50,3 +50,35 @@ function getDBConnection(): PDO {
 
     return $pdo;
 }
+
+/**
+ * Resolves a stored image path/URL to a renderable src attribute value.
+ * Handles: full https:// URLs (Unsplash etc.), local relative paths, empty/null.
+ *
+ * @param string|null $imageUrl   The raw value from the DB column
+ * @param string      $fallback   Fallback src if the field is empty
+ * @return string     Safe src string for use in <img src="...">
+ */
+function resolveImageUrl(?string $imageUrl, string $fallback = ''): string {
+    if (empty($imageUrl)) {
+        return $fallback ?: BASE_URL . '/assets/images/logo.svg';
+    }
+    // Already an absolute URL (http:// or https://)
+    if (str_starts_with($imageUrl, 'http://') || str_starts_with($imageUrl, 'https://')) {
+        return $imageUrl;
+    }
+    // Local relative path — prepend BASE_URL
+    return BASE_URL . '/' . ltrim($imageUrl, '/');
+}
+
+/**
+ * Returns a user/farmer profile image src, with a robust SVG avatar fallback.
+ */
+function resolveUserImage(?string $profileImage, string $initials = '?'): string {
+    if (!empty($profileImage)) {
+        return resolveImageUrl($profileImage);
+    }
+    // Inline SVG data URI avatar
+    $encoded = urlencode('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" rx="40" fill="#0e2a22"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#4ade80" font-size="28" font-family="system-ui" font-weight="700">' . htmlspecialchars(strtoupper(substr($initials, 0, 2))) . '</text></svg>');
+    return 'data:image/svg+xml,' . $encoded;
+}

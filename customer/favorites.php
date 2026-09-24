@@ -72,7 +72,7 @@ $favFarmers = $favFarmStmt->fetchAll();
       <?php foreach ($favProducts as $prod): ?>
         <div class="product-item-card" id="fav-prod-card-<?= $prod['product_id'] ?>">
           <div class="product-thumb-container">
-            <img src="<?= BASE_URL ?>/<?= htmlspecialchars($prod['image_url']) ?>" alt="" class="product-thumb-img">
+            <img src="<?= htmlspecialchars(resolveImageUrl($prod['image_url'])) ?>" alt="" class="product-thumb-img" onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
             
             <button type="button" class="product-fav-btn js-fav-toggle is-favorite" 
                     data-type="product" data-id="<?= $prod['product_id'] ?>" title="Remove from favorites" aria-label="Remove favorite">

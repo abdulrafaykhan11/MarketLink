@@ -957,26 +957,55 @@
   font-weight: 500;
 }
 
+/* ============================================================
+   Premium Add to Pre-Order Button — Animated Glow CTA
+   ============================================================ */
 .btn-add-cart {
-  background: linear-gradient(135deg, var(--emerald-600), var(--emerald-500));
+  background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+  background-size: 200% 200%;
   color: #ffffff;
   border: none;
-  padding: 0.55rem 1rem;
+  padding: 0.6rem 1.1rem;
   border-radius: var(--radius-lg);
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.3px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
+  gap: 0.45rem;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.btn-add-cart::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transform: skewX(-15deg);
+  transition: left 0.5s ease;
+}
+
+.btn-add-cart:hover::before {
+  left: 150%;
 }
 
 .btn-add-cart:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg, var(--emerald-500), var(--emerald-400));
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px) scale(1.04);
+  background-position: right center;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.65), 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.btn-add-cart:active {
+  transform: translateY(-1px) scale(0.98);
 }
 
 /* --------------------------------------------------------------------------
@@ -1390,3 +1419,168 @@
     bottom: 5.5rem;
   }
 }
+
+/* ==========================================================================
+   PREMIUM ACTION BUTTONS — MarketLink Brand Identity
+   Covers: Reorder, Chat, Cancel, Browse, Track, Dashboard nav CTAs
+   ========================================================================== */
+
+/* --- Reorder These Items Button --- */
+.btn-secondary {
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reorder specific glow */
+button.btn-secondary[onclick*="quickReorder"],
+a.btn-secondary[href*="reorder"] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.14) 0%, rgba(14, 165, 233, 0.08) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.55);
+  color: #7dd3fc;
+  box-shadow: 0 2px 12px rgba(56, 189, 248, 0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+button.btn-secondary[onclick*="quickReorder"]:hover,
+a.btn-secondary[href*="reorder"]:hover {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.28) 0%, rgba(14, 165, 233, 0.18) 100%);
+  border-color: rgba(125, 211, 252, 0.85);
+  color: #bae6fd;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4), 0 2px 8px rgba(0,0,0,0.25);
+}
+
+/* --- Dashboard Banner Buttons --- */
+.banner-btn-primary {
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.25px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+  background-size: 200% auto;
+  color: #ffffff;
+  text-decoration: none;
+  border: none;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5), 0 2px 8px rgba(0,0,0,0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.banner-btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.banner-btn-primary:hover {
+  background-position: right center;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.65), 0 4px 12px rgba(0,0,0,0.35);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.banner-btn-secondary {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.35rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.07);
+  color: #bae6fd;
+  text-decoration: none;
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(6px);
+}
+
+.banner-btn-secondary:hover {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: rgba(125, 211, 252, 0.7);
+  color: #e0f2fe;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.3), 0 3px 8px rgba(0,0,0,0.25);
+  text-decoration: none;
+}
+
+/* --- Favorite Heart Button (Product Cards) --- */
+.product-fav-btn {
+  background: rgba(6, 21, 36, 0.75) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.3) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer;
+}
+
+.product-fav-btn:hover {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border-color: rgba(239, 68, 68, 0.6) !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;
+}
+
+.product-fav-btn.is-favorite {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border-color: rgba(239, 68, 68, 0.65) !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4) !important;
+}
+
+/* --- "Browse Fresh Stalls" / generic btn-primary inside portals --- */
+.portal-content .btn-primary,
+.customer-content .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 60%, #34d399 100%);
+  background-size: 200% auto;
+  border: none;
+  border-radius: var(--radius-lg);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45), 0 2px 6px rgba(0,0,0,0.3);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.portal-content .btn-primary:hover,
+.customer-content .btn-primary:hover {
+  transform: translateY(-3px) scale(1.04);
+  background-position: right center;
+  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.65), 0 4px 12px rgba(0,0,0,0.35);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+/* Live pulse ring on Add to Pre-Order when near cutoff */
+@keyframes preorderPulse {
+  0%   { box-shadow: 0 4px 15px rgba(16, 185, 129, 0.45), 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70%  { box-shadow: 0 4px 15px rgba(16, 185, 129, 0.45), 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 4px 15px rgba(16, 185, 129, 0.45), 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.btn-add-cart {
+  animation: preorderPulse 2.4s ease-out infinite;
+}
+
+.btn-add-cart:hover {
+  animation: none;
+}
+

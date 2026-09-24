@@ -91,6 +91,24 @@ try {
   </div>
 <?php endif; ?>
 
+<?php if (!empty($unreadInquiriesCount) && $unreadInquiriesCount > 0): ?>
+  <!-- Unread Contact Inquiries Banner -->
+  <div class="admin-alert-banner" style="background:rgba(56, 189, 248, 0.12); border:1.5px solid #38bdf8; color:#7dd3fc; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; padding:1rem 1.4rem; border-radius:14px;">
+    <div style="display:flex; align-items:center; gap:0.85rem;">
+      <i data-lucide="mail-warning" style="width:24px; height:24px; color:#38bdf8;"></i>
+      <div>
+        <strong style="display:block; font-size:0.95rem; font-family:var(--font-heading); color:#f0f9ff;">
+          Customer Support: <?= $unreadInquiriesCount ?> New Contact <?= $unreadInquiriesCount === 1 ? 'Inquiry' : 'Inquiries' ?> Awaiting Response!
+        </strong>
+        <span style="font-size:0.8125rem; opacity:0.9; color:#bae6fd;">Visitors have submitted questions or feedback via the website contact form.</span>
+      </div>
+    </div>
+    <a href="<?= BASE_URL ?>/admin/inquiries.php?status=unread" class="admin-btn admin-btn-sm" style="background:#38bdf8; color:#081b14; font-weight:700; border-radius:8px;">
+      View &amp; Reply &rarr;
+    </a>
+  </div>
+<?php endif; ?>
+
 <!-- Top Metrics Grid -->
 <div class="admin-stats-grid">
   <!-- Gross Pre-Orders Revenue -->

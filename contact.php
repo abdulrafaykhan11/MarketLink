@@ -10,6 +10,7 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/about.css">
 <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/contact.css">
+<script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 
 <?php require_once __DIR__ . '/includes/navbar.php'; ?>
 

@@ -150,7 +150,7 @@ $products = $stmt->fetchAll();
     <?php foreach ($products as $prod): ?>
       <div class="product-item-card">
         <div class="product-thumb-container" onclick="window.location.href='<?= BASE_URL ?>/customer/product_detail.php?id=<?= $prod['product_id'] ?>'" style="cursor:pointer;">
-          <img src="<?= BASE_URL ?>/<?= htmlspecialchars($prod['image_url']) ?>" alt="<?= htmlspecialchars($prod['product_name']) ?>" class="product-thumb-img">
+          <img src="<?= htmlspecialchars(resolveImageUrl($prod['image_url'])) ?>" alt="<?= htmlspecialchars($prod['product_name']) ?>" class="product-thumb-img" onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
           
           <button type="button" class="product-fav-btn js-fav-toggle <?= $prod['is_fav'] ? 'is-favorite' : '' ?>" 
                   data-type="product" data-id="<?= $prod['product_id'] ?>" title="Save to Favorites" aria-label="Save to Favorites"

@@ -16,14 +16,16 @@ require_once __DIR__ . '/includes/auth_guard.php';
 $pdo = getDBConnection();
 
 // Fetch sample active approved stalls from database or fallback
-$stallsQuery = "SELECT fp.stall_name as name, fp.contact_person as farmer,
+$stallsQuery = "SELECT fp.farmer_id, fp.stall_name as name, fp.contact_person as farmer,
                        COALESCE(m.market_name, 'Local Farmers Market') as location,
-                       fp.order_cutoff_time
+                       fp.order_cutoff_time,
+                       u.profile_image
                 FROM farmer_profiles fp 
                 JOIN users u ON fp.farmer_id = u.user_id 
                 LEFT JOIN farmer_market_stalls fms ON fp.farmer_id = fms.farmer_id AND fms.status = 'active'
                 LEFT JOIN markets m ON fms.market_id = m.market_id
                 WHERE fp.approval_status = 'approved'
+                ORDER BY fp.farmer_id DESC
                 LIMIT 6";
 $dbStalls = [];
 try {
@@ -35,43 +37,81 @@ try {
 // Fallback showcase stalls if database is fresh
 $fallbackStalls = [
     [
+        'farmer_id' => 0,
         'name' => 'Sunrise Organic Orchard',
         'farmer' => 'Tariq Mehmood',
         'location' => 'Agri Hub 4, Model Town Market',
         'rating' => '4.95 ★ (184 reviews)',
-        'tags' => ['Heirloom Tomatoes', 'Bell Peppers', 'Organic Spinach', 'Berries'],
+        'tags' => ['Heirloom Tomatoes', 'Bell Peppers', 'Organic Spinach', 'Wild Berries'],
         'cutoff' => 'Fri 06:00 PM',
         'slots' => '8 slots available'
     ],
     [
+        'farmer_id' => 0,
+        'name' => 'Liaquat Bhai Farm & Hydroponics',
+        'farmer' => 'Liaquat Ali',
+        'location' => 'Stall 03, Bahria Organic Greenbelt',
+        'rating' => '4.97 ★ (220 reviews)',
+        'tags' => ['Heirloom Cucumbers', 'Cherry Tomatoes', 'Fresh Mint', 'Organic Kale'],
+        'cutoff' => 'Sat 10:00 AM',
+        'slots' => '12 slots available'
+    ],
+    [
+        'farmer_id' => 0,
         'name' => 'Green Valley Farm',
         'farmer' => 'Muhammad Asif',
         'location' => 'Stall 12, DHA Weekend Farmers Bazaar',
         'rating' => '4.98 ★ (240 reviews)',
-        'tags' => ['Sweetcorn', 'Baby Carrots', 'Farm Zucchini', 'Beets'],
+        'tags' => ['Sweetcorn', 'Baby Carrots', 'Farm Zucchini', 'Golden Beets'],
         'cutoff' => 'Fri 08:00 PM',
         'slots' => '15 slots available'
     ],
     [
+        'farmer_id' => 0,
         'name' => 'Indus Pure Honey & Dairy',
         'farmer' => 'Zainab Bibi',
         'location' => 'Stall 07, F-7 Organic Community Fair',
         'rating' => '4.92 ★ (119 reviews)',
-        'tags' => ['Raw Sidr Honey', 'Grass-fed Butter', 'Country Eggs'],
+        'tags' => ['Raw Sidr Honey', 'Grass-fed Butter', 'Free-range Country Eggs'],
         'cutoff' => 'Sat 07:00 AM',
         'slots' => '6 slots available'
+    ],
+    [
+        'farmer_id' => 0,
+        'name' => 'Highland Citrus & Olive Grove',
+        'farmer' => 'Kamran Shah',
+        'location' => 'Stall 18, Margalla Valley Weekend Market',
+        'rating' => '4.99 ★ (310 reviews)',
+        'tags' => ['Kinnow Mandarins', 'Cold-pressed Olive Oil', 'Wild Pomegranate'],
+        'cutoff' => 'Sun 08:00 AM',
+        'slots' => '5 slots left'
     ]
 ];
+
 
 if (!empty($dbStalls)) {
     $showcaseStalls = [];
     foreach ($dbStalls as $dStall) {
+        $farmerId = (int)$dStall['farmer_id'];
+        // Fetch up to 4 real product names for this farmer
+        $pNames = [];
+        try {
+            $pStmt = $pdo->prepare("SELECT product_name FROM products WHERE farmer_id = :fid ORDER BY product_id DESC LIMIT 4");
+            $pStmt->execute([':fid' => $farmerId]);
+            $pNames = $pStmt->fetchAll(PDO::FETCH_COLUMN);
+        } catch (Exception $e) {
+            $pNames = [];
+        }
+        $tags = !empty($pNames) ? $pNames : ['Farm Fresh', 'Seasonal Harvest', 'Pesticide-Free'];
+
         $showcaseStalls[] = [
+            'farmer_id' => $farmerId,
             'name' => $dStall['name'] ?: 'Local Organic Stall',
             'farmer' => $dStall['farmer'] ?: 'Verified Producer',
+            'profile_image' => $dStall['profile_image'] ?? '',
             'location' => $dStall['location'] ?: 'Physical Market Hub',
             'rating' => '4.95 ★ (Verified)',
-            'tags' => ['Farm Fresh', 'Seasonal Harvest', 'Pesticide-Free'],
+            'tags' => $tags,
             'cutoff' => !empty($dStall['order_cutoff_time']) ? date('h:i A', strtotime($dStall['order_cutoff_time'])) : '06:00 PM',
             'slots' => 'Pickup Slots Available'
         ];
@@ -108,272 +148,679 @@ require_once __DIR__ . '/includes/header.php';
 </section>
 
 <!-- ==========================================================================
-     SECTION 2: The Farm-to-Fork Story (3-Step Connected Journey)
+     SECTION 2: Sophisticated Storytelling Bento Grid — Silicon Valley Tier
+     Unifies Farm-to-Fork Journey & Broken Supermarket Supply Chain
      ========================================================================== -->
-<section class="story-section" id="how-it-works">
-  <div class="section-container">
+<section class="bento-story-section" id="how-it-works">
+  <!-- Anchor for direct jump from navbar link 'Why Direct?' -->
+  <span id="farm-contrast" style="position: absolute; top: -80px;"></span>
 
-    <div class="section-header">
-      <span class="section-tag">How MarketLink Works</span>
-      <h2 class="section-title">The Farm-to-Fork Journey in 3 Transparent Steps</h2>
-      <p class="section-subtitle">
-        We stripped away wholesale warehouses, freight middlemen, and supermarket markups. Here is how honest fresh food moves from morning soil straight to your table.
+  <div class="section-container">
+    
+    <!-- Section Header -->
+    <div class="bento-section-header">
+      <div class="bento-header-badges">
+        <span class="section-tag">Direct Harvest Intelligence</span>
+        <span class="bento-live-pulse"><span class="pulse-dot"></span> Live Producer Network</span>
+      </div>
+      <h2 class="bento-main-title">
+       <span class="highlight-gradient"> The Farm-to-Fork Revolution </span>
+      </h2>
+      <p class="bento-main-subtitle">
+        We replaced industrial warehouses, middlemen commissions, and multi-week nitrogen chilling with a live, direct handshake between conscious local households and certified growers.
       </p>
     </div>
 
-    <div class="journey-grid">
-      <!-- Step 1: Emerald Theme -->
-      <div class="journey-step-card step-emerald">
-        <div class="step-card-top">
-          <div class="step-number-badge">01</div>
-          <div class="step-card-icon">🌱</div>
-        </div>
-        <h3 class="step-card-title">Dawn Harvest &amp; Live Stocking</h3>
-        <p class="step-card-desc">
-          Local certified farmers harvest crops at first morning light when moisture and vitamins are peak. They update their live weekly stall inventories directly on MarketLink.
-        </p>
-        <div>
-          <span class="step-feature-pill">🌿 Harvested &lt; 24h Before Sale</span>
-        </div>
-      </div>
+    <!-- The Bento Grid Structure -->
+    <div class="bento-grid">
+      
+      <!-- ====================================================================
+           PANEL 1: The Farm-to-Fork Journey (Primary Wide Panel, Spans 7 cols)
+           Electric Neon Transparent Process ⚡
+           ==================================================================== -->
+      <div class="bento-card bento-journey-card electric-process-card">
+        
+        <!-- Ambient Electric Glow Aura -->
+        <div class="process-glow-aura" aria-hidden="true"></div>
 
-      <!-- Step 2: Cyan & Teal Theme -->
-      <div class="journey-step-card step-cyan">
-        <div class="step-card-top">
-          <div class="step-number-badge">02</div>
-          <div class="step-card-icon">🛒</div>
-        </div>
-        <h3 class="step-card-title">Online Basket &amp; Slot Reservation</h3>
-        <p class="step-card-desc">
-          Browse seasonal vegetables, orchard fruits, and farm dairy from your phone. Reserve your customized produce basket and choose a designated pickup time at your neighborhood market stall.
-        </p>
-        <div>
-          <span class="step-feature-pill pill-cyan">⏱ Zero Lines • Guaranteed Produce</span>
-        </div>
-      </div>
-
-      <!-- Step 3: Amber & Gold Theme -->
-      <div class="journey-step-card step-amber">
-        <div class="step-card-top">
-          <div class="step-number-badge">03</div>
-          <div class="step-card-icon">🤝</div>
-        </div>
-        <h3 class="step-card-title">Handshake &amp; Stall Pickup</h3>
-        <p class="step-card-desc">
-          Visit the market stall at your reserved hour. Your basket is pre-packed, crisp, and waiting. Greet the farmer who grew your food, verify your items, and enjoy true harvest flavor.
-        </p>
-        <div>
-          <span class="step-feature-pill pill-amber">💰 100% Direct Support to Farmers</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ==========================================================================
-     SECTION 3: Creative Freshness Intelligence Lab: Supermarket vs MarketLink
-     (Creative Telemetry & Radar replaces flat ordinary side picture)
-     ========================================================================== -->
-<section class="contrast-section" id="farm-contrast">
-  <div class="section-container">
-
-    <div class="contrast-card-wrapper">
-      <!-- Left Visual: Creative Freshness Telemetry & Radar Showcase -->
-      <div class="contrast-visual-col">
-        <div class="contrast-artistic-backdrop"></div>
-
-        <div class="lab-header-badge">
-          <span class="lab-status-pill">
-            <span class="pulse-dot"></span>
-            Live Soil Telemetry
+        <div class="bento-card-header">
+          <div class="bento-tag bento-tag-green electric-badge">
+            <span class="bento-tag-icon">⚡</span>
+            <span>Transparent Process</span>
+          </div>
+          <span class="bento-meta-badge electric-meta-badge">
+            <span class="live-pulse-dot"></span>
+            Direct Route • Zero Middlemen
           </span>
-          <span class="lab-chip">Vetted Soil Standard</span>
         </div>
 
-        <!-- Centerpiece Radar Visual -->
-        <div class="lab-radar-centerpiece">
-          <div class="lab-radar-ring-wrapper">
-            <div class="lab-radar-outer-glow"></div>
-            <div class="lab-radar-circle"></div>
-            <div class="lab-radar-inner">
-              <div class="radar-value">99.8%</div>
-              <div class="radar-label">Peak Bio-Nutrients</div>
-            </div>
-          </div>
-          <div style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.25rem;">
-            Real Food Grew in Dirt &amp; Sunlight
-          </div>
-          <div style="font-size: 0.8125rem; color: var(--text-muted); max-width: 340px;">
-            Zero cold-storage nitrogen tanks. Zero synthetic shelf-life spray.
-          </div>
-        </div>
-
-        <!-- Floating Micro-Telemetry Badges -->
-        <div class="lab-telemetry-pills-grid">
-          <div class="telemetry-micro-card">
-            <div class="telemetry-micro-icon">🌱</div>
-            <div>
-              <div class="telemetry-micro-title">Harvest Age</div>
-              <div class="telemetry-micro-sub">Under 3.5 Hours</div>
-            </div>
-          </div>
-
-          <div class="telemetry-micro-card">
-            <div class="telemetry-micro-icon">🧪</div>
-            <div>
-              <div class="telemetry-micro-title">Chemical Residue</div>
-              <div class="telemetry-micro-sub cyan">0.0% Zero Wax &amp; Gas</div>
-            </div>
-          </div>
-
-          <div class="telemetry-micro-card">
-            <div class="telemetry-micro-icon">💰</div>
-            <div>
-              <div class="telemetry-micro-title">Grower Payment</div>
-              <div class="telemetry-micro-sub gold">100% Direct to Farmer</div>
-            </div>
-          </div>
-
-          <div class="telemetry-micro-card">
-            <div class="telemetry-micro-icon">📍</div>
-            <div>
-              <div class="telemetry-micro-title">Soil Origin</div>
-              <div class="telemetry-micro-sub">Verified Farm Plot #14</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Right Column: Comparative Analysis Matrix -->
-      <div class="contrast-content-col">
-        <span class="section-tag section-tag-gold" style="width: fit-content;">The Real Truth</span>
-        <h2 style="font-family: var(--font-heading); font-size: 2.15rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.75rem; line-height: 1.2;">
-          Why the Supermarket Supply Chain is Broken
-        </h2>
-        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.65;">
-          Most retail supermarket vegetables are harvested unripe, preserved in artificial cold chillers for up to 2 weeks, and handled by 4 to 6 middlemen who consume up to 65% of your grocery bill.
+        <h3 class="bento-card-title">
+          The Farm-to-Fork Journey: <span class="highlight-text-electric">Your Story of Freshness in 3 Transparent Steps</span>
+        </h3>
+        <p class="bento-card-desc">
+          How honest, nutrient-dense harvest travels from dawn dew straight to your kitchen table without detours or cold storage:
         </p>
 
-        <div class="contrast-table">
-          <div class="contrast-row">
-            <div class="contrast-cell-bad">
-              <span class="cross">✕</span>
-              <div>
-                <strong style="color: var(--text-primary);">Supermarket Produce</strong>
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Stored 7–14 days in nitrogen chillers</div>
-              </div>
+        <!-- 3-Step Process Flow with Electric Connectors -->
+        <div class="bento-steps-container electric-steps-flow">
+          
+          <!-- Step 1 -->
+          <div class="bento-step-item step-electric step-electric-emerald" style="--step-accent:#34d399; --step-rgb:52,211,153;">
+            <div class="bento-step-icon-wrap step-icon-sun">
+              <span class="bento-step-icon">☀️🌱</span>
+              <span class="bento-step-num">01</span>
+              <div class="step-icon-ring"></div>
             </div>
-            <div class="contrast-cell-good">
-              <span class="check">✓</span>
-              <div>
-                <strong>MarketLink Direct</strong>
-                <div style="font-size: 0.75rem; color: var(--primary-400); margin-top: 2px;">Picked at dawn within 24 hours</div>
+            <div class="bento-step-content">
+              <div class="bento-step-head">
+                <h4 class="bento-step-title">Step 1: Dawn Harvest &amp; Live Stocking</h4>
+                <span class="bento-step-chip chip-emerald">
+                  <span class="chip-dot"></span> 05:30 AM First Light
+                </span>
               </div>
-            </div>
-          </div>
-
-          <div class="contrast-row">
-            <div class="contrast-cell-bad">
-              <span class="cross">✕</span>
-              <div>
-                <strong style="color: var(--text-primary);">Price Markups</strong>
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">60%+ eaten by middlemen brokers</div>
-              </div>
-            </div>
-            <div class="contrast-cell-good">
-              <span class="check">✓</span>
-              <div>
-                <strong>Direct Farm Pricing</strong>
-                <div style="font-size: 0.75rem; color: var(--accent-400); margin-top: 2px;">100% fair price paid straight to grower</div>
+              <p class="bento-step-text">
+                Certified local farmers pick crops at first morning light when moisture, crispness, and bio-nutrients are at their biological zenith. Quantities immediately sync live on MarketLink.
+              </p>
+              <div class="bento-step-footer">
+                <span class="bento-pill pill-emerald">🌿 Harvested &lt; 24h Before Sale</span>
+                <span class="bento-pill-mini">✓ 100% Zero Storage Nitrogen</span>
               </div>
             </div>
           </div>
 
-          <div class="contrast-row">
-            <div class="contrast-cell-bad">
-              <span class="cross">✕</span>
-              <div>
-                <strong style="color: var(--text-primary);">Anonymous Origin</strong>
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Zero traceability on pesticides &amp; source</div>
-              </div>
+          <!-- Step Connector Line with Moving Pulse Beam -->
+          <div class="bento-step-connector electric-connector">
+            <div class="connector-beam"></div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="bento-step-item step-electric step-electric-cyan" style="--step-accent:#38bdf8; --step-rgb:56,189,248;">
+            <div class="bento-step-icon-wrap step-icon-cart">
+              <span class="bento-step-icon">🛒</span>
+              <span class="bento-step-slot">#SLOT-04</span>
+              <span class="bento-step-num">02</span>
+              <div class="step-icon-ring"></div>
             </div>
-            <div class="contrast-cell-good">
-              <span class="check">✓</span>
-              <div>
-                <strong>Full Traceability</strong>
-                <div style="font-size: 0.75rem; color: var(--accent-cyan-light); margin-top: 2px;">Know your grower, stall, and exact plot</div>
+            <div class="bento-step-content">
+              <div class="bento-step-head">
+                <h4 class="bento-step-title">Step 2: Online Basket &amp; Slot Reservation</h4>
+                <span class="bento-step-chip chip-cyan">
+                  <span class="chip-dot"></span> Guaranteed Fresh Box
+                </span>
+              </div>
+              <p class="bento-step-text">
+                Explore live stalls from your phone. Reserve your customized seasonal produce basket and lock in a designated morning pickup window at your local community market.
+              </p>
+              <div class="bento-step-footer">
+                <span class="bento-pill pill-cyan">⏱ Zero Wait Lines • 0% Food Waste</span>
+                <span class="bento-pill-mini">🔒 Guaranteed Allocation</span>
               </div>
             </div>
           </div>
+
+          <!-- Step Connector Line with Moving Pulse Beam -->
+          <div class="bento-step-connector electric-connector">
+            <div class="connector-beam"></div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="bento-step-item step-electric step-electric-gold" style="--step-accent:#fbbf24; --step-rgb:251,191,36;">
+            <div class="bento-step-icon-wrap step-icon-hand">
+              <span class="bento-step-icon">🤝</span>
+              <span class="bento-step-slot">STALL-07</span>
+              <span class="bento-step-num">03</span>
+              <div class="step-icon-ring"></div>
+            </div>
+            <div class="bento-step-content">
+              <div class="bento-step-head">
+                <h4 class="bento-step-title">Step 3: Handshake &amp; Stall Pickup</h4>
+                <span class="bento-step-chip chip-gold">
+                  <span class="chip-dot"></span> Personal Collection
+                </span>
+              </div>
+              <p class="bento-step-text">
+                Arrive at your chosen slot. Greet the farmer who nurtured your crops, inspect your crisp pre-packed crate, and support true agricultural independence.
+              </p>
+              <div class="bento-step-footer">
+                <span class="bento-pill pill-gold">💰 100% Direct Support to Farmers</span>
+                <span class="bento-pill-mini">🌱 Zero Middlemen Fee</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           PANEL 2: Why the Supermarket Supply Chain is Broken (Spans 5 cols)
+           ==================================================================== -->
+      <div class="bento-card bento-broken-card">
+        <div class="bento-card-header">
+          <div class="bento-tag bento-tag-red">
+            <span class="bento-tag-icon">⚠️</span>
+            <span>The Broken Chain</span>
+          </div>
+          <span class="bento-meta-badge badge-warning">Industrial Reality</span>
+        </div>
+
+        <h3 class="bento-card-title">
+          Why the Supermarket Supply Chain is Broken
+        </h3>
+        <p class="bento-card-desc">
+          The concealed commercial loop that sacrifices natural flavor, inflates price, and robs soil caretakers:
+        </p>
+
+        <!-- 4 Key Reasons List -->
+        <div class="bento-broken-grid">
+          
+          <!-- Reason 1 -->
+          <div class="broken-reason-item">
+            <div class="broken-reason-icon">❄️</div>
+            <div class="broken-reason-body">
+              <h5 class="broken-reason-title">Compromised Freshness</h5>
+              <p class="broken-reason-desc">
+                Harvested artificially unripe, stored 7–14 days in synthetic nitrogen chillers, and chemically coated to simulate gloss; vital enzymes plummet by up to 58%.
+              </p>
+            </div>
+          </div>
+
+          <!-- Reason 2 -->
+          <div class="broken-reason-item">
+            <div class="broken-reason-icon">📉</div>
+            <div class="broken-reason-body">
+              <h5 class="broken-reason-title">Excessive Middlemen</h5>
+              <p class="broken-reason-desc">
+                Between 4 to 6 commission brokers, auction agents, and corporate logistics wholesalers drain up to 65% of your grocery bill before the grower receives pennies.
+              </p>
+            </div>
+          </div>
+
+          <!-- Reason 3 -->
+          <div class="broken-reason-item">
+            <div class="broken-reason-icon">🏷️</div>
+            <div class="broken-reason-body">
+              <h5 class="broken-reason-title">Vague Traceability</h5>
+              <p class="broken-reason-desc">
+                Anonymous barcode lots pooled together from multiple undisclosed sources, giving consumers zero verifiable record of harvest dates, pesticide loads, or soil health.
+              </p>
+            </div>
+          </div>
+
+          <!-- Reason 4 -->
+          <div class="broken-reason-item">
+            <div class="broken-reason-icon">🚛</div>
+            <div class="broken-reason-body">
+              <h5 class="broken-reason-title">Hidden Carbon Footprint</h5>
+              <p class="broken-reason-desc">
+                Massive freight cross-hauling and power-draining refrigerated freight corridors generate colossal emissions before produce lands on supermarket shelves.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           PANEL 3: Anti-Gravity 99.8% Metric & "Grown in Soil & Sunlight" (Spans 4 cols)
+           ==================================================================== -->
+      <div class="bento-card bento-metric-card">
+        <div class="bento-card-header">
+          <div class="bento-tag bento-tag-cyan">
+            <span class="bento-tag-icon">⚡</span>
+            <span>Biological Telemetry</span>
+          </div>
+          <span class="bento-live-chip">Live Index</span>
+        </div>
+
+        <!-- Anti-Gravity Centerpiece Display -->
+        <div class="antigravity-visual-wrapper">
+          
+          <!-- Floating Ambient Ring -->
+          <div class="antigravity-floating-orbit">
+            <div class="orbit-particle p1"></div>
+            <div class="orbit-particle p2"></div>
+            <div class="orbit-ring-dashed"></div>
+            <div class="orbit-core-glow"></div>
+            
+            <!-- Large floating metric -->
+            <div class="antigravity-core">
+              <div class="antigravity-number">99.8%</div>
+              <div class="antigravity-sub">Peak Bio-Nutrient Retention</div>
+            </div>
+          </div>
+
+          <!-- Visual Link Line to "Grown in Soil & Sunlight" -->
+          <div class="antigravity-lead-line">
+            <span class="lead-pulse-node"></span>
+          </div>
+
+          <div class="antigravity-soil-badge">
+            <div class="soil-badge-icon">☀️🌱</div>
+            <div class="soil-badge-title">Grown in Soil &amp; Sunlight</div>
+            <div class="soil-badge-desc">
+              Zero cold-storage nitrogen chillers. Zero ethylene shelf-life spray. True photosynthesis harvest.
+            </div>
+          </div>
+
+          <!-- Hovering icon cluster -->
+          <div class="hovering-icon-cluster">
+            <span class="hover-icon h-1">🥦</span>
+            <span class="hover-icon h-2">🍅</span>
+            <span class="hover-icon h-3">🍓</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           PANEL 4: The Efficiency Gap Graph (Spans 5 cols)
+           ==================================================================== -->
+      <div class="bento-card bento-efficiency-card">
+        <div class="bento-card-header">
+          <div class="bento-tag bento-tag-gold">
+            <span class="bento-tag-icon">📊</span>
+            <span>Efficiency Gap</span>
+          </div>
+          <span class="bento-meta-badge">Direct vs Supermarket</span>
+        </div>
+
+        <h3 class="bento-card-title">
+          The Efficiency Gap: Direct vs Supermarket
+        </h3>
+        <p class="bento-card-desc">
+          Comparing the industrial supply chain lag against MarketLink direct velocity:
+        </p>
+
+        <!-- Stylized Comparison Graph -->
+        <div class="efficiency-graph-stack">
+          
+          <!-- Metric 1: Harvest-to-Table Velocity -->
+          <div class="efficiency-row">
+            <div class="efficiency-row-meta">
+              <span class="eff-label">Harvest-to-Plate Velocity</span>
+              <span class="eff-winner-tag">28x Faster</span>
+            </div>
+            <div class="eff-bar-group">
+              <div class="eff-bar-item bar-bad">
+                <span class="eff-bar-name">Supermarket</span>
+                <div class="eff-bar-track">
+                  <div class="eff-bar-fill bad-fill" style="width: 14%;"></div>
+                </div>
+                <span class="eff-bar-val bad-val">12–14 Days</span>
+              </div>
+              <div class="eff-bar-item bar-good">
+                <span class="eff-bar-name">MarketLink</span>
+                <div class="eff-bar-track">
+                  <div class="eff-bar-fill good-fill" style="width: 96%;"></div>
+                </div>
+                <span class="eff-bar-val good-val">&lt; 24 Hours</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metric 2: Grower Revenue Share -->
+          <div class="efficiency-row">
+            <div class="efficiency-row-meta">
+              <span class="eff-label">Producer Revenue Share</span>
+              <span class="eff-winner-tag tag-gold">+82% Direct</span>
+            </div>
+            <div class="eff-bar-group">
+              <div class="eff-bar-item bar-bad">
+                <span class="eff-bar-name">Supermarket</span>
+                <div class="eff-bar-track">
+                  <div class="eff-bar-fill bad-fill" style="width: 18%;"></div>
+                </div>
+                <span class="eff-bar-val bad-val">18% (Middleman Cut)</span>
+              </div>
+              <div class="eff-bar-item bar-good">
+                <span class="eff-bar-name">MarketLink</span>
+                <div class="eff-bar-track">
+                  <div class="eff-bar-fill gold-fill" style="width: 100%;"></div>
+                </div>
+                <span class="eff-bar-val gold-val">100% Direct</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metric 3: Active Bio-Nutrient Retention -->
+          <div class="efficiency-row">
+            <div class="efficiency-row-meta">
+              <span class="eff-label">Nutrient Density Retained</span>
+              <span class="eff-winner-tag tag-cyan">Peak Vitality</span>
+            </div>
+            <div class="eff-bar-group">
+              <div class="eff-bar-item bar-bad">
+                <span class="eff-bar-name">Supermarket</span>
+                <div class="eff-bar-track">
+                  <div class="eff-bar-fill bad-fill" style="width: 42%;"></div>
+                </div>
+                <span class="eff-bar-val bad-val">42% (Chill Degraded)</span>
+              </div>
+              <div class="eff-bar-item bar-good">
+                <span class="eff-bar-name">MarketLink</span>
+                <div class="eff-bar-track">
+                  <div class="eff-bar-fill cyan-fill" style="width: 99.8%;"></div>
+                </div>
+                <span class="eff-bar-val cyan-val">99.8% Bio-Active</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           PANEL 5: High-Tech Biological Soil Telemetry & Sensor Clusters (Spans 3 cols)
+           Laboratory-Grade Living Crop Telemetry
+           ==================================================================== -->
+      <div class="bento-card bento-telemetry-card bio-telemetry-cyber">
+        
+        <!-- Ambient Radar Scan Aura -->
+        <div class="telemetry-scanner-beam" aria-hidden="true"></div>
+
+        <div class="bento-card-header">
+          <div class="bento-tag bento-tag-cyan bio-sensor-badge">
+            <span class="bento-tag-icon">🧪</span>
+            <span>Biological Telemetry</span>
+          </div>
+          <span class="telemetry-live-radar">
+            <span class="radar-ping"></span>
+            <span class="radar-text">LIVE 60S SYNC</span>
+          </span>
+        </div>
+
+        <h4 class="bento-telemetry-title">Soil &amp; Biological Telemetry</h4>
+        <p class="bento-telemetry-desc">Live authenticated telemetry streaming directly from verified active soil plots:</p>
+
+        <!-- High-Tech Staggered Micro-Telemetry Sensor Chips -->
+        <div class="floating-telemetry-grid bio-sensors-stack">
+          
+          <!-- Sensor 1: Living Soil pH -->
+          <div class="floating-chip float-item-1 bio-sensor-card sensor-loam">
+            <div class="bio-sensor-left">
+              <div class="floating-chip-icon sensor-icon-soil">🌱</div>
+            </div>
+            <div class="bio-sensor-body">
+              <div class="floating-chip-title">Living Soil Metric</div>
+              <div class="floating-chip-value">Plot #14 • pH 6.8 Rich Loam</div>
+              <div class="bio-mini-gauge">
+                <div class="bio-gauge-bar" style="width: 78%;"></div>
+              </div>
+            </div>
+            <span class="bio-sensor-status status-optimal">OPTIMAL</span>
+          </div>
+
+          <!-- Sensor 2: Harvest Freshness Clock -->
+          <div class="floating-chip float-item-2 bio-sensor-card sensor-freshness">
+            <div class="bio-sensor-left">
+              <div class="floating-chip-icon sensor-icon-clock">⏱️</div>
+            </div>
+            <div class="bio-sensor-body">
+              <div class="floating-chip-title">Harvest Age</div>
+              <div class="floating-chip-value green">&lt; 3.5h Post-Pick</div>
+              <div class="bio-mini-gauge">
+                <div class="bio-gauge-bar green-bar" style="width: 95%;"></div>
+              </div>
+            </div>
+            <span class="bio-sensor-status status-live">CRISP</span>
+          </div>
+
+          <!-- Sensor 3: Chemical Residue Laboratory Certificate -->
+          <div class="floating-chip float-item-3 bio-sensor-card sensor-pure">
+            <div class="bio-sensor-left">
+              <div class="floating-chip-icon sensor-icon-lab">🛡️</div>
+            </div>
+            <div class="bio-sensor-body">
+              <div class="floating-chip-title">Chemical Residue</div>
+              <div class="floating-chip-value cyan">0.0% Zero Wax &amp; Gas</div>
+              <div class="bio-mini-gauge">
+                <div class="bio-gauge-bar cyan-bar" style="width: 100%;"></div>
+              </div>
+            </div>
+            <span class="bio-sensor-status status-certified">100% PURE</span>
+          </div>
+
+          <!-- Sensor 4: Direct Payout Ledger -->
+          <div class="floating-chip float-item-4 bio-sensor-card sensor-payout">
+            <div class="bio-sensor-left">
+              <div class="floating-chip-icon sensor-icon-coin">💰</div>
+            </div>
+            <div class="bio-sensor-body">
+              <div class="floating-chip-title">Grower Direct Ledger</div>
+              <div class="floating-chip-value gold">100% Direct to Producer</div>
+              <div class="bio-mini-gauge">
+                <div class="bio-gauge-bar gold-bar" style="width: 100%;"></div>
+              </div>
+            </div>
+            <span class="bio-sensor-status status-direct">ZERO CUT</span>
+          </div>
+
+        </div>
+
+        <!-- Telemetry Soil Verification Badge -->
+        <div class="soil-sample-badge bio-telemetry-footer-badge">
+          <span class="soil-sample-dot live-bio-dot"></span>
+          <span>Authentic Dirt, Water &amp; Photosynthesis Verified</span>
         </div>
 
       </div>
-    </div>
 
-  </div>
+    </div><!-- /bento-grid -->
+
+  </div><!-- /section-container -->
 </section>
 
 <!-- ==========================================================================
-     SECTION 4: Featured Live Stalls & Seasonal Showcase
+     MARQUEE RIBBON: Infinite Scrolling Feature Ticker
+     ========================================================================== -->
+<div class="marquee-ribbon-wrapper" aria-hidden="true">
+  <!-- Top ribbon — scrolls LEFT -->
+  <div class="marquee-track marquee-track-top">
+    <div class="marquee-inner marquee-ltr">
+      <?php for ($r = 0; $r < 3; $r++): ?>
+        <span class="mrq-item"><span class="mrq-icon">🌱</span> Dawn-Harvested Produce</span>
+        <span class="mrq-divider">✦</span>
+        <span class="mrq-item"><span class="mrq-icon">🤝</span> Zero Middlemen, 100% Direct</span>
+        <span class="mrq-divider">✦</span>
+        <span class="mrq-item mrq-highlight"><span class="mrq-icon">⚡</span> 99.8% Bio-Nutrient Retention</span>
+        <span class="mrq-divider">✦</span>
+        <span class="mrq-item"><span class="mrq-icon">📍</span> Live Stall Slot Reservations</span>
+        <span class="mrq-divider">✦</span>
+        <span class="mrq-item"><span class="mrq-icon">🧪</span> Zero Chemical Residue Verified</span>
+        <span class="mrq-divider">✦</span>
+        <span class="mrq-item mrq-highlight-cyan"><span class="mrq-icon">💰</span> Farmers Earn 100% Direct</span>
+        <span class="mrq-divider">✦</span>
+        <span class="mrq-item"><span class="mrq-icon">🌾</span> Certified Local Growers Only</span>
+        <span class="mrq-divider">✦</span>
+        <span class="mrq-item mrq-highlight-gold"><span class="mrq-icon">🏆</span> Lahore's #1 Farm-to-Fork Platform</span>
+        <span class="mrq-divider">✦</span>
+        <span class="mrq-item"><span class="mrq-icon">⏱️</span> Harvest Under 24h Before Pickup</span>
+        <span class="mrq-divider">✦</span>
+        <span class="mrq-item"><span class="mrq-icon">🗺️</span> Geo-Located Community Markets</span>
+        <span class="mrq-divider">✦</span>
+      <?php endfor; ?>
+    </div>
+  </div>
+
+  <!-- Bottom ribbon — scrolls RIGHT -->
+  <div class="marquee-track marquee-track-bottom">
+    <div class="marquee-inner marquee-rtl">
+      <?php for ($r = 0; $r < 3; $r++): ?>
+        <span class="mrq-item mrq-highlight-gold"><span class="mrq-icon">🥦</span> Heirloom Vegetables &amp; Heritage Grains</span>
+        <span class="mrq-divider">◆</span>
+        <span class="mrq-item"><span class="mrq-icon">🍯</span> Raw Unfiltered Honey &amp; Dairy</span>
+        <span class="mrq-divider">◆</span>
+        <span class="mrq-item mrq-highlight"><span class="mrq-icon">🌍</span> Reducing Carbon Footprint 28×</span>
+        <span class="mrq-divider">◆</span>
+        <span class="mrq-item"><span class="mrq-icon">📦</span> Pre-Packed Fresh Crates Weekly</span>
+        <span class="mrq-divider">◆</span>
+        <span class="mrq-item mrq-highlight-cyan"><span class="mrq-icon">🔬</span> Soil pH &amp; Purity Authenticated</span>
+        <span class="mrq-divider">◆</span>
+        <span class="mrq-item"><span class="mrq-icon">🌤️</span> Photosynthesis-Grown — No Cold Storage</span>
+        <span class="mrq-divider">◆</span>
+        <span class="mrq-item"><span class="mrq-icon">💎</span> Premium Quality at Farm Price</span>
+        <span class="mrq-divider">◆</span>
+        <span class="mrq-item mrq-highlight"><span class="mrq-icon">🏡</span> Support Your Local Farming Community</span>
+        <span class="mrq-divider">◆</span>
+        <span class="mrq-item"><span class="mrq-icon">🛒</span> Reserve Your Slot in 60 Seconds</span>
+        <span class="mrq-divider">◆</span>
+        <span class="mrq-item mrq-highlight-gold"><span class="mrq-icon">🌟</span> 4.97 ★ Avg Rating Across All Stalls</span>
+        <span class="mrq-divider">◆</span>
+      <?php endfor; ?>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     SECTION 4: Featured Live Stalls & Seasonal Showcase — Asymmetric Bento Grid
      ========================================================================== -->
 <section class="stalls-section" id="local-stalls">
   <div class="section-container">
 
-    <div class="section-header">
-      <span class="section-tag section-tag-cyan">Direct From Verified Stalls</span>
+    <div class="section-header stalls-bento-header-wrap">
+      <div class="stalls-badge-group">
+        <span class="section-tag section-tag-cyan">Direct From Verified Stalls</span>
+        <span class="stalls-live-pill"><span class="live-dot"></span> Live Producer Hub</span>
+      </div>
       <h2 class="section-title">Explore Active Local Producer Stalls</h2>
       <p class="section-subtitle">
         Meet our community of vetted agricultural producers, review their current weekly crops, and reserve your pickup box before slots fill up.
       </p>
     </div>
 
-    <div class="stalls-grid">
-      <?php foreach ($showcaseStalls as $i => $stall): ?>
-        <div class="stall-card">
-          <div class="stall-card-header">
-            <span class="stall-badge">🏡 Certified Producer</span>
-            <span class="stall-rating"><?= htmlspecialchars($stall['rating']) ?></span>
+    <!-- Asymmetric Bento Grid -->
+    <div class="stalls-bento-grid">
+      <?php 
+      $totalStalls = count($showcaseStalls);
+      foreach ($showcaseStalls as $i => $stall):
+        $stallUrl = ($stall['farmer_id'] > 0)
+          ? BASE_URL . '/stall.php?id=' . (int)$stall['farmer_id']
+          : BASE_URL . '/register.php';
+
+        // Dynamic Bento Geometry & Theming per card
+        if ($i === 0) {
+          $bentoClass = 'stall-bento-hero'; // Featured Hero Bento Box (Wide Panoramic)
+          $accentColor = '#34d399';
+          $accentRgb = '52, 211, 153';
+          $cardBadge = '🌟 Featured Producer of the Week';
+          $badgeClass = 'badge-emerald';
+        } elseif ($i === 1) {
+          $bentoClass = 'stall-bento-tall'; // Featured Pillar Bento Box (Warm Amber Gold)
+          $accentColor = '#fbbf24';
+          $accentRgb = '251, 191, 36';
+          $cardBadge = '⚡ High Demand Stall';
+          $badgeClass = 'badge-gold';
+        } elseif ($i === 2) {
+          $bentoClass = ($totalStalls === 3) ? 'stall-bento-wide' : 'stall-bento-standard';
+          $accentColor = '#38bdf8';
+          $accentRgb = '56, 189, 248';
+          $cardBadge = '🍯 Pure Apiary & Certified Fresh';
+          $badgeClass = 'badge-cyan';
+        } elseif ($i === 3) {
+          $bentoClass = 'stall-bento-standard';
+          $accentColor = '#a78bfa';
+          $accentRgb = '167, 139, 250';
+          $cardBadge = '🌱 Hydroponic & Zero Pesticides';
+          $badgeClass = 'badge-violet';
+        } else {
+          $bentoClass = 'stall-bento-standard';
+          $accentColor = '#10b981';
+          $accentRgb = '16, 185, 129';
+          $cardBadge = '🍊 Direct Orchard Harvest';
+          $badgeClass = 'badge-emerald';
+        }
+
+        // Live progress bar fill ratio
+        $progressPct = 68 + (($i * 7) % 27);
+      ?>
+        <!-- Bento Card Anchor: Seamlessly routes to Stall details page or Registration -->
+        <a href="<?= $stallUrl ?>" 
+           class="stall-bento-card <?= $bentoClass ?>" 
+           style="--card-accent: <?= $accentColor ?>; --card-accent-rgb: <?= $accentRgb ?>;"
+           title="View <?= htmlspecialchars($stall['name']) ?> full profile & harvests">
+          
+          <!-- Radial Ambient Glow Backdrop Aura -->
+          <div class="stall-card-glow-aura" aria-hidden="true"></div>
+
+          <!-- Top Status Bar: Certified Badge & Rating -->
+          <div class="stall-bento-header">
+            <span class="stall-bento-badge <?= $badgeClass ?>">
+              <?= $cardBadge ?>
+            </span>
+            <div class="stall-bento-rating-pill">
+              <span class="rating-star">★</span>
+              <span class="rating-val"><?= htmlspecialchars($stall['rating']) ?></span>
+            </div>
           </div>
 
-          <h3 class="stall-name"><?= htmlspecialchars($stall['name']) ?></h3>
-          <div class="stall-location">
-            <span>📍</span>
-            <span><?= htmlspecialchars($stall['location']) ?> (Farmer: <?= htmlspecialchars($stall['farmer']) ?>)</span>
+          <!-- Producer Identification Block -->
+          <div class="stall-bento-identity">
+            <h3 class="stall-bento-name"><?= htmlspecialchars($stall['name']) ?></h3>
+            <div class="stall-bento-farmer-row">
+              <div class="farmer-avatar-container">
+                <?php if (!empty($stall['profile_image'])): ?>
+                  <img src="<?= htmlspecialchars(resolveImageUrl($stall['profile_image'])) ?>" 
+                       alt="<?= htmlspecialchars($stall['farmer']) ?>" 
+                       class="farmer-avatar-photo"
+                       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <?php endif; ?>
+                <span class="farmer-avatar-chip" style="<?= !empty($stall['profile_image']) ? 'display:none;' : '' ?>">
+                  <?= strtoupper(substr($stall['farmer'] ?: 'ML', 0, 2)) ?>
+                </span>
+                <span class="farmer-verified-badge" title="Verified Stall Producer">✓</span>
+              </div>
+              <div class="farmer-meta">
+                <span class="farmer-name"><?= htmlspecialchars($stall['farmer']) ?></span>
+                <span class="farmer-sep">•</span>
+                <span class="farmer-geo">📍 <?= htmlspecialchars($stall['location']) ?></span>
+              </div>
+            </div>
           </div>
 
-          <div class="stall-produce-tags">
+          <!-- Produce / Harvest Tags Cloud -->
+          <div class="stall-bento-tags">
             <?php foreach ($stall['tags'] as $tIndex => $tag): ?>
               <?php 
-                $tagClass = ($tIndex % 3 == 0) ? 'tag-green' : (($tIndex % 3 == 1) ? 'tag-amber' : 'tag-cyan');
+                $tagType = ($tIndex % 3 == 0) ? 'tag-emerald' : (($tIndex % 3 == 1) ? 'tag-amber' : 'tag-cyan');
               ?>
-              <span class="produce-tag <?= $tagClass ?>"><?= htmlspecialchars($tag) ?></span>
+              <span class="stall-btag <?= $tagType ?>">
+                <span class="btag-dot"></span>
+                <?= htmlspecialchars($tag) ?>
+              </span>
             <?php endforeach; ?>
           </div>
 
-          <!-- Live Slot Progress Bar -->
-          <div class="stall-slot-bar-wrap">
-            <div class="stall-slot-labels">
-              <span>Weekly Reserved Slots</span>
-              <span><strong><?= htmlspecialchars($stall['slots']) ?></strong></span>
+          <!-- Live Slots & Allocation Progress Track -->
+          <div class="stall-bento-slots-box">
+            <div class="slots-meta-row">
+              <span class="slots-label">
+                <span class="slot-status-icon"></span> Weekly Allocation:
+              </span>
+              <span class="slots-count">
+                <strong><?= htmlspecialchars($stall['slots']) ?></strong>
+              </span>
             </div>
-            <div class="slot-progress-track">
-              <div class="slot-progress-fill" style="width: <?= 65 + (($i * 11) % 30) ?>%;"></div>
+            <div class="slots-progress-bar">
+              <div class="slots-progress-fill" style="width: <?= $progressPct ?>%;">
+                <div class="slots-progress-shine"></div>
+              </div>
             </div>
           </div>
 
-          <div class="stall-footer">
-            <div class="cutoff-time">
-              <span>Order Cutoff: <strong><?= htmlspecialchars($stall['cutoff']) ?></strong></span>
+          <!-- Card Footer: Cutoff Time & Interactive CTA Button -->
+          <div class="stall-bento-footer">
+            <div class="stall-bento-cutoff">
+              <span class="cutoff-icon">⏱</span>
+              <span class="cutoff-text">Cutoff: <strong><?= htmlspecialchars($stall['cutoff']) ?></strong></span>
             </div>
 
-            <a href="<?= BASE_URL ?>/register.php" class="btn-reserve-stall">
-              <span>Reserve</span>
-              <span>→</span>
-            </a>
+            <div class="stall-bento-cta">
+              <span class="cta-label">View Stall</span>
+              <span class="cta-arrow" aria-hidden="true">→</span>
+            </div>
           </div>
-        </div>
+
+        </a>
       <?php endforeach; ?>
     </div>
 

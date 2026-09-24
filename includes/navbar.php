@@ -17,7 +17,8 @@ $user = currentUser();
 
     <!-- Brand Logo -->
     <a href="<?= BASE_URL ?>/" class="nav-brand" aria-label="MarketLink Home">
-      <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="MarketLink" class="nav-logo-img">
+      <img src="<?= BASE_URL ?>/assets/images/logo-dark.svg" alt="MarketLink" class="nav-logo-img logo-dark">
+      <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="MarketLink" class="nav-logo-img logo-light">
     </a>
 
     <!-- Navigation Links -->
