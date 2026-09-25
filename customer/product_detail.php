@@ -525,6 +525,7 @@ if (qtyInput) {
 if (btnAddToCart) {
   btnAddToCart.addEventListener('click', async () => {
     const qty = parseInt(qtyInput.value) || 1;
+    const defaultButtonLabel = '<span>🛒</span> Add to Pre-Order Basket';
     btnAddToCart.disabled = true;
     btnAddToCart.innerHTML = '<span>⏳</span> Adding to Basket...';
 
@@ -550,19 +551,20 @@ if (btnAddToCart) {
           b.style.display = data.total_items > 0 ? 'inline-block' : 'none';
         });
 
-        btnAddToCart.innerHTML = '<span>✔</span> Added! View Basket &rarr;';
-        btnAddToCart.classList.remove('btn-primary');
-        btnAddToCart.classList.add('btn-secondary');
-        btnAddToCart.onclick = () => window.location.href = '<?= BASE_URL ?>/customer/cart.php';
+        btnAddToCart.innerHTML = '<span>✔</span> Added to Basket';
+        setTimeout(() => {
+          btnAddToCart.innerHTML = defaultButtonLabel;
+          btnAddToCart.disabled = false;
+        }, 1500);
       } else {
         Toast.error('Could Not Add', data.message || 'Error updating basket.');
         btnAddToCart.disabled = false;
-        btnAddToCart.innerHTML = '<span>🛒</span> Add to Pre-Order Basket';
+        btnAddToCart.innerHTML = defaultButtonLabel;
       }
     } catch (e) {
       Toast.error('Network Error', 'Could not communicate with the server.');
       btnAddToCart.disabled = false;
-      btnAddToCart.innerHTML = '<span>🛒</span> Add to Pre-Order Basket';
+      btnAddToCart.innerHTML = defaultButtonLabel;
     }
   });
 }

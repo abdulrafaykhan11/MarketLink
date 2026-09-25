@@ -1224,6 +1224,15 @@ button.btn-sd-ghost:hover {
         </p>
       <?php endif; ?>
       <ul class="sd-detail-list">
+        <?php if (!empty($stall['username'])): ?>
+          <li>
+            <span class="sd-dl-icon">@</span>
+            <div>
+              <div class="sd-dl-label">Username</div>
+              <div class="sd-dl-val">@<?= htmlspecialchars($stall['username']) ?></div>
+            </div>
+          </li>
+        <?php endif; ?>
         <?php if (!empty($stall['business_phone'])): ?>
           <li>
             <span class="sd-dl-icon">📞</span>

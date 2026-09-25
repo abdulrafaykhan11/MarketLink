@@ -77,6 +77,26 @@ if (!empty($orderIds)) {
         $itemsByOrder[$it['order_id']][] = $it;
     }
 }
+
+// Only orders awaiting farmer confirmation can be modified.
+$editableSlotsByOrder = [];
+foreach ($orders as $editableOrder) {
+    if ($editableOrder['order_status'] !== 'placed') {
+        continue;
+    }
+
+    $slotStmt = $pdo->prepare("SELECT pickup_slot_id, slot_date, start_time, end_time
+                               FROM pickup_slots
+                               WHERE stall_id = :sid
+                                 AND slot_date >= CURDATE()
+                                 AND (status = 'available' OR pickup_slot_id = :current_slot)
+                               ORDER BY slot_date ASC, start_time ASC");
+    $slotStmt->execute([
+        ':sid' => $editableOrder['stall_id'],
+        ':current_slot' => $editableOrder['pickup_slot_id']
+    ]);
+    $editableSlotsByOrder[$editableOrder['order_id']] = $slotStmt->fetchAll();
+}
 ?>
 
 <!-- Page Header -->
@@ -284,6 +304,12 @@ if (!empty($orderIds)) {
 
           <!-- Cancel Order (Only if active & before cutoff) -->
           <?php if (in_array($st, ['placed', 'accepted'])): ?>
+            <?php if ($st === 'placed'): ?>
+              <button type="button" onclick="openModifyOrderModal(<?= $ord['order_id'] ?>)"
+                      class="btn-secondary" style="padding:0.5rem 1.15rem;">
+                Modify Order
+              </button>
+            <?php endif; ?>
             <button type="button" onclick="openCancelModal(<?= $ord['order_id'] ?>, '<?= htmlspecialchars($ord['order_number']) ?>')" 
                     style="background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.3); padding:0.5rem 1.15rem; border-radius:var(--radius-lg); font-weight:700; font-size:0.85rem; cursor:pointer;">
               <span>✕</span> Cancel Pre-Order
@@ -307,6 +333,56 @@ if (!empty($orderIds)) {
     </a>
   </div>
 <?php endif; ?>
+
+<?php foreach ($orders as $editableOrder): ?>
+  <?php if ($editableOrder['order_status'] !== 'placed'): continue; endif; ?>
+  <?php $editableItems = $itemsByOrder[$editableOrder['order_id']] ?? []; ?>
+  <div id="modifyOrderModal-<?= $editableOrder['order_id'] ?>" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:300; align-items:center; justify-content:center; padding:1rem;">
+    <div class="portal-card" style="width:100%; max-width:560px; max-height:calc(100vh - 2rem); overflow:auto;">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:1.25rem;">
+        <div>
+          <h3 style="font-family:var(--font-heading); font-size:1.25rem; font-weight:800; color:var(--text-primary); margin:0;">Modify Pre-Order</h3>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin:0.35rem 0 0;">Update quantities or choose another pickup time before the farmer confirms.</p>
+        </div>
+        <button type="button" onclick="closeModifyOrderModal(<?= $editableOrder['order_id'] ?>)" aria-label="Close" style="background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+
+      <form class="modify-order-form" data-order-id="<?= $editableOrder['order_id'] ?>">
+        <input type="hidden" name="action" value="modify">
+        <input type="hidden" name="order_id" value="<?= $editableOrder['order_id'] ?>">
+
+        <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem;">
+          <?php foreach ($editableItems as $editableItem): ?>
+            <div style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--border-color); border-radius:var(--radius-md);">
+              <img src="<?= htmlspecialchars(resolveImageUrl($editableItem['image_url'])) ?>" alt="" class="cart-item-thumb" onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:0.875rem; font-weight:700; color:var(--text-primary); overflow-wrap:anywhere;"><?= htmlspecialchars($editableItem['product_name']) ?></div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Rs. <?= number_format($editableItem['unit_price'], 2) ?> per <?= htmlspecialchars($editableItem['unit']) ?></div>
+              </div>
+              <input type="number" name="quantities[<?= $editableItem['order_item_id'] ?>]" value="<?= (int)$editableItem['quantity'] ?>" min="1" required class="topbar-search-input" style="width:76px; border-radius:var(--radius-md); text-align:center;">
+            </div>
+          <?php endforeach; ?>
+        </div>
+
+        <div style="margin-bottom:1.5rem;">
+          <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.4rem;">Pickup Time</label>
+          <select name="pickup_slot_id" required class="topbar-search-input" style="border-radius:var(--radius-md);">
+            <?php foreach ($editableSlotsByOrder[$editableOrder['order_id']] ?? [] as $editableSlot): ?>
+              <option value="<?= $editableSlot['pickup_slot_id'] ?>" <?= (int)$editableSlot['pickup_slot_id'] === (int)$editableOrder['pickup_slot_id'] ? 'selected' : '' ?>>
+                <?= date('D, M d', strtotime($editableSlot['slot_date'])) ?> - <?= date('h:i A', strtotime($editableSlot['start_time'])) ?> to <?= date('h:i A', strtotime($editableSlot['end_time'])) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; flex-wrap:wrap;">
+          <button type="button" class="btn-secondary" onclick="closeModifyOrderModal(<?= $editableOrder['order_id'] ?>)">Cancel</button>
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+<?php endforeach; ?>
 
 <!-- Cancel Order Reason Modal -->
 <div id="cancelOrderModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:300; align-items:center; justify-content:center;">
@@ -358,6 +434,46 @@ function openCancelModal(orderId, orderNum) {
 function closeCancelModal() {
   document.getElementById('cancelOrderModal').style.display = 'none';
 }
+
+function openModifyOrderModal(orderId) {
+  const modal = document.getElementById(`modifyOrderModal-${orderId}`);
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeModifyOrderModal(orderId) {
+  const modal = document.getElementById(`modifyOrderModal-${orderId}`);
+  if (modal) modal.style.display = 'none';
+}
+
+document.querySelectorAll('.modify-order-form').forEach(form => {
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    button.textContent = 'Saving...';
+
+    fetch('<?= BASE_URL ?>/customer/api/order.php', {
+      method: 'POST',
+      body: new FormData(form)
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          showPortalToast(data.message, 'success');
+          setTimeout(() => location.reload(), 700);
+          return;
+        }
+        showPortalToast(data.message || 'Could not modify this order.', 'error');
+        button.disabled = false;
+        button.textContent = 'Save Changes';
+      })
+      .catch(() => {
+        showPortalToast('Could not modify this order.', 'error');
+        button.disabled = false;
+        button.textContent = 'Save Changes';
+      });
+  });
+});
 
 document.getElementById('cancelReasonSelect')?.addEventListener('change', function() {
   const custom = document.getElementById('cancelReasonCustom');
