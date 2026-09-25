@@ -13,6 +13,14 @@
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/auth_guard.php';
 
+// ── Intro gate: EVERYONE sees the intro first ─────────────────────────────
+// Skip only after the intro completion endpoint has set the session flag.
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (empty($_SESSION['intro_seen'])) {
+    header('Location: ' . BASE_URL . '/intro.php');
+    exit;
+}
+
 $pdo = getDBConnection();
 
 // Fetch sample active approved stalls from database or fallback
