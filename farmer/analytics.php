@@ -4,6 +4,45 @@
  * SRS Specification: Past sales, order history, best-selling products, Total Orders, Pending Orders, Revenue Summary
  */
 
+/*
+ * A CSV response must be created before farmer_header.php renders the
+ * sidebar/topbar HTML. Otherwise PHP cannot send download headers.
+ */
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/auth_guard.php';
+requireRole(['farmer', 'admin']);
+
+if (($_GET['export'] ?? '') === 'csv') {
+    $exportPdo = getDBConnection();
+    $exportUserId = (int) $_SESSION['user_id'];
+    $exportFarmerId = $exportUserId;
+    $profileStmt = $exportPdo->prepare('SELECT farmer_id FROM farmer_profiles WHERE farmer_id = :uid LIMIT 1');
+    $profileStmt->execute([':uid' => $exportUserId]);
+    if ($profile = $profileStmt->fetch()) {
+        $exportFarmerId = (int) $profile['farmer_id'];
+    }
+
+    $exportStmt = $exportPdo->prepare("SELECT o.order_number, o.pickup_date, cp.full_name AS customer_name,
+                                               m.market_name, o.total_amount, o.order_status
+                                        FROM orders o
+                                        JOIN customer_profiles cp ON o.customer_id = cp.customer_id
+                                        JOIN markets m ON o.market_id = m.market_id
+                                        WHERE o.farmer_id = :fid
+                                        ORDER BY o.pickup_date DESC, o.order_id DESC");
+    $exportStmt->execute([':fid' => $exportFarmerId]);
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="MarketLink_Sales_History_' . date('Y-m-d') . '.csv"');
+    header('X-Content-Type-Options: nosniff');
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['Order Number', 'Date', 'Customer Name', 'Market', 'Total PKR', 'Order Status']);
+    while ($row = $exportStmt->fetch()) {
+        fputcsv($out, [$row['order_number'], $row['pickup_date'], $row['customer_name'], $row['market_name'], $row['total_amount'], $row['order_status']]);
+    }
+    fclose($out);
+    exit;
+}
+
 $pageTitle = 'Sales Analytics & Insights';
 $activePage = 'analytics';
 require_once __DIR__ . '/includes/farmer_header.php';
@@ -90,25 +129,6 @@ $historyStmt = $pdo->prepare("SELECT o.*, cp.full_name as customer_name, m.marke
 $historyStmt->execute([':fid' => $farmerId]);
 $orderHistory = $historyStmt->fetchAll();
 
-// CSV Export Handler
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="MarketLink_Sales_History_' . date('Y-m-d') . '.csv"');
-    $out = fopen('php://output', 'w');
-    fputcsv($out, ['Order Number', 'Date', 'Customer Name', 'Market', 'Total PKR', 'Order Status']);
-    foreach ($orderHistory as $row) {
-        fputcsv($out, [
-            $row['order_number'],
-            $row['pickup_date'],
-            $row['customer_name'],
-            $row['market_name'],
-            $row['total_amount'],
-            $row['order_status']
-        ]);
-    }
-    fclose($out);
-    exit;
-}
 ?>
 
 <div class="farmer-content">

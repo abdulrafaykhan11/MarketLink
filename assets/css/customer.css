@@ -47,9 +47,9 @@
   width: auto;
 }
 
-.dashboard-logo-light { display: none; }
-[data-theme="light"] .dashboard-logo-dark { display: none; }
-[data-theme="light"] .dashboard-logo-light { display: block; }
+html:not([data-theme="light"]) .sidebar-brand .dashboard-logo-light { display: none !important; }
+html[data-theme="light"] .sidebar-brand .dashboard-logo-dark { display: none !important; }
+html[data-theme="light"] .sidebar-brand .dashboard-logo-light { display: block !important; }
 
 .sidebar-badge {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(14, 165, 233, 0.15));

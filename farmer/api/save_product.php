@@ -28,6 +28,7 @@ $description  = trim($_POST['description'] ?? '');
 $isRecurring  = isset($_POST['is_recurring_template']) ? 1 : 0;
 $stockQuantity = (float)($_POST['stock_quantity'] ?? 50.00);
 $existingImage = trim($_POST['existing_image'] ?? ''); // keep old image if no new upload
+$stallId       = (int)($_POST['stall_id'] ?? 0);
 
 if (empty($productName)) {
     echo json_encode(['status' => 'error', 'message' => 'Produce item name is required.']);
@@ -37,6 +38,21 @@ if (empty($productName)) {
 if ($price <= 0) {
     echo json_encode(['status' => 'error', 'message' => 'Price must be greater than zero.']);
     exit;
+}
+
+// New products may only be published to a market where this farmer has an active assigned stall.
+if ($productId === 0) {
+    if ($stallId <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Please choose an assigned market for this produce item.']);
+        exit;
+    }
+
+    $stallCheck = $pdo->prepare('SELECT stall_id FROM farmer_market_stalls WHERE stall_id = :stall_id AND farmer_id = :farmer_id AND status = \'active\' LIMIT 1');
+    $stallCheck->execute([':stall_id' => $stallId, ':farmer_id' => $userId]);
+    if (!$stallCheck->fetchColumn()) {
+        echo json_encode(['status' => 'error', 'message' => 'That market is not an active stall assignment for your account.']);
+        exit;
+    }
 }
 
 /**
@@ -235,37 +251,19 @@ try {
             ]);
         }
 
-        // Retrieve farmer's stalls
-        $stallStmt = $pdo->prepare("SELECT stall_id FROM farmer_market_stalls WHERE farmer_id = :fid AND status = 'active'");
-        $stallStmt->execute([':fid' => $userId]);
-        $stalls = $stallStmt->fetchAll(PDO::FETCH_COLUMN);
-
-        if (empty($stalls)) {
-            // Check if there is any active market or assign stall 1
-            $marketId = (int)$pdo->query("SELECT market_id FROM markets WHERE status = 'active' LIMIT 1")->fetchColumn();
-            if ($marketId) {
-                $pStall = $pdo->prepare("INSERT INTO farmer_market_stalls (farmer_id, market_id, stall_number_location, operating_days, status, assigned_at)
-                                         VALUES (:fid, :mid, 'Stall 1', 'Saturday, Sunday', 'active', NOW())");
-                $pStall->execute([':fid' => $userId, ':mid' => $marketId]);
-                $stalls = [(int)$pdo->lastInsertId()];
-            }
-        }
-
-        // Seed weekly inventory days
+        // Seed weekly inventory only for the market/stall selected in the form.
         $invStmt = $pdo->prepare("INSERT INTO weekly_inventory (product_id, stall_id, day_of_week, stock_quantity, price, is_available)
                                  VALUES (:pid, :stid, :day, :qty, :price, 1)
                                  ON DUPLICATE KEY UPDATE stock_quantity = VALUES(stock_quantity), price = VALUES(price)");
 
-        foreach ($stalls as $stallId) {
-            foreach (['Saturday', 'Sunday', 'Friday', 'Wednesday'] as $day) {
-                $invStmt->execute([
-                    ':pid'   => $newProdId,
-                    ':stid'  => $stallId,
-                    ':day'   => $day,
-                    ':qty'   => $stockQuantity,
-                    ':price' => $price
-                ]);
-            }
+        foreach (['Saturday', 'Sunday', 'Friday', 'Wednesday'] as $day) {
+            $invStmt->execute([
+                ':pid'   => $newProdId,
+                ':stid'  => $stallId,
+                ':day'   => $day,
+                ':qty'   => $stockQuantity,
+                ':price' => $price
+            ]);
         }
 
         echo json_encode([

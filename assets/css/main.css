@@ -150,12 +150,20 @@
   --modal-bg: #ffffff;
   --modal-border: #c7e8d4;
   /* Accent colors remain vivid */
-  --primary-400: #16a34a;
-  --primary-500: #15803d;
-  --sky-300: #0284c7;
+  /* Light surfaces need darker foreground tokens. These are used as text
+     throughout the site, so bright dark-theme accents are not readable here. */
+  --primary-400: #15803d;
+  --primary-500: #166534;
+  --primary-600: #166534;
+  --sky-300: #0369a1;
   --sky-400: #0369a1;
-  --accent-400: #b45309;
+  --accent-400: #92400e;
   --accent-cyan-light: #0891b2;
+  --accent-gold: #a16207;
+  --accent-lime: #4d7c0f;
+  --slate-400: #475569;
+  --slate-500: #334155;
+  --slate-600: #1e293b;
 }
 
 *, *::before, *::after {
@@ -654,5 +662,4 @@ a:hover {
   border: 1.5px solid #061524;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
-
 

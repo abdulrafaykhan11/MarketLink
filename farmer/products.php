@@ -12,6 +12,10 @@ require_once __DIR__ . '/includes/farmer_header.php';
 $catStmt = $pdo->query("SELECT * FROM product_categories WHERE is_active = 1 ORDER BY category_name ASC");
 $categories = $catStmt->fetchAll();
 
+// Markets/stalls that this farmer has been assigned by the market administrator.
+// A product's availability is linked through weekly_inventory.stall_id.
+$assignedProductStalls = $assignedStalls;
+
 // 2. Parse Filters
 $selectedCat = (int)($_GET['category_id'] ?? 0);
 $stockStatus = trim($_GET['stock_status'] ?? 'all');
@@ -330,6 +334,27 @@ if ($editProductId > 0) {
           </div>
         </div>
 
+        <!-- Market Selection: only administrator-assigned active stalls are available -->
+        <div class="farmer-form-group" id="productMarketGroup">
+          <label class="farmer-form-label" for="formStallId">Available At Market <span style="color:#ef4444;">*</span></label>
+          <?php if (!empty($assignedProductStalls)): ?>
+            <select class="farmer-form-select" id="formStallId" name="stall_id" required>
+              <option value="">Choose the market for this product</option>
+              <?php foreach ($assignedProductStalls as $assignedStall): ?>
+                <option value="<?= (int) $assignedStall['stall_id'] ?>">
+                  <?= htmlspecialchars($assignedStall['market_name']) ?><?= !empty($assignedStall['city']) ? ' — ' . htmlspecialchars($assignedStall['city']) : '' ?>
+                  <?= !empty($assignedStall['stall_number_location']) ? ' (' . htmlspecialchars($assignedStall['stall_number_location']) . ')' : '' ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+            <div style="font-size:0.75rem; color:var(--slate-400); margin-top:0.4rem;">Only markets where your stall is active are shown.</div>
+          <?php else: ?>
+            <div style="padding:0.8rem 0.9rem; border:1px solid rgba(245,158,11,0.5); background:rgba(245,158,11,0.10); border-radius:var(--radius-md); color:#b45309; font-size:0.8rem; font-weight:600;">
+              No active market stall is assigned to your account yet. Ask the market administrator to assign a stall before publishing produce.
+            </div>
+          <?php endif; ?>
+        </div>
+
         <!-- Description -->
         <div class="farmer-form-group">
           <label class="farmer-form-label" for="formDesc">Crop Description &amp; Farming Notes</label>
@@ -463,6 +488,8 @@ function openProductModal(prod = null) {
   const imgPreview = document.getElementById('productImgPreview');
   const imgPlaceholder = document.getElementById('productImgPlaceholder');
   const photoNameEl = document.getElementById('productPhotoName');
+  const marketGroup = document.getElementById('productMarketGroup');
+  const stallSelect = document.getElementById('formStallId');
 
   // Reset photo field and name display
   document.getElementById('productPhotoInput').value = '';
@@ -479,6 +506,8 @@ function openProductModal(prod = null) {
   }
 
   if (prod) {
+    if (marketGroup) marketGroup.style.display = 'none';
+    if (stallSelect) { stallSelect.required = false; stallSelect.disabled = true; }
     document.getElementById('formProdId').value = prod.product_id;
     document.getElementById('formExistingImage').value = prod.image_url || '';
     document.getElementById('formProdName').value = prod.product_name;
@@ -524,6 +553,8 @@ function openProductModal(prod = null) {
     title.innerHTML = '<i data-lucide="edit" style="width:20px;height:20px;color:var(--primary-500);"></i> <span>Edit Produce Listing</span>';
     btnText.textContent = 'Update Produce Listing';
   } else {
+    if (marketGroup) marketGroup.style.display = '';
+    if (stallSelect) { stallSelect.required = true; stallSelect.disabled = false; stallSelect.value = ''; }
     document.getElementById('productForm').reset();
     document.getElementById('formProdId').value = '0';
     document.getElementById('formExistingImage').value = '';
