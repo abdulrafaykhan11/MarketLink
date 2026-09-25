@@ -3,6 +3,18 @@
  * MarketLink - Customer Dashboard Portal Sidebar
  */
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  
+</body>
+</html>
 <aside class="customer-sidebar">
   <!-- Brand Area -->
   <div class="sidebar-brand">
@@ -116,7 +128,7 @@
         <div class="sidebar-user-role"><?= htmlspecialchars($customerUser['email']) ?></div>
       </div>
       <a href="<?= BASE_URL ?>/logout.php" title="Sign Out" style="color:var(--text-muted); font-size:1.1rem; text-decoration:none; padding:0.25rem;">
-        🚪
+        <i class="fa-solid fa-sign-out-alt"></i>
       </a>
     </div>
   </div>

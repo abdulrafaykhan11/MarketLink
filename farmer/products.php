@@ -189,10 +189,18 @@ if ($editProductId > 0) {
   <?php else: ?>
     <div class="farmer-products-grid">
       <?php foreach ($products as $p): ?>
+        <?php
+          $farmerProductImage = !empty($p['gallery'][0]['image_url'])
+            ? $p['gallery'][0]['image_url']
+            : ($p['image_url'] ?? '');
+        ?>
         <div class="farmer-product-card" id="prodCard_<?= $p['product_id'] ?>">
           <!-- Media Thumbnail -->
           <div class="farmer-product-media">
-            <img src="<?= BASE_URL ?>/<?= htmlspecialchars($p['image_url'] ?: 'assets/images/cat-vegetables.svg') ?>" alt="<?= htmlspecialchars($p['product_name']) ?>" class="farmer-product-img">
+            <img src="<?= htmlspecialchars(resolveImageUrl($farmerProductImage, BASE_URL . '/assets/images/cat-vegetables.svg')) ?>"
+                 alt="<?= htmlspecialchars($p['product_name']) ?>"
+                 class="farmer-product-img"
+                 onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
             <span class="farmer-product-category-tag">
               <?= htmlspecialchars($p['category_name']) ?>
             </span>

@@ -428,7 +428,10 @@ if ($viewOrderId > 0) {
                   <td>
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                       <div style="width: 38px; height: 38px; border-radius: var(--radius-md); overflow: hidden; background: var(--bg-surface); flex-shrink: 0;">
-                        <img src="<?= BASE_URL ?>/<?= htmlspecialchars($item['image_url'] ?: 'assets/images/cat-vegetables.svg') ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="<?= htmlspecialchars(resolveImageUrl($item['image_url'] ?? '', BASE_URL . '/assets/images/cat-vegetables.svg')) ?>"
+                             alt="<?= htmlspecialchars($item['product_name']) ?>"
+                             style="width: 100%; height: 100%; object-fit: cover;"
+                             onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
                       </div>
                       <strong style="color: var(--text-primary); font-size: 0.875rem;">
                         <?= htmlspecialchars($item['product_name']) ?>

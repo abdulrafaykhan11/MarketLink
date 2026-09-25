@@ -240,7 +240,7 @@ $relatedProducts = $relatedStmt->fetchAll();
       </div>
 
       <!-- Farm / Stall Quick Card (Theme Safe) -->
-      <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:1rem 1.25rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+      <div class="product-stall-summary" style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:1rem 1.25rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem;">
         <div style="display:flex; align-items:center; gap:0.875rem;">
           <div style="width:44px; height:44px; border-radius:50%; background:var(--emerald-600); color:#ffffff; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">
             <?= strtoupper(substr($product['stall_name'], 0, 1)) ?>
@@ -254,6 +254,10 @@ $relatedProducts = $relatedStmt->fetchAll();
             </div>
           </div>
         </div>
+
+        <a href="<?= BASE_URL ?>/stall.php?id=<?= $farmerId ?>" class="product-stall-link">
+          View Stall Profile <span aria-hidden="true">&rarr;</span>
+        </a>
 
         <?php if ($activeOrder): ?>
           <a href="<?= BASE_URL ?>/customer/chat.php?order_id=<?= $activeOrder['order_id'] ?>" 
