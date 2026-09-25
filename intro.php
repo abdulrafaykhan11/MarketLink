@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * MarketLink - Intro Experience
  * Scroll-driven animated intro shown to ALL users before the homepage.
@@ -50,10 +50,12 @@ $pageTitle = 'Welcome to MarketLink';
 
   <!-- ── TOP NAVIGATION ─────────────────────────────── -->
   <nav id="intro-nav" aria-label="Intro navigation">
-    <a href="<?= BASE_URL ?>/index.php" id="intro-logo" aria-label="FreshFind home">
+    <!-- Logo: plain decorative link, clicking it goes to homepage via exitIntro in JS -->
+    <span id="intro-logo" aria-label="FreshFind">
       <img src="<?= BASE_URL ?>/assets/images/intro/logo.png"
            alt="freshfind logo">
-    </a>
+    </span>
+    <!-- This is the ONLY skip button in the nav -->
     <button id="intro-home-btn" type="button">HOME PAGE</button>
   </nav>
 

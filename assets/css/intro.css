@@ -1,4 +1,4 @@
-﻿/**
+/**
  * MarketLink — Scroll-Driven Intro Experience
  * Faithful recreation of before_home.mp4
  */
@@ -95,7 +95,7 @@ body.intro-active {
   align-items: center;
   justify-content: space-between;
   padding: 28px 48px;
-  z-index: 10;
+  z-index: 20;            /* above all scenes */
   pointer-events: all;
 }
 
@@ -104,6 +104,7 @@ body.intro-active {
   align-items: center;
   gap: 8px;
   text-decoration: none;
+  cursor: default;
 }
 #intro-logo img { height: 38px; width: auto; }
 
@@ -182,11 +183,16 @@ body.intro-active {
 #intro-basket img { width: 100%; height: auto; display: block; }
 
 /* ─── Floating produce ──────────────────────────────── */
+/* All positioning is handled entirely by JS via transform */
 .produce-item {
   position: absolute;
+  left: 0;
+  top: 0;
   pointer-events: none;
   will-change: transform, opacity;
+  opacity: 0;
 }
+.produce-item img { display: block; width: 100%; height: auto; }
 
 #p-broccoli  { width: clamp(80px,  7vw, 110px); }
 #p-corn      { width: clamp(90px,  8vw, 130px); }
@@ -205,7 +211,9 @@ body.intro-active {
   justify-content: center;
   text-align: center;
   opacity: 0;
+  pointer-events: none;   /* JS enables when visible */
   will-change: opacity, transform;
+  z-index: 6;
 }
 
 .packed-eyebrow {
@@ -325,7 +333,6 @@ body.intro-active {
   line-height: 1.55;
 }
 .picked-bullets li::before {
-  content: 'bullet';
   content: '\2022';
   color: var(--green);
   font-weight: 900;
