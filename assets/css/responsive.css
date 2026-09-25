@@ -423,6 +423,38 @@ code {
   color: var(--emerald-300) !important;
 }
 
+.order-modify-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(56, 189, 248, 0.52);
+  border-radius: 8px;
+  background: rgba(14, 165, 233, 0.11);
+  color: #7dd3fc;
+  font-family: var(--font-heading);
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.order-modify-btn:hover {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(74, 222, 128, 0.72);
+  color: #bbf7d0;
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .order-modify-btn {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+  color: #0369a1;
+}
+
 .admin-btn > svg,
 .admin-btn > i[data-lucide] {
   width: 1rem;
@@ -478,6 +510,10 @@ code {
 
   .product-stall-summary > .product-stall-link,
   .product-stall-summary > .btn-secondary {
+    width: 100%;
+  }
+
+  .order-modify-btn {
     width: 100%;
   }
 }

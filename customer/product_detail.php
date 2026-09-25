@@ -543,8 +543,6 @@ if (btnAddToCart) {
       const data = await res.json();
 
       if (data.status === 'success') {
-        Toast.success('Added to Basket!', `${qty} unit(s) of fresh harvest added to your pre-order basket.`);
-        
         // Update sidebar cart badge
         document.querySelectorAll('.cart-count-badge').forEach(b => {
           b.innerText = data.total_items;
@@ -552,19 +550,32 @@ if (btnAddToCart) {
         });
 
         btnAddToCart.innerHTML = '<span>✔</span> Added to Basket';
+        if (window.Toast) {
+          window.Toast.success('Added to Basket!', `${qty} unit(s) of fresh harvest added to your pre-order basket.`);
+        } else if (typeof showPortalToast === 'function') {
+          showPortalToast('Added to Basket!', 'success');
+        }
         setTimeout(() => {
           btnAddToCart.innerHTML = defaultButtonLabel;
           btnAddToCart.disabled = false;
         }, 1500);
       } else {
-        Toast.error('Could Not Add', data.message || 'Error updating basket.');
         btnAddToCart.disabled = false;
         btnAddToCart.innerHTML = defaultButtonLabel;
+        if (window.Toast) {
+          window.Toast.error('Could Not Add', data.message || 'Error updating basket.');
+        } else if (typeof showPortalToast === 'function') {
+          showPortalToast(data.message || 'Could not add to cart.', 'error');
+        }
       }
     } catch (e) {
-      Toast.error('Network Error', 'Could not communicate with the server.');
       btnAddToCart.disabled = false;
       btnAddToCart.innerHTML = defaultButtonLabel;
+      if (window.Toast) {
+        window.Toast.error('Network Error', 'Could not communicate with the server.');
+      } else if (typeof showPortalToast === 'function') {
+        showPortalToast('Could not communicate with the server.', 'error');
+      }
     }
   });
 }

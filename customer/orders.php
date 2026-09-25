@@ -306,8 +306,8 @@ foreach ($orders as $editableOrder) {
           <?php if (in_array($st, ['placed', 'accepted'])): ?>
             <?php if ($st === 'placed'): ?>
               <button type="button" onclick="openModifyOrderModal(<?= $ord['order_id'] ?>)"
-                      class="btn-secondary" style="padding:0.5rem 1.15rem;">
-                Modify Order
+                      class="order-modify-btn">
+                <span aria-hidden="true">✎</span> Modify Order
               </button>
             <?php endif; ?>
             <button type="button" onclick="openCancelModal(<?= $ord['order_id'] ?>, '<?= htmlspecialchars($ord['order_number']) ?>')" 
