@@ -271,7 +271,10 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
                       #<?= $idx + 1 ?>
                     </div>
                     <div style="width: 40px; height: 40px; border-radius: var(--radius-md); overflow: hidden; background: var(--bg-surface); flex-shrink: 0;">
-                      <img src="<?= BASE_URL ?>/<?= htmlspecialchars($prod['image_url'] ?: 'assets/images/cat-vegetables.svg') ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                      <img src="<?= htmlspecialchars(resolveImageUrl($prod['image_url'] ?? '', BASE_URL . '/assets/images/cat-vegetables.svg')) ?>"
+                           alt="<?= htmlspecialchars($prod['product_name']) ?>"
+                           style="width: 100%; height: 100%; object-fit: cover;"
+                           onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
                     </div>
                     <strong style="color: var(--text-primary); font-size: 0.9375rem;">
                       <?= htmlspecialchars($prod['product_name']) ?>

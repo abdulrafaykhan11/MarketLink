@@ -223,7 +223,10 @@ $productReviews = $prodReviewsStmt->fetchAll();
           <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.15rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
               <div style="width: 36px; height: 36px; border-radius: var(--radius-md); overflow: hidden; background: var(--bg-surface);">
-                <img src="<?= BASE_URL ?>/<?= htmlspecialchars($pr['image_url'] ?: 'assets/images/cat-vegetables.svg') ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                <img src="<?= htmlspecialchars(resolveImageUrl($pr['image_url'] ?? '', BASE_URL . '/assets/images/cat-vegetables.svg')) ?>"
+                     alt="<?= htmlspecialchars($pr['product_name']) ?>"
+                     style="width: 100%; height: 100%; object-fit: cover;"
+                     onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
               </div>
               <div>
                 <strong style="color: var(--text-primary); font-size: 0.875rem;"><?= htmlspecialchars($pr['product_name']) ?></strong>

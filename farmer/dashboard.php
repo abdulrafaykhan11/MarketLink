@@ -514,7 +514,10 @@ for ($i = 6; $i >= 0; $i--) {
                   #<?= $idx + 1 ?>
                 </div>
                 <div style="width: 44px; height: 44px; border-radius: var(--radius-md); overflow: hidden; background: var(--bg-surface); flex-shrink: 0;">
-                  <img src="<?= BASE_URL ?>/<?= htmlspecialchars($prod['image_url'] ?: 'assets/images/cat-vegetables.svg') ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                  <img src="<?= htmlspecialchars(resolveImageUrl($prod['image_url'] ?? '', BASE_URL . '/assets/images/cat-vegetables.svg')) ?>"
+                       alt="<?= htmlspecialchars($prod['product_name']) ?>"
+                       style="width: 100%; height: 100%; object-fit: cover;"
+                       onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
                 </div>
                 <div>
                   <div style="font-weight: 700; color: var(--text-primary); font-size: 0.875rem;"><?= htmlspecialchars($prod['product_name']) ?></div>
@@ -560,7 +563,10 @@ for ($i = 6; $i >= 0; $i--) {
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg);">
               <div style="display: flex; align-items: center; gap: 0.75rem;">
                 <div style="width: 40px; height: 40px; border-radius: var(--radius-md); overflow: hidden; background: var(--bg-surface); flex-shrink: 0;">
-                  <img src="<?= BASE_URL ?>/<?= htmlspecialchars($qp['image_url'] ?: 'assets/images/cat-vegetables.svg') ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                  <img src="<?= htmlspecialchars(resolveImageUrl($qp['image_url'] ?? '', BASE_URL . '/assets/images/cat-vegetables.svg')) ?>"
+                       alt="<?= htmlspecialchars($qp['product_name']) ?>"
+                       style="width: 100%; height: 100%; object-fit: cover;"
+                       onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/cat-vegetables.svg';">
                 </div>
                 <div>
                   <div style="font-weight: 700; color: var(--text-primary); font-size: 0.875rem;"><?= htmlspecialchars($qp['product_name']) ?></div>
