@@ -6,9 +6,45 @@
 (function () {
   'use strict';
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function setupInit() {
     initMarketLinkAIChat();
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupInit);
+  } else {
+    setupInit();
+  }
+
+  // Global functions accessible anywhere
+  window.openAIChatbot = function () {
+    const windowElem = document.getElementById('aiChatbotWindow');
+    const toggleBtn = document.getElementById('aiChatbotToggle');
+    const inputElem = document.getElementById('aiChatbotInput');
+    if (windowElem) {
+      windowElem.classList.add('open');
+      if (toggleBtn) toggleBtn.classList.add('active');
+      setTimeout(() => inputElem?.focus(), 150);
+    }
+  };
+
+  window.closeAIChatbot = function () {
+    const windowElem = document.getElementById('aiChatbotWindow');
+    const toggleBtn = document.getElementById('aiChatbotToggle');
+    if (windowElem) {
+      windowElem.classList.remove('open');
+      if (toggleBtn) toggleBtn.classList.remove('active');
+    }
+  };
+
+  window.toggleAIChatbot = function () {
+    const windowElem = document.getElementById('aiChatbotWindow');
+    if (windowElem && windowElem.classList.contains('open')) {
+      window.closeAIChatbot();
+    } else {
+      window.openAIChatbot();
+    }
+  };
 
   function initMarketLinkAIChat() {
     const toggleBtn = document.getElementById('aiChatbotToggle');
@@ -20,6 +56,10 @@
     const messagesElem = document.getElementById('aiChatbotMessages');
 
     if (!toggleBtn || !windowElem || !messagesElem) return;
+
+    // Prevent double binding
+    if (toggleBtn.dataset.aiBound === 'true') return;
+    toggleBtn.dataset.aiBound = 'true';
 
     const STORAGE_KEY = 'marketlink_ai_chat_history';
     let chatHistory = [];
@@ -38,14 +78,15 @@
       chatHistory = [];
     }
 
+    if (!Array.isArray(chatHistory) || chatHistory.length === 0) {
+      showWelcomeMessage();
+    }
+
     // Toggle window
-    toggleBtn.addEventListener('click', () => {
-      const isOpen = windowElem.classList.toggle('open');
-      toggleBtn.classList.toggle('active', isOpen);
-      if (isOpen) {
-        setTimeout(() => inputElem?.focus(), 150);
-        scrollToBottom();
-      }
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      window.toggleAIChatbot();
     });
 
     closeBtn?.addEventListener('click', () => {

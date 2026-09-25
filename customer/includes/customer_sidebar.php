@@ -3,18 +3,6 @@
  * MarketLink - Customer Dashboard Portal Sidebar
  */
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-  
-</body>
-</html>
 <aside class="customer-sidebar">
   <!-- Brand Area -->
   <div class="sidebar-brand">
@@ -127,8 +115,8 @@
         <div class="sidebar-user-name" title="<?= htmlspecialchars($displayName) ?>"><?= htmlspecialchars($displayName) ?></div>
         <div class="sidebar-user-role"><?= htmlspecialchars($customerUser['email']) ?></div>
       </div>
-      <a href="<?= BASE_URL ?>/logout.php" title="Sign Out" style="color:var(--text-muted); font-size:1.1rem; text-decoration:none; padding:0.25rem;">
-        <i class="fa-solid fa-sign-out-alt"></i>
+      <a href="<?= BASE_URL ?>/logout.php" title="Sign Out" style="color:var(--text-muted); display:flex; align-items:center; justify-content:center; text-decoration:none; padding:4px; border-radius:6px; transition:color 0.2s ease;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
       </a>
     </div>
   </div>

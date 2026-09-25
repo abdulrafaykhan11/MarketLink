@@ -120,8 +120,8 @@
           <span class="admin-user-role">Super Admin</span>
         </div>
       </div>
-      <a href="<?= BASE_URL ?>/logout.php" title="Sign Out" style="color:var(--admin-text-subtle); display:flex; align-items:center; text-decoration:none;">
-        <i data-lucide="power" style="width:16px; height:16px;"></i>
+      <a href="<?= BASE_URL ?>/logout.php" title="Sign Out" style="color:var(--admin-rose, #ef4444); display:flex; align-items:center; justify-content:center; text-decoration:none; padding:4px; border-radius:6px; transition:background 0.2s ease;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
       </a>
     </div>
   </div>

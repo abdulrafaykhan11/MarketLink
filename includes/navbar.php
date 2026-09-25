@@ -50,8 +50,8 @@ $user = currentUser();
           <a href="<?= BASE_URL ?>/<?= htmlspecialchars($user['role']) ?>/dashboard.php" class="btn-dashboard-nav">
             Portal ➔
           </a>
-          <a href="<?= BASE_URL ?>/logout.php" class="btn-logout-nav" title="Sign Out">
-            🚪
+          <a href="<?= BASE_URL ?>/logout.php" class="btn-logout-nav" title="Sign Out" style="display:inline-flex; align-items:center; justify-content:center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--rose-500, #ef4444);"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
           </a>
         </div>
       <?php else: ?>
