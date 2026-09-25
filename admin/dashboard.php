@@ -222,10 +222,6 @@ try {
         <i data-lucide="shield-alert" style="color:var(--admin-rose);"></i>
         <span>Moderate Customer Reviews (<?= $pendingReviewsCount ?>)</span>
       </a>
-      <a href="<?= BASE_URL ?>/admin/chatbot_faqs.php" class="admin-btn admin-btn-secondary" style="justify-content:flex-start;">
-        <i data-lucide="bot" style="color:var(--admin-purple);"></i>
-        <span>Train AI Chatbot FAQs</span>
-      </a>
     </div>
   </div>
 </div>

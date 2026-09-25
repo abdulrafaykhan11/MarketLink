@@ -59,6 +59,8 @@ $flashInfo    = getFlash('info');
     </div>
   </div>
 </div>
+<!-- Gemini 3.8 Flash Real-World AI Assistant Widget -->
+<?php require_once __DIR__ . '/ai_chatbot_widget.php'; ?>
 
 <!-- JavaScript Assets -->
 <script src="<?= BASE_URL ?>/assets/js/toast.js"></script>

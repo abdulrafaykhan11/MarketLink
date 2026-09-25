@@ -101,13 +101,6 @@
       </div>
     </a>
 
-    <a href="<?= BASE_URL ?>/admin/chatbot_faqs.php" class="admin-nav-link <?= ($activeNav === 'chatbot_faqs') ? 'active' : '' ?>">
-      <div class="admin-nav-link-inner">
-        <i data-lucide="bot"></i>
-        <span>AI Chatbot Knowledge</span>
-      </div>
-    </a>
-
     <a href="<?= BASE_URL ?>/admin/reports.php" class="admin-nav-link <?= ($activeNav === 'reports') ? 'active' : '' ?>">
       <div class="admin-nav-link-inner">
         <i data-lucide="bar-chart-3"></i>

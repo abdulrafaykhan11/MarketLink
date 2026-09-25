@@ -217,77 +217,10 @@ function initFavoriteHandlers() {
 }
 
 /* ==========================================================================
-   4. AI Chatbot Assistant
+   4. AI Chatbot Assistant (Now managed by assets/js/ai-chatbot.js)
    ========================================================================== */
 function initChatbot() {
-  const toggleBtn = document.getElementById('aiChatbotToggle');
-  const windowElem = document.getElementById('aiChatbotWindow');
-  const closeBtn = document.getElementById('aiChatbotClose');
-  const inputElem = document.getElementById('aiChatbotInput');
-  const sendBtn = document.getElementById('aiChatbotSend');
-  const msgContainer = document.getElementById('aiChatbotMessages');
-
-  if (!toggleBtn || !windowElem) return;
-
-  toggleBtn.addEventListener('click', () => {
-    windowElem.classList.toggle('open');
-    if (windowElem.classList.contains('open')) {
-      inputElem?.focus();
-    }
-  });
-
-  closeBtn?.addEventListener('click', () => windowElem.classList.remove('open'));
-
-  function appendBubble(text, sender = 'bot') {
-    const bubble = document.createElement('div');
-    bubble.className = `chat-bubble ${sender}`;
-    bubble.textContent = text;
-    msgContainer.appendChild(bubble);
-    msgContainer.scrollTop = msgContainer.scrollHeight;
-    return bubble;
-  }
-
-  function handleSend(userText) {
-    const text = userText || inputElem?.value.trim();
-    if (!text) return;
-
-    appendBubble(text, 'user');
-    if (inputElem) inputElem.value = '';
-
-    // Typing placeholder
-    const typingBubble = appendBubble('Searching MarketLink knowledge...', 'bot');
-
-    const formData = new FormData();
-    formData.append('query', text);
-
-    fetch(`${window.BASE_URL || '/MarketLink'}/customer/api/ai_chat.php`, {
-      method: 'POST',
-      body: formData
-    })
-      .then(res => res.json())
-      .then(data => {
-        typingBubble.textContent = data.reply || 'I am ready to help you with market timings, farmer availability, and fresh produce!';
-      })
-      .catch(() => {
-        typingBubble.textContent = 'Our markets are open this Saturday & Sunday from 7:00 AM! You can browse stalls or reserve pickup slots.';
-      });
-  }
-
-  sendBtn?.addEventListener('click', () => handleSend());
-  inputElem?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSend();
-    }
-  });
-
-  // Suggestion chips handler
-  document.addEventListener('click', (e) => {
-    const chip = e.target.closest('.suggestion-chip');
-    if (chip) {
-      handleSend(chip.textContent.trim());
-    }
-  });
+  // Handled universally by assets/js/ai-chatbot.js with Gemini 3.8 Flash
 }
 
 /* ==========================================================================

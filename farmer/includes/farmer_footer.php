@@ -137,5 +137,8 @@ window.FarmerApp = {
 };
 </script>
 
+<!-- Gemini 3.8 Flash Real-World AI Assistant Widget -->
+<?php require_once __DIR__ . '/../../includes/ai_chatbot_widget.php'; ?>
+
 </body>
 </html>
