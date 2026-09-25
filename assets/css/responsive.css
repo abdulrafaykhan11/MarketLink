@@ -395,6 +395,11 @@ code {
   display: none;
 }
 
+/* The cart checkout flow no longer displays the pickup-payment notice. */
+.pickup-notice-box {
+  display: none !important;
+}
+
 .admin-btn > svg,
 .admin-btn > i[data-lucide] {
   width: 1rem;
