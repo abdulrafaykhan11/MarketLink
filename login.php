@@ -11,6 +11,7 @@ require_once __DIR__ . '/includes/auth_guard.php';
 redirectIfLoggedIn();
 
 $registeredUser = trim($_GET['registered'] ?? '');
+$passwordReset = !empty($_GET['reset']);
 $rememberedUsername = !empty($registeredUser) ? $registeredUser : ($_COOKIE['marketlink_login_id'] ?? '');
 
 $pageTitle = 'Sign In';
@@ -107,6 +108,13 @@ require_once __DIR__ . '/includes/header.php';
           </div>
         <?php endif; ?>
 
+        <?php if ($passwordReset): ?>
+          <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+            <div style="font-weight: 700; color: #065f46; font-size: 0.9375rem; margin-bottom: 0.15rem;">Password updated successfully</div>
+            <div style="font-size: 0.8125rem; color: #047857; line-height: 1.45;">You can now sign in using your new password.</div>
+          </div>
+        <?php endif; ?>
+
         <form id="loginForm" action="<?= BASE_URL ?>/api/login_process.php" method="POST" novalidate>
 
           <!-- Username or Email -->
@@ -151,7 +159,7 @@ require_once __DIR__ . '/includes/header.php';
               <input type="checkbox" name="remember" value="1" <?= !empty($rememberedUsername) ? 'checked' : '' ?>>
               <span>Remember me</span>
             </label>
-            <a href="javascript:void(0)" onclick="Toast.info('Password Assistance', 'Please contact platform administrator to reset your credentials.');" class="forgot-link">
+            <a href="<?= BASE_URL ?>/forgot_password.php" class="forgot-link">
               Forgot password?
             </a>
           </div>

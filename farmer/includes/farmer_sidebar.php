@@ -8,7 +8,8 @@
   <!-- Brand Area -->
   <div class="farmer-sidebar-brand">
     <a href="<?= BASE_URL ?>/farmer/dashboard.php" style="display: flex; align-items: center; text-decoration: none;">
-      <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="MarketLink" class="farmer-brand-logo">
+      <img src="<?= BASE_URL ?>/assets/images/logo-dark.svg" alt="MarketLink" class="farmer-brand-logo dashboard-logo-dark">
+      <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="MarketLink" class="farmer-brand-logo dashboard-logo-light">
     </a>
     <span class="farmer-badge-role">
       <i data-lucide="sprout" style="width: 13px; height: 13px;"></i>

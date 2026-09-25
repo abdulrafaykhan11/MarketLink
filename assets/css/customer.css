@@ -47,6 +47,10 @@
   width: auto;
 }
 
+.dashboard-logo-light { display: none; }
+[data-theme="light"] .dashboard-logo-dark { display: none; }
+[data-theme="light"] .dashboard-logo-light { display: block; }
+
 .sidebar-badge {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(14, 165, 233, 0.15));
   border: 1px solid rgba(16, 185, 129, 0.3);
@@ -1583,4 +1587,3 @@ a.btn-secondary[href*="reorder"]:hover {
 .btn-add-cart:hover {
   animation: none;
 }
-

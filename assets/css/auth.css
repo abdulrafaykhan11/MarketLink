@@ -13,6 +13,18 @@
   overflow-x: hidden;
 }
 
+.auth-form-container .reset-alert { display: block; padding: 0.9rem 1rem; margin-bottom: 1.25rem; border-radius: 10px; font-size: 0.9rem; font-weight: 700; line-height: 1.45; }
+.auth-form-container .reset-alert-error { color: #991b1b !important; background: #fff1f2 !important; border: 2px solid #f43f5e !important; }
+.auth-form-container .reset-alert-success { color: #065f46 !important; background: #ecfdf5 !important; border: 2px solid #10b981 !important; }
+.auth-form-container .otp-input { color: #0f172a !important; background: #ffffff !important; border-color: #94a3b8 !important; text-align: center; font-family: monospace; font-size: 1.45rem; font-weight: 700; letter-spacing: 0.35em; text-transform: uppercase; }
+.reset-resend, .reset-back { margin-top: 1.25rem; text-align: center; }
+.reset-link-button { background: none; border: 0; font: inherit; cursor: pointer; padding: 0; }
+.auth-form-container .reset-password-help { margin: -0.35rem 0 1.2rem; color: #334155 !important; font-size: 0.8rem; font-weight: 600; line-height: 1.45; }
+.auth-form-container .reset-back .forgot-link, .auth-form-container .reset-resend .forgot-link { color: #047857 !important; font-weight: 700; }
+.auth-form-container .auth-title, .auth-form-container .form-label { color: #0f172a !important; }
+.auth-form-container .auth-subtitle { color: #475569 !important; }
+.auth-form-container .form-input { color: #0f172a; }
+
 .auth-wrapper {
   display: flex;
   width: 100%;

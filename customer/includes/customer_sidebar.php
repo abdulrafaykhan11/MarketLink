@@ -7,7 +7,8 @@
   <!-- Brand Area -->
   <div class="sidebar-brand">
     <a href="<?= BASE_URL ?>/index.php" style="display:flex; align-items:center; gap:0.6rem; text-decoration:none;">
-      <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="MarketLink" class="sidebar-brand-img">
+      <img src="<?= BASE_URL ?>/assets/images/logo-dark.svg" alt="MarketLink" class="sidebar-brand-img dashboard-logo-dark">
+      <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="MarketLink" class="sidebar-brand-img dashboard-logo-light">
     </a>
     <span class="sidebar-badge">Customer</span>
   </div>

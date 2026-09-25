@@ -179,6 +179,23 @@ function sendLoginAlertEmail(string $toEmail, string $username, string $fullName
 }
 
 /**
+ * Send a short-lived password-reset verification code.
+ */
+function sendPasswordResetOtpEmail(string $toEmail, string $username, string $otp): bool {
+    $subject = 'Your MarketLink password reset code';
+    $preheader = 'Use this code to verify your password reset request.';
+    $content = '
+      <h2 style="margin-top:0; color:#0f172a; font-size:22px;">Reset your password</h2>
+      <p>Hello <strong>' . htmlspecialchars($username) . '</strong>,</p>
+      <p>We received a request to reset your MarketLink password. Enter this verification code on the password reset page:</p>
+      <div style="margin:24px 0; padding:18px; border-radius:12px; background:#ecfdf5; border:1px solid #a7f3d0; text-align:center; font-family:monospace; font-size:28px; font-weight:800; letter-spacing:7px; color:#065f46;">' . htmlspecialchars($otp) . '</div>
+      <p>This code expires in <strong>10 minutes</strong> and can be used only once.</p>
+      <p style="font-size:14px; color:#475569;">If you did not request a password reset, you can safely ignore this email. Your password will not be changed.</p>';
+
+    return sendMarketLinkEmail($toEmail, $username, $subject, $content, $preheader);
+}
+
+/**
  * 3. Order Placed Notification (Customer Receipt & Farmer Notification)
  */
 function sendOrderConfirmationEmails(int $orderId): bool {

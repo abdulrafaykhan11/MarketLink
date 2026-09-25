@@ -22,6 +22,9 @@ $stmt = $pdo->prepare("SELECT u.user_id, u.username, u.email, u.phone_number, u.
                        WHERE u.user_id = :uid LIMIT 1");
 $stmt->execute([':uid' => $currentUserId]);
 $farmer = $stmt->fetch();
+$farmerProfileImageUrl = !empty($farmer['profile_image'] ?? '')
+    ? resolveImageUrl($farmer['profile_image'])
+    : '';
 
 // If farmer profile is missing (e.g. admin browsing or freshly registered), ensure safe defaults
 if (!$farmer || empty($farmer['farmer_id'])) {
@@ -158,8 +161,8 @@ $cutoffFormatted = date('g:i A', strtotime($cutoffTime));
         <!-- User Stall Identity Menu -->
         <div class="farmer-topbar-user">
           <div class="farmer-user-avatar">
-            <?php if (!empty($farmer['profile_image'])): ?>
-              <img src="<?= BASE_URL ?>/<?= htmlspecialchars($farmer['profile_image']) ?>" alt="<?= htmlspecialchars($displayName) ?>">
+            <?php if ($farmerProfileImageUrl): ?>
+              <img src="<?= htmlspecialchars($farmerProfileImageUrl) ?>" alt="<?= htmlspecialchars($displayName) ?>" onerror="this.onerror=null;this.src='<?= BASE_URL ?>/assets/images/logo-dark.svg';">
             <?php else: ?>
               <?= strtoupper(substr($displayName, 0, 1)) ?>
             <?php endif; ?>

@@ -6,7 +6,8 @@
 <aside class="admin-sidebar" id="adminSidebar">
   <div class="admin-sidebar-header">
     <a href="<?= BASE_URL ?>/admin/dashboard.php" class="admin-brand">
-      <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="MarketLink">
+      <img src="<?= BASE_URL ?>/assets/images/logo-dark.svg" alt="MarketLink" class="dashboard-logo-dark">
+      <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="MarketLink" class="dashboard-logo-light">
       <span class="admin-badge-exec">Admin</span>
     </a>
     <button type="button" class="admin-modal-close" id="adminSidebarClose" style="display:none;" aria-label="Close Sidebar">

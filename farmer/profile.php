@@ -12,6 +12,7 @@ $lat = (float)($farmer['latitude'] ?? 24.8607);
 $lng = (float)($farmer['longitude'] ?? 67.0011);
 $profileImage = $farmer['profile_image'] ?? '';
 $hasPhoto = !empty($profileImage);
+$profileImageUrl = $hasPhoto ? resolveImageUrl($profileImage) : '';
 ?>
 
 <div class="farmer-content">
@@ -55,7 +56,7 @@ $hasPhoto = !empty($profileImage);
       <div style="position: relative; flex-shrink: 0;">
         <div id="photoPreview" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 3px solid <?= $hasPhoto ? 'var(--primary-500)' : 'rgba(239,68,68,0.6)' ?>; background: var(--bg-surface-elevated); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; color: var(--primary-400); font-family: var(--font-heading);">
           <?php if ($hasPhoto): ?>
-            <img id="photoPreviewImg" src="<?= BASE_URL ?>/<?= htmlspecialchars($profileImage) ?>" alt="<?= htmlspecialchars($displayName) ?>" style="width:100%;height:100%;object-fit:cover;">
+            <img id="photoPreviewImg" src="<?= htmlspecialchars($profileImageUrl) ?>" alt="<?= htmlspecialchars($displayName) ?>" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null;this.src='<?= BASE_URL ?>/assets/images/logo-dark.svg';">
           <?php else: ?>
             <span id="photoInitial"><?= strtoupper(substr($displayName, 0, 1)) ?></span>
           <?php endif; ?>
