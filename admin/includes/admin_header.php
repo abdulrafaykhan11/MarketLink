@@ -69,6 +69,7 @@ $activeNav = $activeNav ?? 'dashboard';
   <!-- Core & Admin Stylesheets -->
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/main.css">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/admin.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/responsive.css">
 
   <link rel="icon" type="image/svg+xml" href="<?= BASE_URL ?>/assets/images/logo.svg">
 </head>

@@ -177,7 +177,7 @@ try {
 </div>
 
 <!-- Charts & Visual Analytics Section -->
-<div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem; margin-bottom:2rem; @media(max-width:1024px){grid-template-columns: 1fr;}">
+<div class="admin-dashboard-split" style="margin-bottom:2rem;">
   <!-- Order Status Breakdown Chart -->
   <div class="admin-card" style="margin-bottom:0;">
     <div class="admin-card-header">
@@ -300,7 +300,7 @@ try {
 <?php endif; ?>
 
 <!-- Recent Platform Pre-Orders & System Registrations -->
-<div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem; @media(max-width:1024px){grid-template-columns: 1fr;}">
+<div class="admin-dashboard-split">
   <!-- Recent Pre-Orders Table -->
   <div class="admin-card">
     <div class="admin-card-header">

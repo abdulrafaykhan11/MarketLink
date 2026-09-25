@@ -85,6 +85,7 @@ if ($firstStallId) {
             </a>
           </div>
 
+          <div class="cart-table-responsive">
           <table class="cart-items-table">
             <thead>
               <tr>
@@ -140,6 +141,7 @@ if ($firstStallId) {
               <?php endforeach; ?>
             </tbody>
           </table>
+          </div>
         </div>
       <?php endforeach; ?>
     </div>

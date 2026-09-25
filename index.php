@@ -145,6 +145,20 @@ require_once __DIR__ . '/includes/header.php';
     <div class="hero-fullscreen-overlay"></div>
   </div>
 
+  <div class="hero-mobile-panel">
+    <span class="hero-mobile-kicker"><span></span> Live local harvest</span>
+    <h1>Fresh from the farm, ready for your table.</h1>
+    <p>Browse nearby growers, reserve today's harvest, and collect it at your local market.</p>
+    <div class="hero-mobile-actions">
+      <a href="<?= BASE_URL ?>/customer/products.php" class="hero-mobile-primary">Explore fresh produce</a>
+      <a href="<?= BASE_URL ?>/stall.php" class="hero-mobile-secondary">Find local stalls</a>
+    </div>
+    <div class="hero-mobile-proof">
+      <strong>Farm to pickup</strong>
+      <span>Seasonal produce from verified growers</span>
+    </div>
+  </div>
+
 </section>
 
 <!-- ==========================================================================

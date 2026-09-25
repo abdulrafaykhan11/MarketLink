@@ -218,6 +218,7 @@ if (!empty($orderIds)) {
         </div>
 
         <!-- Itemized Table -->
+        <div class="cart-table-responsive">
         <table class="cart-items-table" style="margin-bottom:1.5rem;">
           <thead>
             <tr>
@@ -256,6 +257,7 @@ if (!empty($orderIds)) {
             <?php endforeach; ?>
           </tbody>
         </table>
+        </div>
 
         <!-- Order Action Buttons -->
         <div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border-subtle); padding-top:1rem; flex-wrap:wrap;">

@@ -31,6 +31,7 @@ $pageTitle = $pageTitle ?? 'Direct Farmers Marketplace';
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/main.css">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/home.css">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/auth.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/responsive.css">
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="<?= BASE_URL ?>/assets/images/logo.svg">

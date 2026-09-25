@@ -96,6 +96,7 @@ $cutoffFormatted = date('g:i A', strtotime($cutoffTime));
   <!-- Core Design System & Farmer Portal Stylesheets -->
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/main.css">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/farmer.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/responsive.css">
 
   <link rel="icon" type="image/svg+xml" href="<?= BASE_URL ?>/assets/images/logo.svg">
 </head>
@@ -187,4 +188,3 @@ $cutoffFormatted = date('g:i A', strtotime($cutoffTime));
       </a>
     </div>
     <?php endif; ?>
-
