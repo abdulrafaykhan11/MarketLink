@@ -669,6 +669,7 @@ try {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const isLight = () => document.documentElement.getAttribute('data-theme') === 'light';
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Common typography & theme colors
   const getThemePalette = () => {
@@ -690,27 +691,74 @@ document.addEventListener('DOMContentLoaded', function() {
   // Helper to format currency
   const formatCurrency = (val) => 'Rs. ' + Number(val).toLocaleString();
 
+  // Helper to animate numbers
+  function animateCounter(el, target, duration = 1200, prefix = '', suffix = '') {
+    if (prefersReduced) {
+      el.textContent = prefix + Number(target).toLocaleString() + suffix;
+      return;
+    }
+    const start = 0;
+    const startTime = performance.now();
+    const isFloat = String(target).includes('.');
+
+    function updateCounter(now) {
+      const elapsed = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - elapsed, 3); // cubic ease-out
+      const current = start + (target - start) * eased;
+      el.textContent = prefix + (isFloat ? current.toFixed(1) : Math.round(current).toLocaleString()) + suffix;
+      if (elapsed < 1) {
+        requestAnimationFrame(updateCounter);
+      } else {
+        el.textContent = prefix + (isFloat ? target : Number(target).toLocaleString()) + suffix;
+      }
+    }
+    requestAnimationFrame(updateCounter);
+  }
+
   // Array to hold chart instances for responsive theme updates
   const chartInstances = [];
 
-  // =========================================================================
-  // 1. REVENUE & PRE-ORDER TRAJECTORY SPLINE CHART
-  // =========================================================================
-  const revCanvas = document.getElementById('revenueGrowthChart');
-  let revChart = null;
-  if (revCanvas) {
-    const ctx = revCanvas.getContext('2d');
-    const trendDates = <?= json_encode(!empty($trendDates) ? $trendDates : ['No Data']) ?>;
-    const trendRevs = <?= json_encode(!empty($trendRevenues) ? $trendRevenues : [0]) ?>;
-    const trendOrders = <?= json_encode(!empty($trendOrderCounts) ? $trendOrderCounts : [0]) ?>;
+  // Data from PHP
+  const trendDates = <?= json_encode(!empty($trendDates) ? $trendDates : ['No Data']) ?>;
+  const trendRevs = <?= json_encode(!empty($trendRevenues) ? $trendRevenues : [0]) ?>;
+  const trendOrders = <?= json_encode(!empty($trendOrderCounts) ? $trendOrderCounts : [0]) ?>;
+  const rawStatusData = <?= json_encode($statusData) ?>;
+  const sLabels = <?= json_encode(!empty($stallLabels) ? $stallLabels : ['No Producers']) ?>;
+  const sRevenues = <?= json_encode(!empty($stallRevenues) ? $stallRevenues : [0]) ?>;
+  const sOrders = <?= json_encode(!empty($stallOrders) ? $stallOrders : [0]) ?>;
+  const cLabels = <?= json_encode(!empty($catLabels) ? $catLabels : ['None']) ?>;
+  const cCounts = <?= json_encode(!empty($catCounts) ? $catCounts : [0]) ?>;
+  const mLabels = <?= json_encode(!empty($marketLabels) ? $marketLabels : ['No Markets']) ?>;
+  const mCounts = <?= json_encode(!empty($marketStallCounts) ? $marketStallCounts : [0]) ?>;
+  const totalOrdersCount = <?= $totalOrders ?>;
 
-    // Linear gradient for revenue area
+  // Chart references
+  let revChart = null;
+  let statusChart = null;
+  let stallsChart = null;
+  let catChart = null;
+  let marketChart = null;
+
+  // =========================================================================
+  // CHART BUILDERS (Called 1-by-1 in choreographed sequence)
+  // =========================================================================
+
+  // 1. REVENUE & PRE-ORDER TRAJECTORY SPLINE (STANDOUT ANIMATED LOAD)
+  function initRevenueChart() {
+    const revCanvas = document.getElementById('revenueGrowthChart');
+    if (!revCanvas || revChart) return;
+    const card = document.getElementById('cardRevenueGrowth');
+    if (card) {
+      card.classList.add('loaded');
+      card.querySelector('.admin-chart-canvas-wrap')?.classList.add('chart-ready');
+    }
+
+    const ctx = revCanvas.getContext('2d');
     const revGradient = ctx.createLinearGradient(0, 0, 0, 260);
-    revGradient.addColorStop(0, 'rgba(34, 197, 94, 0.38)');
-    revGradient.addColorStop(0.7, 'rgba(34, 197, 94, 0.08)');
+    revGradient.addColorStop(0, 'rgba(34, 197, 94, 0.42)');
+    revGradient.addColorStop(0.65, 'rgba(34, 197, 94, 0.08)');
     revGradient.addColorStop(1, 'rgba(34, 197, 94, 0.0)');
 
-    // Linear gradient for order volume
     const orderGradient = ctx.createLinearGradient(0, 0, 0, 260);
     orderGradient.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
     orderGradient.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
@@ -725,7 +773,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: trendRevs,
             borderColor: '#22c55e',
             backgroundColor: revGradient,
-            borderWidth: 3,
+            borderWidth: 3.5,
             fill: true,
             tension: 0.38,
             pointRadius: 4,
@@ -756,14 +804,19 @@ document.addEventListener('DOMContentLoaded', function() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false
-        },
+        interaction: { mode: 'index', intersect: false },
         animation: {
-          duration: 1200,
+          duration: prefersReduced ? 0 : 1600,
           easing: 'easeOutQuart',
-          delay: (context) => context.dataIndex * 40
+          delay: (context) => (context.type === 'data' && !prefersReduced ? context.dataIndex * 85 : 0)
+        },
+        animations: {
+          y: {
+            type: 'number',
+            easing: 'easeOutCubic',
+            duration: prefersReduced ? 0 : 1200,
+            delay: (ctx) => (ctx.type === 'data' && !prefersReduced ? ctx.dataIndex * 80 : 0)
+          }
         },
         plugins: {
           legend: {
@@ -860,17 +913,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // =========================================================================
-  // 2. ORDER FULFILLMENT DOUGHNUT CHART WITH CENTER METRIC
-  // =========================================================================
-  const statusCanvas = document.getElementById('orderStatusChart');
-  let statusChart = null;
-  if (statusCanvas) {
-    const rawData = <?= json_encode($statusData) ?>;
-    const labels = Object.keys(rawData).map(s => s.replace(/_/g, ' ').toUpperCase());
-    const dataVals = Object.values(rawData);
-    const totalOrdersCount = <?= $totalOrders ?>;
+  // 2. ORDER FULFILLMENT DOUGHNUT CHART WITH DYNAMIC CENTER COUNT
+  function initOrderStatusChart() {
+    const statusCanvas = document.getElementById('orderStatusChart');
+    if (!statusCanvas || statusChart) return;
+    const card = document.getElementById('cardOrderStatus');
+    if (card) {
+      card.classList.add('loaded');
+      card.querySelector('.admin-chart-canvas-wrap')?.classList.add('chart-ready');
+    }
 
+    const labels = Object.keys(rawStatusData).map(s => s.replace(/_/g, ' ').toUpperCase());
+    const dataVals = Object.values(rawStatusData);
+
+    let displayOrdersCount = 0;
     const centerTextPlugin = {
       id: 'centerTextPlugin',
       beforeDraw(chart) {
@@ -881,7 +937,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.textBaseline = 'middle';
         ctx.font = '800 24px "Plus Jakarta Sans", sans-serif';
         ctx.fillStyle = light ? '#0f172a' : '#f8fafc';
-        ctx.fillText(totalOrdersCount, width / 2, height / 2 - 8);
+        ctx.fillText(Math.round(displayOrdersCount), width / 2, height / 2 - 8);
         ctx.font = '700 10px "Inter", sans-serif';
         ctx.fillStyle = light ? '#64748b' : '#94a3b8';
         ctx.fillText('ORDERS', width / 2, height / 2 + 14);
@@ -904,17 +960,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'rgba(239, 68, 68, 0.85)', // cancelled
             'rgba(148, 163, 184, 0.6)' // declined
           ],
-          hoverBackgroundColor: [
-            '#fbbf24',
-            '#22d3ee',
-            '#4ade80',
-            '#818cf8',
-            '#f87171',
-            '#cbd5e1'
-          ],
+          hoverBackgroundColor: ['#fbbf24', '#22d3ee', '#4ade80', '#818cf8', '#f87171', '#cbd5e1'],
           borderWidth: 3,
           borderColor: isLight() ? '#ffffff' : '#081d2e',
-          hoverOffset: 6
+          hoverOffset: 7
         }]
       },
       options: {
@@ -923,7 +972,7 @@ document.addEventListener('DOMContentLoaded', function() {
         animation: {
           animateRotate: true,
           animateScale: true,
-          duration: 1100,
+          duration: prefersReduced ? 0 : 1200,
           easing: 'easeOutCubic'
         },
         plugins: {
@@ -958,17 +1007,33 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
     chartInstances.push(statusChart);
+
+    // Animate center text count
+    if (!prefersReduced) {
+      const startTime = performance.now();
+      const duration = 1200;
+      function stepCenter(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        displayOrdersCount = totalOrdersCount * (1 - Math.pow(1 - progress, 3));
+        statusChart.render();
+        if (progress < 1) requestAnimationFrame(stepCenter);
+      }
+      requestAnimationFrame(stepCenter);
+    } else {
+      displayOrdersCount = totalOrdersCount;
+      statusChart.render();
+    }
   }
 
-  // =========================================================================
-  // 3. TOP PRODUCER STALLS HORIZONTAL BAR CHART
-  // =========================================================================
-  const stallsCanvas = document.getElementById('topStallsChart');
-  let stallsChart = null;
-  if (stallsCanvas) {
-    const sLabels = <?= json_encode(!empty($stallLabels) ? $stallLabels : ['No Producers']) ?>;
-    const sRevenues = <?= json_encode(!empty($stallRevenues) ? $stallRevenues : [0]) ?>;
-    const sOrders = <?= json_encode(!empty($stallOrders) ? $stallOrders : [0]) ?>;
+  // 3. TOP PRODUCER STALLS HORIZONTAL BARS
+  function initTopStallsChart() {
+    const stallsCanvas = document.getElementById('topStallsChart');
+    if (!stallsCanvas || stallsChart) return;
+    const card = document.getElementById('cardTopStalls');
+    if (card) {
+      card.classList.add('loaded');
+      card.querySelector('.admin-chart-canvas-wrap')?.classList.add('chart-ready');
+    }
 
     const barColors = [
       'rgba(34, 197, 94, 0.85)',
@@ -997,9 +1062,9 @@ document.addEventListener('DOMContentLoaded', function() {
         responsive: true,
         maintainAspectRatio: false,
         animation: {
-          duration: 1000,
+          duration: prefersReduced ? 0 : 1000,
           easing: 'easeOutQuart',
-          delay: (ctx) => ctx.dataIndex * 80
+          delay: (ctx) => (ctx.type === 'data' && !prefersReduced ? ctx.dataIndex * 110 : 0)
         },
         plugins: {
           legend: { display: false },
@@ -1047,14 +1112,15 @@ document.addEventListener('DOMContentLoaded', function() {
     chartInstances.push(stallsChart);
   }
 
-  // =========================================================================
-  // 4. LIVE CROP CATEGORY SATURATION (VERTICAL COLUMNS)
-  // =========================================================================
-  const catCanvas = document.getElementById('categoryDistChart');
-  let catChart = null;
-  if (catCanvas) {
-    const cLabels = <?= json_encode(!empty($catLabels) ? $catLabels : ['None']) ?>;
-    const cCounts = <?= json_encode(!empty($catCounts) ? $catCounts : [0]) ?>;
+  // 4. CROP CATEGORY SATURATION (VERTICAL COLUMNS)
+  function initCategoryDistChart() {
+    const catCanvas = document.getElementById('categoryDistChart');
+    if (!catCanvas || catChart) return;
+    const card = document.getElementById('cardCategoryDist');
+    if (card) {
+      card.classList.add('loaded');
+      card.querySelector('.admin-chart-canvas-wrap')?.classList.add('chart-ready');
+    }
 
     const columnColors = [
       'rgba(34, 197, 94, 0.85)',
@@ -1082,9 +1148,9 @@ document.addEventListener('DOMContentLoaded', function() {
         responsive: true,
         maintainAspectRatio: false,
         animation: {
-          duration: 1100,
+          duration: prefersReduced ? 0 : 1050,
           easing: 'easeOutBack',
-          delay: (ctx) => ctx.dataIndex * 70
+          delay: (ctx) => (ctx.type === 'data' && !prefersReduced ? ctx.dataIndex * 90 : 0)
         },
         plugins: {
           legend: { display: false },
@@ -1127,14 +1193,15 @@ document.addEventListener('DOMContentLoaded', function() {
     chartInstances.push(catChart);
   }
 
-  // =========================================================================
-  // 5. MARKET HUB STALL DENSITY (POLAR AREA CHART)
-  // =========================================================================
-  const marketCanvas = document.getElementById('marketDensityChart');
-  let marketChart = null;
-  if (marketCanvas) {
-    const mLabels = <?= json_encode(!empty($marketLabels) ? $marketLabels : ['No Markets']) ?>;
-    const mCounts = <?= json_encode(!empty($marketStallCounts) ? $marketStallCounts : [0]) ?>;
+  // 5. MARKET HUB STALL DENSITY (POLAR AREA)
+  function initMarketDensityChart() {
+    const marketCanvas = document.getElementById('marketDensityChart');
+    if (!marketCanvas || marketChart) return;
+    const card = document.getElementById('cardMarketDensity');
+    if (card) {
+      card.classList.add('loaded');
+      card.querySelector('.admin-chart-canvas-wrap')?.classList.add('chart-ready');
+    }
 
     marketChart = new Chart(marketCanvas, {
       type: 'polarArea',
@@ -1160,7 +1227,7 @@ document.addEventListener('DOMContentLoaded', function() {
         animation: {
           animateRotate: true,
           animateScale: true,
-          duration: 1200,
+          duration: prefersReduced ? 0 : 1250,
           easing: 'easeOutQuart'
         },
         plugins: {
@@ -1191,15 +1258,73 @@ document.addEventListener('DOMContentLoaded', function() {
           r: {
             grid: { color: palette.gridColor },
             angleLines: { color: palette.gridColor },
-            ticks: {
-              display: false,
-              backdropColor: 'transparent'
-            }
+            ticks: { display: false, backdropColor: 'transparent' }
           }
         }
       }
     });
     chartInstances.push(marketChart);
+  }
+
+  // =========================================================================
+  // CHOREOGRAPHED 1-BY-1 SEQUENTIAL ACTIVATION
+  // =========================================================================
+  let sequenceStarted = false;
+  function startSequentialLoading() {
+    if (sequenceStarted) return;
+    sequenceStarted = true;
+
+    // 0. Micro-KPI cards reveal & counter animation
+    const kpiCards = document.querySelectorAll('.analytics-micro-kpi.anim-stagger-kpi');
+    kpiCards.forEach((kpi, idx) => {
+      setTimeout(() => {
+        kpi.classList.add('loaded');
+        const valEl = kpi.querySelector('.analytics-micro-val');
+        if (valEl && valEl.dataset.counterVal) {
+          const target = parseFloat(valEl.dataset.counterVal);
+          const prefix = valEl.dataset.counterPrefix || '';
+          const suffix = valEl.dataset.counterSuffix || '';
+          animateCounter(valEl, target, 1000, prefix, suffix);
+        }
+      }, prefersReduced ? 0 : idx * 75);
+    });
+
+    // Sequential timing per chart (1 by 1 load)
+    const baseDelay = prefersReduced ? 0 : 120;
+    const stepDelay = prefersReduced ? 0 : 420;
+
+    // Chart 1: Revenue Trajectory (begins drawing line & area)
+    setTimeout(initRevenueChart, baseDelay);
+
+    // Chart 2: Order Fulfillment Doughnut
+    setTimeout(initOrderStatusChart, baseDelay + stepDelay);
+
+    // Chart 3: Top Producer Stalls
+    setTimeout(initTopStallsChart, baseDelay + stepDelay * 2);
+
+    // Chart 4: Crop Category Saturation
+    setTimeout(initCategoryDistChart, baseDelay + stepDelay * 3);
+
+    // Chart 5: Market Hub Density
+    setTimeout(initMarketDensityChart, baseDelay + stepDelay * 4);
+  }
+
+  // IntersectionObserver to start sequence when section is visible
+  const analyticsSection = document.querySelector('.admin-analytics-section');
+  if (analyticsSection) {
+    if (prefersReduced) {
+      startSequentialLoading();
+    } else {
+      const obs = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          startSequentialLoading();
+          obs.disconnect();
+        }
+      }, { threshold: 0.08 });
+      obs.observe(analyticsSection);
+    }
+  } else {
+    startSequentialLoading();
   }
 
   // =========================================================================
