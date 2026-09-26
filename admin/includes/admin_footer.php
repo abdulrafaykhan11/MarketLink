@@ -2,8 +2,8 @@
   </div><!-- /.admin-main -->
 </div><!-- /.admin-layout -->
 
-<!-- Toast Notification Container -->
-<div id="adminToastContainer" style="position:fixed; bottom:1.5rem; right:1.5rem; z-index:9999; display:flex; flex-direction:column; gap:0.5rem;"></div>
+<!-- Toast Notification Container (Prominent Side Notification) -->
+<div id="adminToastContainer" style="position:fixed; top:2rem; right:2rem; z-index:999999; display:flex; flex-direction:column; gap:0.75rem; max-width:440px; pointer-events:none;"></div>
 
 <script>
   // Initialize Lucide Icons
@@ -41,19 +41,22 @@
     toast.style.cssText = `
       background: ${bg};
       color: #ffffff;
-      padding: 0.85rem 1.25rem;
-      border-radius: 8px;
+      padding: 0.95rem 1.35rem;
+      border-radius: 10px;
       font-size: 0.875rem;
       font-weight: 600;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+      line-height: 1.45;
+      box-shadow: 0 14px 35px -5px rgba(0,0,0,0.45);
       display: flex;
-      align-items: center;
-      gap: 0.65rem;
+      align-items: flex-start;
+      gap: 0.75rem;
+      pointer-events: auto;
+      border: 1px solid rgba(255,255,255,0.2);
       animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(12px);
     `;
 
-    toast.innerHTML = `<span>${isSuccess ? '✔' : isError ? '✖' : 'ℹ'}</span> <span>${message}</span>`;
+    toast.innerHTML = `<span style="font-size:1.15rem; flex-shrink:0;">${isSuccess ? '✔' : isError ? '⚠️' : 'ℹ'}</span> <span>${message}</span>`;
     container.appendChild(toast);
 
     setTimeout(() => {

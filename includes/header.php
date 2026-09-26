@@ -1,18 +1,20 @@
 <?php
+
 /**
  * MarketLink - Header Template
  */
 if (!defined('APP_NAME')) {
-    require_once __DIR__ . '/../config/db.php';
+  require_once __DIR__ . '/../config/db.php';
 }
 if (!function_exists('isLoggedIn')) {
-    require_once __DIR__ . '/../includes/auth_guard.php';
+  require_once __DIR__ . '/../includes/auth_guard.php';
 }
 
 $pageTitle = $pageTitle ?? 'Direct Farmers Marketplace';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,13 +30,15 @@ $pageTitle = $pageTitle ?? 'Direct Farmers Marketplace';
   <script src="<?= BASE_URL ?>/assets/js/theme.js"></script>
 
   <!-- Core Styles -->
-  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/main.css">
-  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/home.css">
-  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/auth.css">
-  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/responsive.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/main.css?v=<?= filemtime(__DIR__ . '/../assets/css/main.css') ?>">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/home.css?v=<?= filemtime(__DIR__ . '/../assets/css/home.css') ?>">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/testimonials.css?v=<?= filemtime(__DIR__ . '/../assets/css/testimonials.css') ?>">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/auth.css?v=<?= filemtime(__DIR__ . '/../assets/css/auth.css') ?>">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/responsive.css?v=<?= filemtime(__DIR__ . '/../assets/css/responsive.css') ?>">
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="<?= BASE_URL ?>/assets/images/logo.svg">
 </head>
+
 <body>
-<div id="toast-container"></div>
+  <div id="toast-container"></div>

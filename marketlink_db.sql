@@ -121,6 +121,7 @@ CREATE TABLE `farmer_reviews` (
   `farmer_response` text DEFAULT NULL,
   `response_date` datetime DEFAULT NULL,
   `is_moderated` tinyint(1) DEFAULT 1,
+  `is_featured` tinyint(1) DEFAULT 0,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

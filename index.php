@@ -13,13 +13,7 @@
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/auth_guard.php';
 
-// ── Intro gate: EVERYONE sees the intro first ─────────────────────────────
-// Skip only after the intro completion endpoint has set the session flag.
 if (session_status() === PHP_SESSION_NONE) session_start();
-if (empty($_SESSION['intro_seen'])) {
-    header('Location: ' . BASE_URL . '/intro.php');
-    exit;
-}
 
 $pdo = getDBConnection();
 
@@ -126,6 +120,85 @@ if (!empty($dbStalls)) {
     }
 } else {
     $showcaseStalls = $fallbackStalls;
+}
+
+// Fetch testimonials for homepage (Admin-controlled: prioritized by is_featured, then top rating)
+$testimonialsQuery = "
+    SELECT fr.review_id, fr.rating, fr.review_comment, fr.farmer_response, fr.created_at, fr.is_featured,
+           u.username as customer_username,
+           COALESCE(cp.full_name, u.username) as customer_name,
+           u.profile_image as customer_image,
+           fp.farmer_id, fp.stall_name,
+           COALESCE(fp.contact_person, fu.username) as farmer_name,
+           fu.profile_image as farmer_image,
+           COALESCE(MAX(m.market_name), 'Local Community Farmers Market') as market_name
+    FROM farmer_reviews fr
+    JOIN users u ON fr.customer_id = u.user_id
+    LEFT JOIN customer_profiles cp ON fr.customer_id = cp.customer_id
+    JOIN farmer_profiles fp ON fr.farmer_id = fp.farmer_id
+    JOIN users fu ON fp.farmer_id = fu.user_id
+    LEFT JOIN farmer_market_stalls fms ON fp.farmer_id = fms.farmer_id AND fms.status = 'active'
+    LEFT JOIN markets m ON fms.market_id = m.market_id
+    WHERE fr.is_moderated = 1
+      AND fr.review_comment IS NOT NULL
+      AND TRIM(fr.review_comment) != ''
+    GROUP BY fr.review_id
+    ORDER BY fr.is_featured DESC, fr.rating DESC, fr.created_at DESC
+    LIMIT 6
+";
+$testimonials = [];
+try {
+    $testimonials = $pdo->query($testimonialsQuery)->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $testimonials = [];
+}
+
+// Fallback high-trust testimonials if database is fresh
+if (empty($testimonials)) {
+    $testimonials = [
+        [
+            'review_id' => 0,
+            'rating' => 5,
+            'review_comment' => "The organic heirloom tomatoes were exceptionally fresh and sweet! Stall was well-organized for fast pickup and produce was crisp.",
+            'farmer_response' => "Thank you so much! Our whole farm team is blessed to grow for you 💚",
+            'customer_name' => "Sara Ahmed",
+            'customer_username' => "sara_ahmed",
+            'customer_image' => "",
+            'farmer_id' => 2,
+            'stall_name' => "Sunrise Organic Orchard",
+            'farmer_name' => "Tariq Mehmood",
+            'market_name' => "Riverside Organic Community Market",
+            'is_featured' => 1
+        ],
+        [
+            'review_id' => 0,
+            'rating' => 5,
+            'review_comment' => "Best mushrooms I've ever had in my life. Sautéed Lion's Mane in butter and fresh thyme tasted like gourmet scallops! Mind-blowing.",
+            'farmer_response' => "JazakAllah for your review! See you next Saturday morning inshAllah! 🌿",
+            'customer_name' => "Ahzam Khan",
+            'customer_username' => "ahzam_k",
+            'customer_image' => "",
+            'farmer_id' => 6,
+            'stall_name' => "Zara's Hydroponic Garden",
+            'farmer_name' => "Hassan Raza",
+            'market_name' => "Johar Town Community Harvest Fair",
+            'is_featured' => 1
+        ],
+        [
+            'review_id' => 0,
+            'rating' => 5,
+            'review_comment' => "The Sidr honey is therapeutic. My entire family uses it now instead of processed sugar. Cannot recommend highly enough!",
+            'farmer_response' => "",
+            'customer_name' => "Saima Rizvi",
+            'customer_username' => "saima_r",
+            'customer_image' => "",
+            'farmer_id' => 14,
+            'stall_name' => "Asif Citrus & Olive Grove",
+            'farmer_name' => "Muhammad Asif",
+            'market_name' => "Model Town Sunrise Farmers Souk",
+            'is_featured' => 1
+        ]
+    ];
 }
 
 $pageTitle = 'Direct Farmers Marketplace • Fresh From Soil To Table';
@@ -848,6 +921,679 @@ require_once __DIR__ . '/includes/header.php';
 
   </div>
 </section>
+
+
+<!-- ==========================================================================
+     SECTION: Stall Reviews & Community Testimonials (Admin-Controlled)
+     Ultra-Luxury Silicon Valley Aesthetics • Fully Theme-Adaptive & Responsive
+     ========================================================================== -->
+<style id="marketlink-testimonials-styles">
+.testimonials-section {
+  position: relative;
+  padding: 6.5rem 1.5rem;
+  background: var(--bg-secondary, #09211a);
+  overflow: hidden;
+  font-family: var(--font-body, 'Inter', sans-serif);
+}
+
+.testimonials-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 420px;
+  background: radial-gradient(ellipse, rgba(34, 197, 94, 0.16) 0%, rgba(56, 189, 248, 0.08) 45%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.testimonials-section .section-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.testimonials-header {
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto 3.75rem auto;
+}
+
+.testimonials-badge-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.testimonials-section .section-tag-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1.15rem;
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.12);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  border-radius: var(--radius-full, 9999px);
+  box-shadow: 0 4px 15px rgba(250, 204, 21, 0.15);
+}
+
+.testimonials-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: var(--radius-full, 9999px);
+}
+
+.live-dot-gold {
+  width: 8px;
+  height: 8px;
+  background: #facc15;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #facc15;
+  animation: pulseGold 2s infinite ease-in-out;
+}
+
+@keyframes pulseGold {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px #facc15; }
+  50% { transform: scale(1.35); opacity: 0.7; box-shadow: 0 0 16px #facc15; }
+}
+
+.testimonials-section .section-title {
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: clamp(2.1rem, 3.8vw, 3.1rem);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.testimonials-section .section-subtitle {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--slate-300, #cbd5e1);
+  margin: 0 auto;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 3.5rem;
+}
+
+@media (max-width: 1100px) {
+  .testimonials-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.testimonial-card {
+  position: relative;
+  background: rgba(14, 42, 34, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(74, 222, 128, 0.18);
+  border-radius: 22px;
+  padding: 2.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease;
+  overflow: hidden;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(74, 222, 128, 0.55);
+  box-shadow: 0 25px 55px -12px rgba(34, 197, 94, 0.28);
+}
+
+.testimonial-card-glow {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.22) 0%, rgba(56, 189, 248, 0.12) 50%, transparent 70%);
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  opacity: 0.45;
+}
+
+.testimonial-card:hover .testimonial-card-glow {
+  opacity: 1;
+}
+
+.testimonial-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 2;
+}
+
+.testimonial-stars {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.stars-gold {
+  color: #facc15;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px rgba(250, 204, 21, 0.4);
+}
+
+.stars-val {
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fef08a;
+  background: rgba(250, 204, 21, 0.18);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+}
+
+.testimonial-featured-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.725rem;
+  font-weight: 800;
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tag-sparkle {
+  color: #facc15;
+  font-size: 0.8rem;
+}
+
+.testimonial-quote-icon {
+  font-family: 'Georgia', serif;
+  font-size: 4.2rem;
+  line-height: 1;
+  color: rgba(74, 222, 128, 0.15);
+  margin-bottom: -1.75rem;
+  user-select: none;
+  font-style: italic;
+}
+
+.testimonial-comment {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #f1f5f9;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
+  flex-grow: 1;
+  font-weight: 400;
+}
+
+.testimonial-reply-box {
+  background: rgba(34, 197, 94, 0.09);
+  border-left: 3.5px solid #22c55e;
+  border-radius: 10px;
+  padding: 0.85rem 1.15rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.reply-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #4ade80;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reply-text {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-style: italic;
+  margin: 0;
+}
+
+.testimonial-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  position: relative;
+  z-index: 2;
+}
+
+.customer-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.customer-avatar-img,
+.customer-avatar-chip {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.customer-avatar-img {
+  object-fit: cover;
+  border: 2px solid #22c55e;
+}
+
+.customer-avatar-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-weight: 800;
+  font-size: 1rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+  border: 2px solid rgba(74, 222, 128, 0.5);
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+}
+
+.customer-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.customer-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.customer-name {
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.verified-buyer-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  background: #22c55e;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 900;
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.4);
+}
+
+.customer-label {
+  font-size: 0.775rem;
+  color: var(--slate-400, #94a3b8);
+}
+
+.testimonial-stall-link {
+  display: block;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  border-radius: 14px;
+  padding: 0.85rem 1.15rem;
+  text-decoration: none;
+  transition: all 0.28s ease;
+}
+
+.testimonial-stall-link:hover {
+  background: rgba(34, 197, 94, 0.16);
+  border-color: #22c55e;
+  transform: translateX(4px);
+}
+
+.stall-link-label {
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #4ade80;
+  display: block;
+  margin-bottom: 0.2rem;
+  font-weight: 700;
+}
+
+.stall-link-name {
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.98rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+}
+
+.stall-link-arrow {
+  color: #4ade80;
+  transition: transform 0.25s ease;
+  font-size: 1.1rem;
+}
+
+.testimonial-stall-link:hover .stall-link-arrow {
+  transform: translateX(4px);
+}
+
+.stall-link-market {
+  font-size: 0.775rem;
+  color: #94a3b8;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.testimonials-trust-footer {
+  background: rgba(14, 42, 34, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: 18px;
+  padding: 1.6rem 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+}
+
+.trust-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.trust-stat-val {
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #4ade80;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.trust-stat-lbl {
+  font-size: 0.825rem;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.trust-stat-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-trust-order {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.85rem;
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+  color: #ffffff;
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  transition: all 0.25s ease;
+}
+
+.btn-trust-order:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(34, 197, 94, 0.55);
+  color: #ffffff;
+}
+
+[data-theme="light"] .testimonials-section {
+  background: #f0fdf4;
+}
+
+[data-theme="light"] .testimonials-section .section-title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .testimonials-section .section-subtitle {
+  color: #475569;
+}
+
+[data-theme="light"] .testimonial-card {
+  background: #ffffff;
+  border-color: rgba(34, 197, 94, 0.22);
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="light"] .testimonial-card:hover {
+  border-color: #22c55e;
+  box-shadow: 0 20px 45px -10px rgba(34, 197, 94, 0.18);
+}
+
+[data-theme="light"] .testimonial-comment {
+  color: #1e293b;
+}
+
+[data-theme="light"] .customer-name {
+  color: #0f172a;
+}
+
+[data-theme="light"] .customer-label,
+[data-theme="light"] .stall-link-market {
+  color: #64748b;
+}
+
+[data-theme="light"] .reply-text {
+  color: #475569;
+}
+
+[data-theme="light"] .testimonial-reply-box {
+  background: #f0fdf4;
+}
+
+[data-theme="light"] .stall-link-name {
+  color: #0f172a;
+}
+
+[data-theme="light"] .testimonial-stall-link {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+[data-theme="light"] .testimonial-stall-link:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+[data-theme="light"] .testimonial-footer {
+  border-top-color: #e2e8f0;
+}
+
+[data-theme="light"] .testimonials-trust-footer {
+  background: #ffffff;
+  border-color: #bbf7d0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .trust-stat-divider {
+  background: #cbd5e1;
+}
+
+[data-theme="light"] .trust-stat-lbl {
+  color: #475569;
+}
+</style>
+
+<section class="testimonials-section" id="testimonials">
+  <div class="section-container">
+    
+    <div class="section-header testimonials-header">
+      <div class="testimonials-badge-wrap">
+        <span class="section-tag-gold">★ Verified Stall Ratings</span>
+        <span class="testimonials-live-badge"><span class="live-dot-gold"></span> Community Trust</span>
+      </div>
+      <h2 class="section-title">Loved by Local Foodies, Trusted by Producers</h2>
+      <p class="section-subtitle">
+        Real experiences from conscious households who reserve dawn-harvested crops directly from our verified market stall owners.
+      </p>
+    </div>
+
+    <div class="testimonials-grid">
+      <?php foreach ($testimonials as $t): 
+        $rating = (int)($t['rating'] ?? 5);
+        $custName = htmlspecialchars($t['customer_name'] ?? 'Verified Customer');
+        $stallName = htmlspecialchars($t['stall_name'] ?? 'Local Stall');
+        $marketName = htmlspecialchars($t['market_name'] ?? 'Farmers Market');
+        $comment = htmlspecialchars($t['review_comment'] ?? '');
+        $farmerReply = !empty($t['farmer_response']) ? htmlspecialchars($t['farmer_response']) : '';
+        $stallUrl = !empty($t['farmer_id']) ? BASE_URL . '/stall.php?id=' . (int)$t['farmer_id'] : BASE_URL . '/#local-stalls';
+        $initials = strtoupper(substr($custName, 0, 2));
+      ?>
+        <div class="testimonial-card">
+          <div class="testimonial-card-glow" aria-hidden="true"></div>
+          
+          <div class="testimonial-top">
+            <div class="testimonial-stars" aria-label="<?= $rating ?> out of 5 stars">
+              <span class="stars-gold"><?= str_repeat('★', $rating) ?></span>
+              <span class="stars-val"><?= number_format($rating, 1) ?></span>
+            </div>
+            <?php if (!empty($t['is_featured'])): ?>
+              <span class="testimonial-featured-tag">
+                <span class="tag-sparkle">✦</span> Top Pick
+              </span>
+            <?php endif; ?>
+          </div>
+
+          <div class="testimonial-quote-icon" aria-hidden="true">“</div>
+
+          <p class="testimonial-comment">
+            "<?= nl2br($comment) ?>"
+          </p>
+
+          <?php if (!empty($farmerReply)): ?>
+            <div class="testimonial-reply-box">
+              <div class="reply-header">
+                <span class="reply-icon">💬</span>
+                <strong>Stall Owner Response:</strong>
+              </div>
+              <p class="reply-text">"<?= $farmerReply ?>"</p>
+            </div>
+          <?php endif; ?>
+
+          <div class="testimonial-footer">
+            <div class="customer-profile">
+              <?php if (!empty($t['customer_image'])): ?>
+                <img src="<?= htmlspecialchars(resolveImageUrl($t['customer_image'])) ?>" 
+                     alt="<?= $custName ?>" 
+                     class="customer-avatar-img"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <?php endif; ?>
+              <div class="customer-avatar-chip" style="<?= !empty($t['customer_image']) ? 'display:none;' : '' ?>">
+                <?= $initials ?>
+              </div>
+              <div class="customer-details">
+                <div class="customer-name-row">
+                  <span class="customer-name"><?= $custName ?></span>
+                  <span class="verified-buyer-badge" title="Verified Market Buyer">✓</span>
+                </div>
+                <span class="customer-label">Verified Community Shopper</span>
+              </div>
+            </div>
+
+            <a href="<?= $stallUrl ?>" class="testimonial-stall-link" title="Visit <?= $stallName ?>">
+              <span class="stall-link-label">Direct Farm Producer:</span>
+              <div class="stall-link-name">
+                <span>🌾 <?= $stallName ?></span>
+                <span class="stall-link-arrow">→</span>
+              </div>
+              <span class="stall-link-market">📍 <?= $marketName ?></span>
+            </a>
+          </div>
+
+        </div>
+      <?php endforeach; ?>
+    </div>
+
+    <!-- Live Trust Banner Below Testimonials -->
+    <div class="testimonials-trust-footer">
+      <div class="trust-stat-item">
+        <span class="trust-stat-val">4.96 ★</span>
+        <span class="trust-stat-lbl">Average Stall Rating</span>
+      </div>
+      <div class="trust-stat-divider"></div>
+      <div class="trust-stat-item">
+        <span class="trust-stat-val">100%</span>
+        <span class="trust-stat-lbl">Verified Market Orders</span>
+      </div>
+      <div class="trust-stat-divider"></div>
+      <div class="trust-stat-item">
+        <span class="trust-stat-val">Zero</span>
+        <span class="trust-stat-lbl">Middleman Commissions</span>
+      </div>
+      <div class="trust-stat-divider"></div>
+      <div class="trust-stat-cta">
+        <a href="<?= BASE_URL ?>/customer/products.php" class="btn-trust-order">
+          Experience Fresh Harvest →
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
 
 <!-- ==========================================================================
      SECTION 5: Dual Audience Community Invitation

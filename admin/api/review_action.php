@@ -1,6 +1,6 @@
 <?php
 /**
- * MarketLink Admin API - Review Moderation
+ * MarketLink Admin API - Review Moderation & Homepage Testimonials Control
  */
 
 header('Content-Type: application/json');
@@ -29,7 +29,7 @@ $reviewType = trim($_POST['review_type'] ?? 'farmer'); // 'farmer' or 'product'
 $action     = trim($_POST['action'] ?? '');
 $reviewId   = (int)($_POST['review_id'] ?? 0);
 
-if ($reviewId <= 0 || !in_array($action, ['toggle_visibility', 'delete'])) {
+if ($reviewId <= 0 || !in_array($action, ['toggle_visibility', 'toggle_featured', 'delete'])) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
     exit;
@@ -46,6 +46,53 @@ try {
             'success' => true, 
             'message' => 'Review visibility updated (' . ($status ? 'Visible' : 'Hidden') . ').',
             'new_status' => $status
+        ]);
+        exit;
+    }
+
+    if ($action === 'toggle_featured') {
+        if ($table !== 'farmer_reviews') {
+            echo json_encode(['success' => false, 'message' => 'Only farmer stall reviews can be featured on homepage testimonials.']);
+            exit;
+        }
+
+        // Determine new status
+        if (isset($_POST['is_featured'])) {
+            $newStatus = (int)$_POST['is_featured'] ? 1 : 0;
+        } else {
+            $curr = $pdo->prepare("SELECT is_featured FROM farmer_reviews WHERE review_id = :id");
+            $curr->execute([':id' => $reviewId]);
+            $currentStatus = (int)$curr->fetchColumn();
+            $newStatus = $currentStatus ? 0 : 1;
+        }
+
+        // Validation: Maximum 6 reviews can be featured
+        if ($newStatus === 1) {
+            $currentFeaturedCount = (int)$pdo->query("SELECT COUNT(*) FROM farmer_reviews WHERE is_featured = 1")->fetchColumn();
+            if ($currentFeaturedCount >= 6) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error_code' => 'MAX_LIMIT_REACHED',
+                    'featured_count' => $currentFeaturedCount,
+                    'message' => 'Maximum limit reached! Only 6 reviews can be published as testimonials on the homepage. Please unfeature an existing review first.'
+                ]);
+                exit;
+            }
+        }
+
+        $stmt = $pdo->prepare("UPDATE farmer_reviews SET is_featured = :st WHERE review_id = :id");
+        $stmt->execute([':st' => $newStatus, ':id' => $reviewId]);
+
+        $featuredCount = (int)$pdo->query("SELECT COUNT(*) FROM farmer_reviews WHERE is_featured = 1 AND is_moderated = 1")->fetchColumn();
+
+        echo json_encode([
+            'success' => true,
+            'is_featured' => $newStatus,
+            'featured_count' => $featuredCount,
+            'message' => $newStatus 
+                ? "Review featured on Homepage Testimonials (Total featured: {$featuredCount})." 
+                : "Review removed from Homepage Testimonials (Remaining featured: {$featuredCount})."
         ]);
         exit;
     }

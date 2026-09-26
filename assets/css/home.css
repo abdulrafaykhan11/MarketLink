@@ -225,7 +225,7 @@
 }
 
 /* ==========================================================================
-   2. Full-Screen Hero Section — farm_fresh_hero.jpg as background
+   2. Full-Screen Hero Section â€” farm_fresh_hero.jpg as background
    ========================================================================== */
 
 .hero-section {
@@ -588,7 +588,7 @@
 }
 
 /* ==========================================================================
-   Hero Masterpiece Image Frame — Organic Morphing with Premium Glow
+   Hero Masterpiece Image Frame â€” Organic Morphing with Premium Glow
    ========================================================================== */
 
 .hero-masterpiece-frame {
@@ -797,7 +797,7 @@
 }
 
 /* ==========================================================================
-   3. The Farm-to-Fork Story (3-Step Connected Journey) — Multi-Tone
+   3. The Farm-to-Fork Story (3-Step Connected Journey) â€” Multi-Tone
    ========================================================================== */
 
 .story-section {
@@ -1323,7 +1323,7 @@
 }
 
 /* ==========================================================================
-   Sophisticated Storytelling Bento Grid — Silicon Valley Tier
+   Sophisticated Storytelling Bento Grid â€” Silicon Valley Tier
    Merges Farm-to-Fork Journey & Broken Supermarket Supply Chain
    ========================================================================== */
 
@@ -1403,7 +1403,7 @@
   line-height: 1.65;
 }
 
-/* ── Bento Grid Core ──────────────────────────────────────────────────────── */
+/* â”€â”€ Bento Grid Core â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -1412,7 +1412,7 @@
   z-index: 2;
 }
 
-/* ── Universal Bento Card Styling ─────────────────────────────────────────── */
+/* â”€â”€ Universal Bento Card Styling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-card {
   background: rgba(8, 28, 22, 0.78);
   backdrop-filter: blur(18px);
@@ -1528,7 +1528,7 @@
   margin-bottom: 1.75rem;
 }
 
-/* ── PANEL 1: Primary Wide Journey Panel (7 cols) ─────────────────────────── */
+/* â”€â”€ PANEL 1: Primary Wide Journey Panel (7 cols) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-journey-card {
   grid-column: span 7;
   background:
@@ -1725,7 +1725,7 @@
   opacity: 0.6;
 }
 
-/* ── PANEL 2: Broken Supermarket Supply Chain (5 cols) ────────────────────── */
+/* â”€â”€ PANEL 2: Broken Supermarket Supply Chain (5 cols) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-broken-card {
   grid-column: span 5;
   background:
@@ -1784,7 +1784,7 @@
   margin: 0;
 }
 
-/* ── PANEL 3: Anti-Gravity 99.8% Metric & Soil Sunlight (4 cols) ──────────── */
+/* â”€â”€ PANEL 3: Anti-Gravity 99.8% Metric & Soil Sunlight (4 cols) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-metric-card {
   grid-column: span 4;
   background:
@@ -2000,7 +2000,7 @@
   50% { transform: translateY(-6px) rotate(3deg); }
 }
 
-/* ── PANEL 4: Efficiency Gap Graph Panel (5 cols) ─────────────────────────── */
+/* â”€â”€ PANEL 4: Efficiency Gap Graph Panel (5 cols) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-efficiency-card {
   grid-column: span 5;
   background:
@@ -2146,7 +2146,7 @@
   color: #38bdf8;
 }
 
-/* ── PANEL 5: Live Soil Telemetry & Clusters (3 cols) ─────────────────────── */
+/* â”€â”€ PANEL 5: Live Soil Telemetry & Clusters (3 cols) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-telemetry-card {
   grid-column: span 3;
   background:
@@ -2247,7 +2247,7 @@
   flex-shrink: 0;
 }
 
-/* ── Responsive Bento Grid Layout ─────────────────────────────────────────── */
+/* â”€â”€ Responsive Bento Grid Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 1120px) {
   .bento-journey-card { grid-column: span 12; }
   .bento-broken-card  { grid-column: span 12; }
@@ -2351,7 +2351,7 @@
 }
 
 /* ==========================================================================
-   5. Featured Live Stalls & Seasonal Showcase — Multi-Color Tags & Slot Bar
+   5. Featured Live Stalls & Seasonal Showcase â€” Multi-Color Tags & Slot Bar
    ========================================================================== */
 
 .stalls-section {
@@ -2567,7 +2567,7 @@
 }
 
 /* ==========================================================================
-   6. Dual Audience Community Invitation — High-Contrast Dual Personality
+   6. Dual Audience Community Invitation â€” High-Contrast Dual Personality
    ========================================================================== */
 
 .audience-section {
@@ -3120,7 +3120,7 @@
 
 
 /* ==========================================================================
-   SECTION 2 � Sophisticated Storytelling Bento Grid (Silicon Valley Tier)
+   SECTION 2 — Sophisticated Storytelling Bento Grid (Silicon Valley Tier)
    ========================================================================== */
 
 /* -- Section Wrapper ------------------------------------------------------- */
@@ -3334,7 +3334,7 @@
   margin-bottom: 1.4rem;
 }
 
-/* PANEL 1 � Farm-to-Fork 3-Step Journey */
+/* PANEL 1 — Farm-to-Fork 3-Step Journey */
 .bento-steps-container {
   display: flex;
   flex-direction: column;
@@ -3454,7 +3454,7 @@
 .pill-cyan    { background: rgba(14,165,233,0.12); color: #38bdf8; border: 1px solid rgba(56,189,248,0.25); }
 .pill-gold    { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
 
-/* PANEL 2 � Broken Supply Chain */
+/* PANEL 2 — Broken Supply Chain */
 .bento-broken-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -3476,7 +3476,7 @@
 .broken-reason-title { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.3rem; }
 .broken-reason-desc  { font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; margin: 0; }
 
-/* PANEL 3 � Anti-Gravity 99.8% Metric */
+/* PANEL 3 — Anti-Gravity 99.8% Metric */
 .antigravity-visual-wrapper {
   display: flex;
   flex-direction: column;
@@ -3581,7 +3581,7 @@
   50%       { transform: translateY(-8px); }
 }
 
-/* PANEL 4 � Efficiency Gap Graph */
+/* PANEL 4 — Efficiency Gap Graph */
 .efficiency-graph-stack { display: flex; flex-direction: column; gap: 1.1rem; }
 
 .efficiency-row-meta {
@@ -3622,7 +3622,7 @@
 .gold-val { color: #fbbf24; }
 .cyan-val { color: #38bdf8; }
 
-/* PANEL 5 � Floating Micro-Telemetry */
+/* PANEL 5 — Floating Micro-Telemetry */
 .bento-telemetry-title { font-size: 1rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.35rem; }
 .bento-telemetry-desc  { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.2rem; }
 
@@ -3775,7 +3775,7 @@
 }
 
 /* ==========================================================================
-   MARQUEE RIBBON � Infinite 3D Scrolling Feature Ticker
+   MARQUEE RIBBON — Infinite 3D Scrolling Feature Ticker
    ========================================================================== */
 
 .marquee-ribbon-wrapper {
@@ -3826,7 +3826,7 @@
   border-top:    1px solid rgba(52,211,153,0.20);
   border-bottom: 1px solid rgba(52,211,153,0.12);
   padding: 0.75rem 0;
-  /* subtle 3D rotateX tilt � top strip leans away */
+  /* subtle 3D rotateX tilt — top strip leans away */
   transform: rotateX(6deg) scaleX(1.04);
   transform-origin: center bottom;
   box-shadow:
@@ -3843,7 +3843,7 @@
   border-top:    1px solid rgba(56,189,248,0.12);
   border-bottom: 1px solid rgba(56,189,248,0.20);
   padding: 0.75rem 0;
-  /* subtle 3D rotateX tilt � bottom strip leans toward viewer */
+  /* subtle 3D rotateX tilt — bottom strip leans toward viewer */
   transform: rotateX(-6deg) scaleX(1.04);
   transform-origin: center top;
   box-shadow:
@@ -4540,7 +4540,7 @@
 
 /* ==========================================================================
    DIRECT HARVEST INTELLIGENCE UPGRADE:
-   Electric Transparent Process ⚡ & Laboratory Biological Telemetry
+   Electric Transparent Process âš¡ & Laboratory Biological Telemetry
    ========================================================================== */
 
 /* --- PANEL 1: Electric Transparent Process --- */
@@ -4945,4 +4945,456 @@
 [data-theme="light"] .bio-sensor-card {
   background: #ffffff !important;
   border-color: #e2e8f0 !important;
+}
+
+
+/* ==========================================================================
+   HOMEPAGE TESTIMONIALS SECTION (Admin-Controlled Stall Reviews)
+   ========================================================================== */
+
+.testimonials-section {
+  padding: 6.5rem 1.5rem;
+  background: var(--bg-secondary, #0c1813);
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonials-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 380px;
+  background: radial-gradient(ellipse, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.testimonials-header {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto 3.5rem auto;
+}
+
+.testimonials-badge-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.testimonials-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.95rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-full, 9999px);
+}
+
+.live-dot-gold {
+  width: 7px;
+  height: 7px;
+  background: #fbbf24;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #fbbf24;
+  animation: bentoLivePulse 2s infinite ease-in-out;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 3.5rem;
+}
+
+@media (max-width: 1080px) {
+  .testimonials-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.testimonial-card {
+  position: relative;
+  background: rgba(18, 30, 24, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2.2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.4);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease;
+  overflow: hidden;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-7px);
+  border-color: rgba(52, 211, 153, 0.45);
+  box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.22);
+}
+
+.testimonial-card-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  opacity: 0.5;
+}
+
+.testimonial-card:hover .testimonial-card-glow {
+  opacity: 1;
+}
+
+.testimonial-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 2;
+}
+
+.testimonial-stars {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.stars-gold {
+  color: #f59e0b;
+  font-size: 1.15rem;
+  letter-spacing: 2px;
+}
+
+.stars-val {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+}
+
+.testimonial-featured-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.testimonial-quote-icon {
+  font-family: Georgia, serif;
+  font-size: 4rem;
+  line-height: 1;
+  color: rgba(52, 211, 153, 0.15);
+  margin-bottom: -1.5rem;
+  user-select: none;
+}
+
+.testimonial-comment {
+  font-size: 1.025rem;
+  line-height: 1.65;
+  color: var(--text-main, #f1f5f9);
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
+  flex-grow: 1;
+}
+
+.testimonial-reply-box {
+  background: rgba(16, 185, 129, 0.08);
+  border-left: 3px solid #10b981;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.reply-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.775rem;
+  color: #34d399;
+  margin-bottom: 0.35rem;
+}
+
+.reply-text {
+  font-size: 0.825rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.45;
+  font-style: italic;
+  margin: 0;
+}
+
+.testimonial-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.customer-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.customer-avatar-img,
+.customer-avatar-chip {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.customer-avatar-img {
+  object-fit: cover;
+  border: 2px solid rgba(52, 211, 153, 0.4);
+}
+
+.customer-avatar-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: 2px solid rgba(52, 211, 153, 0.4);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+}
+
+.customer-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.customer-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.customer-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-main, #ffffff);
+}
+
+.verified-buyer-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: #10b981;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+
+.customer-label {
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.testimonial-stall-link {
+  display: block;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.testimonial-stall-link:hover {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(52, 211, 153, 0.5);
+  transform: translateX(4px);
+}
+
+.stall-link-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #34d399;
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.stall-link-name {
+  font-size: 0.925rem;
+  color: var(--text-main, #ffffff);
+  display: block;
+  font-weight: 700;
+}
+
+.stall-link-market {
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+  display: block;
+  margin-top: 0.2rem;
+}
+
+/* Trust stats footer */
+.testimonials-trust-footer {
+  background: rgba(18, 30, 24, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.trust-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.trust-stat-val {
+  font-family: var(--font-heading, inherit);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #34d399;
+  line-height: 1.1;
+}
+
+.trust-stat-lbl {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.trust-stat-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-trust-order {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.6rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.925rem;
+  border-radius: 12px;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-trust-order:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+  color: #ffffff;
+}
+
+/* Light Theme Support */
+[data-theme="light"] .testimonials-section {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .testimonial-card {
+  background: #ffffff;
+  border-color: rgba(16, 185, 129, 0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .testimonial-card:hover {
+  border-color: #10b981;
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.12);
+}
+
+[data-theme="light"] .testimonial-comment {
+  color: #1e293b;
+}
+
+[data-theme="light"] .customer-name {
+  color: #0f172a;
+}
+
+[data-theme="light"] .customer-label,
+[data-theme="light"] .stall-link-market,
+[data-theme="light"] .reply-text {
+  color: #64748b;
+}
+
+[data-theme="light"] .stall-link-name {
+  color: #0f172a;
+}
+
+[data-theme="light"] .testimonial-stall-link {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+[data-theme="light"] .testimonial-stall-link:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+[data-theme="light"] .testimonial-footer {
+  border-top-color: #e2e8f0;
+}
+
+[data-theme="light"] .testimonials-trust-footer {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .trust-stat-divider {
+  background: #e2e8f0;
+}
+
+[data-theme="light"] .trust-stat-lbl {
+  color: #64748b;
 }

@@ -102,18 +102,18 @@ try {
         if ($profile = $pStmt->fetch()) {
             $displayName = $profile['full_name'] ?: $user['username'];
         }
-        $redirectUrl = BASE_URL . "/intro.php";
+        $redirectUrl = BASE_URL . "/customer/dashboard.php";
     } elseif ($user['role'] === 'farmer') {
         $pStmt = $pdo->prepare("SELECT contact_person, stall_name FROM farmer_profiles WHERE farmer_id = :uid LIMIT 1");
         $pStmt->execute([':uid' => $user['user_id']]);
         if ($profile = $pStmt->fetch()) {
             $displayName = $profile['contact_person'] ?: $profile['stall_name'] ?: $user['username'];
         }
-        $redirectUrl = BASE_URL . "/intro.php";
+        $redirectUrl = BASE_URL . "/farmer/dashboard.php";
     } elseif ($user['role'] === 'admin') {
-        $redirectUrl = BASE_URL . "/intro.php";
+        $redirectUrl = BASE_URL . "/admin/dashboard.php";
     } else {
-        $redirectUrl = BASE_URL . "/intro.php";
+        $redirectUrl = BASE_URL . "/index.php";
     }
 
     // Regenerate session ID for security against session fixation
@@ -124,7 +124,6 @@ try {
     $_SESSION['email']     = $user['email'];
     $_SESSION['role']      = $user['role'];
     $_SESSION['full_name'] = $displayName;
-    unset($_SESSION['intro_seen']);
 
     if ($remember) {
         // Optional cookie setting

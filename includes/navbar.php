@@ -26,6 +26,7 @@ $user = currentUser();
       <ul class="nav-list">
         <li><a href="<?= BASE_URL ?>/#how-it-works" class="nav-link">The Journey</a></li>
         <li><a href="<?= BASE_URL ?>/#local-stalls" class="nav-link">Local Stalls</a></li>
+        <li><a href="<?= BASE_URL ?>/#testimonials" class="nav-link">Reviews</a></li>
         <li><a href="<?= BASE_URL ?>/#farm-contrast" class="nav-link">Why Direct?</a></li>
         <li><a href="<?= BASE_URL ?>/about.php" class="nav-link">About Us</a></li>
         <li><a href="<?= BASE_URL ?>/contact.php" class="nav-link">Contact</a></li>
