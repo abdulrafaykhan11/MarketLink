@@ -4,11 +4,11 @@
  */
 
 if (!defined('GEMINI_API_KEY')) {
-    define('GEMINI_API_KEY', 'AQ.Ab8RN6I-BFLwFQ4-E_GDXmkDbkBTCSmH7pUeVH_s2QEY-xWPxA');
+    define('GEMINI_API_KEY', 'AQ.Ab8RN6J5eFG9CWxBCNd8ZpDOeqcHW5r8uplDV3S9lJoZL5m1iw');
 }
 
 if (!defined('GEMINI_MODEL')) {
-    define('GEMINI_MODEL', 'gemini-3.8-flash');
+    define('GEMINI_MODEL', 'gemini-flash-latest');
 }
 
 if (!defined('GEMINI_API_ENDPOINT')) {

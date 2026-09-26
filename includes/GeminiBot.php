@@ -375,10 +375,11 @@ EOT;
     private static function callGeminiAPI(string $systemInstruction, array $contents): array {
         $apiKey = GEMINI_API_KEY;
         $candidateModels = [
-            GEMINI_MODEL,              // gemini-3.8-flash
-            'gemini-3.5-flash',
+            GEMINI_MODEL,              // gemini-flash-latest (primary)
+            'gemini-flash-lite-latest',
             'gemini-3.1-flash-lite',
-            'gemini-3-flash-preview'
+            'gemini-3.8-flash',
+            'gemini-3.5-flash'
         ];
 
         $payload = [
@@ -389,8 +390,8 @@ EOT;
             ],
             'contents' => $contents,
             'generationConfig' => [
-                'temperature'     => 0.4,
-                'maxOutputTokens' => 1200,
+                'temperature'     => 0.5,
+                'maxOutputTokens' => 1500,
                 'topP'            => 0.95
             ]
         ];
@@ -425,7 +426,18 @@ EOT;
             $decoded = json_decode($rawResponse, true);
 
             if ($httpCode === 200) {
-                $text = $decoded['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                $parts = $decoded['candidates'][0]['content']['parts'] ?? [];
+                $text = null;
+                foreach ($parts as $part) {
+                    if (empty($part['thought']) && !empty($part['text'])) {
+                        $text = $part['text'];
+                        break;
+                    }
+                }
+                if ($text === null && !empty($parts[0]['text'])) {
+                    $text = $parts[0]['text'];
+                }
+
                 if (!empty($text)) {
                     return [
                         'success' => true,

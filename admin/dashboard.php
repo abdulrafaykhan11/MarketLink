@@ -25,6 +25,92 @@ try {
         $statusData[$row['order_status']] = (int)$row['cnt'];
     }
 
+    // 1. Revenue & Order Growth Trend (past 14 active points)
+    $trendStmt = $pdo->query("
+        SELECT DATE(created_at) as order_date, 
+               COUNT(*) as order_count, 
+               COALESCE(SUM(total_amount), 0) as gross_revenue
+        FROM orders
+        WHERE order_status NOT IN ('cancelled', 'declined')
+        GROUP BY DATE(created_at)
+        ORDER BY order_date ASC
+        LIMIT 14
+    ");
+    $trendRows = $trendStmt->fetchAll(PDO::FETCH_ASSOC);
+    $trendDates = [];
+    $trendRevenues = [];
+    $trendOrderCounts = [];
+    foreach ($trendRows as $r) {
+        $trendDates[] = date('M d', strtotime($r['order_date']));
+        $trendRevenues[] = round((float)$r['gross_revenue'], 2);
+        $trendOrderCounts[] = (int)$r['order_count'];
+    }
+
+    // 2. Top Performing Stalls (by gross volume & total orders)
+    $topStallsStmt = $pdo->query("
+        SELECT fp.stall_name, 
+               COUNT(o.order_id) as total_orders, 
+               COALESCE(SUM(o.total_amount), 0) as total_revenue
+        FROM farmer_profiles fp
+        LEFT JOIN orders o ON fp.farmer_id = o.farmer_id AND o.order_status NOT IN ('cancelled', 'declined')
+        WHERE fp.approval_status = 'approved'
+        GROUP BY fp.farmer_id
+        ORDER BY total_revenue DESC, total_orders DESC
+        LIMIT 6
+    ");
+    $topStallsRows = $topStallsStmt->fetchAll(PDO::FETCH_ASSOC);
+    $stallLabels = [];
+    $stallRevenues = [];
+    $stallOrders = [];
+    foreach ($topStallsRows as $ts) {
+        $stallLabels[] = $ts['stall_name'];
+        $stallRevenues[] = round((float)$ts['total_revenue'], 2);
+        $stallOrders[] = (int)$ts['total_orders'];
+    }
+
+    // 3. Category Distribution (Products count per category)
+    $catDistStmt = $pdo->query("
+        SELECT pc.category_name, COUNT(p.product_id) as product_count
+        FROM product_categories pc
+        LEFT JOIN products p ON pc.category_id = p.category_id
+        WHERE pc.is_active = 1
+        GROUP BY pc.category_id
+        ORDER BY product_count DESC
+        LIMIT 7
+    ");
+    $catDistRows = $catDistStmt->fetchAll(PDO::FETCH_ASSOC);
+    $catLabels = [];
+    $catCounts = [];
+    foreach ($catDistRows as $cd) {
+        $catLabels[] = $cd['category_name'];
+        $catCounts[] = (int)$cd['product_count'];
+    }
+
+    // 4. Market Hub Stall Density Distribution
+    $marketDistStmt = $pdo->query("
+        SELECT m.market_name, COUNT(fms.stall_id) as stall_count
+        FROM markets m
+        LEFT JOIN farmer_market_stalls fms ON m.market_id = fms.market_id AND fms.status = 'active'
+        WHERE m.status = 'active'
+        GROUP BY m.market_id
+        ORDER BY stall_count DESC
+        LIMIT 6
+    ");
+    $marketDistRows = $marketDistStmt->fetchAll(PDO::FETCH_ASSOC);
+    $marketLabels = [];
+    $marketStallCounts = [];
+    foreach ($marketDistRows as $md) {
+        $shortName = preg_replace('/(Farmers Market|Community Market|Open Market|Souk|Bazaar|Fair|Hub)/i', '', $md['market_name']);
+        $shortName = trim(trim($shortName), '-');
+        $marketLabels[] = $shortName ?: $md['market_name'];
+        $marketStallCounts[] = (int)$md['stall_count'];
+    }
+
+    // 5. Executive Quick Metrics
+    $avgOrderValue = $totalOrders > 0 ? ($totalGrossRevenue / $totalOrders) : 0;
+    $completedCount = ($statusData['completed'] ?? 0) + ($statusData['ready_for_pickup'] ?? 0);
+    $fulfillmentRate = $totalOrders > 0 ? round(($completedCount / $totalOrders) * 100, 1) : 100;
+
     // Pending Farmers awaiting verification
     $pendingFarmers = $pdo->query("SELECT fp.farmer_id, fp.stall_name, fp.contact_person, fp.business_phone, fp.business_email, fp.address, fp.created_at, u.username, u.email
                                    FROM farmer_profiles fp
@@ -176,52 +262,221 @@ try {
   </div>
 </div>
 
-<!-- Charts & Visual Analytics Section -->
-<div class="admin-dashboard-split" style="margin-bottom:2rem;">
-  <!-- Order Status Breakdown Chart -->
-  <div class="admin-card" style="margin-bottom:0;">
-    <div class="admin-card-header">
+<!-- Quick Executive Shortcuts Bar -->
+<div class="admin-quick-strip">
+  <a href="<?= BASE_URL ?>/admin/farmers.php?status=pending" class="admin-quick-tile">
+    <div class="admin-quick-tile-left">
+      <div class="admin-stat-icon-wrapper icon-amber">
+        <i data-lucide="user-check"></i>
+      </div>
       <div>
-        <h3 class="admin-card-title">
-          <i data-lucide="pie-chart" style="color:var(--admin-accent);"></i>
-          Pre-Order Fulfillment Status Distribution
-        </h3>
-        <p class="admin-card-subtitle">Real-time breakdown across order lifecycle stages</p>
+        <span class="admin-quick-tile-title">Farmer Verifications</span>
+        <span class="admin-quick-tile-sub"><?= $pendingApprovals ?> Pending Review</span>
       </div>
     </div>
-    <div class="admin-card-body" style="height: 290px; display:flex; align-items:center; justify-content:center;">
-      <canvas id="orderStatusChart" style="max-height: 260px;"></canvas>
+    <span class="admin-btn admin-btn-sm" style="padding:0.35rem 0.65rem; font-size:0.75rem;">Manage &rarr;</span>
+  </a>
+
+  <a href="<?= BASE_URL ?>/admin/markets.php" class="admin-quick-tile">
+    <div class="admin-quick-tile-left">
+      <div class="admin-stat-icon-wrapper icon-emerald">
+        <i data-lucide="map-pin"></i>
+      </div>
+      <div>
+        <span class="admin-quick-tile-title">Farmers Markets</span>
+        <span class="admin-quick-tile-sub"><?= $totalMarkets ?> Active Hubs</span>
+      </div>
+    </div>
+    <span class="admin-btn admin-btn-sm" style="padding:0.35rem 0.65rem; font-size:0.75rem;">Explore &rarr;</span>
+  </a>
+
+  <a href="<?= BASE_URL ?>/admin/categories.php" class="admin-quick-tile">
+    <div class="admin-quick-tile-left">
+      <div class="admin-stat-icon-wrapper icon-cyan">
+        <i data-lucide="tags"></i>
+      </div>
+      <div>
+        <span class="admin-quick-tile-title">Crop Categories</span>
+        <span class="admin-quick-tile-sub"><?= count($catLabels) ?> Active Categories</span>
+      </div>
+    </div>
+    <span class="admin-btn admin-btn-sm" style="padding:0.35rem 0.65rem; font-size:0.75rem;">Edit &rarr;</span>
+  </a>
+
+  <a href="<?= BASE_URL ?>/admin/reviews.php" class="admin-quick-tile">
+    <div class="admin-quick-tile-left">
+      <div class="admin-stat-icon-wrapper icon-rose">
+        <i data-lucide="shield-alert"></i>
+      </div>
+      <div>
+        <span class="admin-quick-tile-title">Review Moderation</span>
+        <span class="admin-quick-tile-sub"><?= $pendingReviewsCount ?> Awaiting Approval</span>
+      </div>
+    </div>
+    <span class="admin-btn admin-btn-sm" style="padding:0.35rem 0.65rem; font-size:0.75rem;">Moderate &rarr;</span>
+  </a>
+</div>
+
+<!-- ==========================================================================
+     Executive Visual Intelligence Hub (Multi-Chart Analytics Suite)
+     ========================================================================== -->
+<div class="admin-analytics-section">
+  <!-- Analytics Section Header -->
+  <div class="admin-analytics-header">
+    <div class="admin-analytics-title-wrap">
+      <h2 class="admin-analytics-title">
+        <i data-lucide="activity" style="color:var(--admin-accent);"></i>
+        Executive Visual Intelligence Hub
+      </h2>
+      <span class="admin-live-pulse-badge">
+        <span class="live-pulse-dot"></span> Live Telemetry
+      </span>
+    </div>
+    <div style="display:flex; align-items:center; gap:0.5rem;">
+      <span style="font-size:0.8rem; color:var(--admin-text-subtle);">Real-time database sync</span>
     </div>
   </div>
 
-  <!-- Fast Actions & Platform Status -->
-  <div class="admin-card" style="margin-bottom:0;">
-    <div class="admin-card-header">
-      <div>
-        <h3 class="admin-card-title">
-          <i data-lucide="zap" style="color:var(--admin-amber);"></i>
-          Quick Admin Actions
-        </h3>
-        <p class="admin-card-subtitle">Common executive shortcuts</p>
+  <!-- Micro-KPI Summary Ribbon -->
+  <div class="admin-analytics-summary-bar">
+    <div class="analytics-micro-kpi">
+      <div class="analytics-micro-icon" style="background:rgba(34, 197, 94, 0.15); color:#4ade80;">
+        <i data-lucide="receipt"></i>
+      </div>
+      <div class="analytics-micro-info">
+        <span class="analytics-micro-lbl">Avg Order Value</span>
+        <span class="analytics-micro-val">Rs. <?= number_format($avgOrderValue, 0) ?></span>
       </div>
     </div>
-    <div class="admin-card-body" style="display:flex; flex-direction:column; gap:0.85rem;">
-      <a href="<?= BASE_URL ?>/admin/farmers.php?status=pending" class="admin-btn admin-btn-secondary" style="justify-content:flex-start;">
-        <i data-lucide="user-check" style="color:var(--admin-amber);"></i>
-        <span>Review Farmer Verification (<?= $pendingApprovals ?>)</span>
-      </a>
-      <a href="<?= BASE_URL ?>/admin/markets.php" class="admin-btn admin-btn-secondary" style="justify-content:flex-start;">
-        <i data-lucide="plus-circle" style="color:var(--admin-emerald);"></i>
-        <span>Establish New Farmers Market</span>
-      </a>
-      <a href="<?= BASE_URL ?>/admin/categories.php" class="admin-btn admin-btn-secondary" style="justify-content:flex-start;">
-        <i data-lucide="tag" style="color:var(--admin-cyan);"></i>
-        <span>Manage Product Categories</span>
-      </a>
-      <a href="<?= BASE_URL ?>/admin/reviews.php" class="admin-btn admin-btn-secondary" style="justify-content:flex-start;">
-        <i data-lucide="shield-alert" style="color:var(--admin-rose);"></i>
-        <span>Moderate Customer Reviews (<?= $pendingReviewsCount ?>)</span>
-      </a>
+
+    <div class="analytics-micro-kpi">
+      <div class="analytics-micro-icon" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8;">
+        <i data-lucide="check-check"></i>
+      </div>
+      <div class="analytics-micro-info">
+        <span class="analytics-micro-lbl">Fulfillment Rate</span>
+        <span class="analytics-micro-val"><?= $fulfillmentRate ?>%</span>
+      </div>
+    </div>
+
+    <div class="analytics-micro-kpi">
+      <div class="analytics-micro-icon" style="background:rgba(250, 204, 21, 0.15); color:#facc15;">
+        <i data-lucide="award"></i>
+      </div>
+      <div class="analytics-micro-info">
+        <span class="analytics-micro-lbl">Top Grossing Stall</span>
+        <span class="analytics-micro-val" title="<?= htmlspecialchars($stallLabels[0] ?? 'N/A') ?>">
+          <?= htmlspecialchars($stallLabels[0] ?? 'N/A') ?>
+        </span>
+      </div>
+    </div>
+
+    <div class="analytics-micro-kpi">
+      <div class="analytics-micro-icon" style="background:rgba(167, 139, 250, 0.15); color:#a78bfa;">
+        <i data-lucide="sprout"></i>
+      </div>
+      <div class="analytics-micro-info">
+        <span class="analytics-micro-lbl">Leading Crop Class</span>
+        <span class="analytics-micro-val" title="<?= htmlspecialchars($catLabels[0] ?? 'N/A') ?>">
+          <?= htmlspecialchars($catLabels[0] ?? 'N/A') ?>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Row: Revenue Spline Area Chart + Order Fulfillment Doughnut -->
+  <div class="admin-charts-hero-grid">
+    <!-- Chart 1: Revenue & Order Trajectory Spline -->
+    <div class="admin-chart-card">
+      <div class="admin-chart-card-header">
+        <div>
+          <h3 class="admin-chart-title">
+            <i data-lucide="trending-up" style="color:var(--admin-accent);"></i>
+            Gross Revenue &amp; Pre-Order Trajectory
+          </h3>
+          <p class="admin-chart-subtitle">Smooth spline trend showing daily revenue velocity and customer order demand</p>
+        </div>
+        <div class="admin-chart-actions">
+          <div class="admin-chart-toggle-group" id="revenueViewToggles">
+            <button type="button" class="admin-chart-toggle-btn active" data-view="both">Dual Stream</button>
+            <button type="button" class="admin-chart-toggle-btn" data-view="revenue">Revenue</button>
+            <button type="button" class="admin-chart-toggle-btn" data-view="orders">Orders</button>
+          </div>
+        </div>
+      </div>
+      <div class="admin-chart-canvas-wrap" style="height: 310px;">
+        <canvas id="revenueGrowthChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 2: Fulfillment Status Doughnut -->
+    <div class="admin-chart-card">
+      <div class="admin-chart-card-header">
+        <div>
+          <h3 class="admin-chart-title">
+            <i data-lucide="pie-chart" style="color:#38bdf8;"></i>
+            Order Fulfillment Health
+          </h3>
+          <p class="admin-chart-subtitle">Distribution across fulfillment lifecycle</p>
+        </div>
+      </div>
+      <div class="admin-chart-canvas-wrap" style="height: 310px; display:flex; align-items:center; justify-content:center;">
+        <canvas id="orderStatusChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Triple Intelligence Bento Grid -->
+  <div class="admin-charts-triple-grid">
+    <!-- Chart 3: Top Producer Stalls by Gross Volume (Horizontal Bar) -->
+    <div class="admin-chart-card">
+      <div class="admin-chart-card-header">
+        <div>
+          <h3 class="admin-chart-title">
+            <i data-lucide="trophy" style="color:#facc15;"></i>
+            Top Producer Stalls
+          </h3>
+          <p class="admin-chart-subtitle">Ranked by total sales revenue volume</p>
+        </div>
+        <span class="admin-btn admin-btn-sm" style="pointer-events:none; font-size:0.7rem; padding:0.2rem 0.5rem; background:rgba(250,204,21,0.12); color:#facc15; border:1px solid rgba(250,204,21,0.3);">Top 6</span>
+      </div>
+      <div class="admin-chart-canvas-wrap" style="height: 280px;">
+        <canvas id="topStallsChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 4: Live Crop Category & Product Saturation (Vertical Rounded Columns) -->
+    <div class="admin-chart-card">
+      <div class="admin-chart-card-header">
+        <div>
+          <h3 class="admin-chart-title">
+            <i data-lucide="layers" style="color:#4ade80;"></i>
+            Crop Category Saturation
+          </h3>
+          <p class="admin-chart-subtitle">Active produce catalog items per class</p>
+        </div>
+        <span class="admin-btn admin-btn-sm" style="pointer-events:none; font-size:0.7rem; padding:0.2rem 0.5rem; background:rgba(34,197,94,0.12); color:#4ade80; border:1px solid rgba(34,197,94,0.3);">Catalog</span>
+      </div>
+      <div class="admin-chart-canvas-wrap" style="height: 280px;">
+        <canvas id="categoryDistChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 5: Market Hub Saturation & Stall Density (Polar Area) -->
+    <div class="admin-chart-card">
+      <div class="admin-chart-card-header">
+        <div>
+          <h3 class="admin-chart-title">
+            <i data-lucide="compass" style="color:#a78bfa;"></i>
+            Market Hub Stall Density
+          </h3>
+          <p class="admin-chart-subtitle">Active grower stalls per weekend market</p>
+        </div>
+        <span class="admin-btn admin-btn-sm" style="pointer-events:none; font-size:0.7rem; padding:0.2rem 0.5rem; background:rgba(167,139,250,0.12); color:#a78bfa; border:1px solid rgba(167,139,250,0.3);">Density</span>
+      </div>
+      <div class="admin-chart-canvas-wrap" style="height: 280px; display:flex; align-items:center; justify-content:center;">
+        <canvas id="marketDensityChart"></canvas>
+      </div>
     </div>
   </div>
 </div>
@@ -409,48 +664,561 @@ try {
 <!-- Chart & AJAX Interaction Script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Chart.js Doughnut Status Chart
-  const ctx = document.getElementById('orderStatusChart');
-  if (ctx) {
-    const rawData = <?= json_encode($statusData) ?>;
-    const labels = Object.keys(rawData).map(s => s.replace('_', ' ').toUpperCase());
-    const dataVals = Object.values(rawData);
+  const isLight = () => document.documentElement.getAttribute('data-theme') === 'light';
 
-    new Chart(ctx, {
+  // Common typography & theme colors
+  const getThemePalette = () => {
+    const light = isLight();
+    return {
+      textColor: light ? '#475569' : '#94a3b8',
+      headingColor: light ? '#0f172a' : '#f8fafc',
+      gridColor: light ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)',
+      tooltipBg: light ? 'rgba(255, 255, 255, 0.96)' : 'rgba(8, 27, 20, 0.95)',
+      tooltipTitle: light ? '#0f172a' : '#f0fdf4',
+      tooltipBody: light ? '#334155' : '#cbd5e1',
+      tooltipBorder: light ? 'rgba(34, 197, 94, 0.3)' : 'rgba(74, 222, 128, 0.35)',
+      cardBg: light ? '#ffffff' : '#081d2e'
+    };
+  };
+
+  let palette = getThemePalette();
+
+  // Helper to format currency
+  const formatCurrency = (val) => 'Rs. ' + Number(val).toLocaleString();
+
+  // Array to hold chart instances for responsive theme updates
+  const chartInstances = [];
+
+  // =========================================================================
+  // 1. REVENUE & PRE-ORDER TRAJECTORY SPLINE CHART
+  // =========================================================================
+  const revCanvas = document.getElementById('revenueGrowthChart');
+  let revChart = null;
+  if (revCanvas) {
+    const ctx = revCanvas.getContext('2d');
+    const trendDates = <?= json_encode(!empty($trendDates) ? $trendDates : ['No Data']) ?>;
+    const trendRevs = <?= json_encode(!empty($trendRevenues) ? $trendRevenues : [0]) ?>;
+    const trendOrders = <?= json_encode(!empty($trendOrderCounts) ? $trendOrderCounts : [0]) ?>;
+
+    // Linear gradient for revenue area
+    const revGradient = ctx.createLinearGradient(0, 0, 0, 260);
+    revGradient.addColorStop(0, 'rgba(34, 197, 94, 0.38)');
+    revGradient.addColorStop(0.7, 'rgba(34, 197, 94, 0.08)');
+    revGradient.addColorStop(1, 'rgba(34, 197, 94, 0.0)');
+
+    // Linear gradient for order volume
+    const orderGradient = ctx.createLinearGradient(0, 0, 0, 260);
+    orderGradient.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
+    orderGradient.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+
+    revChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: trendDates,
+        datasets: [
+          {
+            label: 'Gross Revenue (Rs.)',
+            data: trendRevs,
+            borderColor: '#22c55e',
+            backgroundColor: revGradient,
+            borderWidth: 3,
+            fill: true,
+            tension: 0.38,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#22c55e',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            yAxisID: 'yRevenue'
+          },
+          {
+            label: 'Pre-Orders Count',
+            data: trendOrders,
+            borderColor: '#38bdf8',
+            backgroundColor: orderGradient,
+            borderWidth: 2.5,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.38,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#38bdf8',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            yAxisID: 'yOrders'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        animation: {
+          duration: 1200,
+          easing: 'easeOutQuart',
+          delay: (context) => context.dataIndex * 40
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: {
+              color: palette.textColor,
+              font: { family: 'Inter', size: 11, weight: '600' },
+              boxWidth: 14,
+              boxHeight: 14,
+              usePointStyle: true,
+              padding: 15
+            }
+          },
+          tooltip: {
+            backgroundColor: palette.tooltipBg,
+            titleColor: palette.tooltipTitle,
+            bodyColor: palette.tooltipBody,
+            borderColor: palette.tooltipBorder,
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 10,
+            usePointStyle: true,
+            boxPadding: 6,
+            callbacks: {
+              label: function(context) {
+                if (context.datasetIndex === 0) {
+                  return ' Revenue: ' + formatCurrency(context.parsed.y);
+                }
+                return ' Pre-Orders: ' + context.parsed.y + ' orders';
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: palette.gridColor, drawBorder: false },
+            ticks: {
+              color: palette.textColor,
+              font: { family: 'Inter', size: 10, weight: '500' }
+            }
+          },
+          yRevenue: {
+            type: 'linear',
+            position: 'left',
+            grid: { color: palette.gridColor, drawBorder: false },
+            ticks: {
+              color: '#22c55e',
+              font: { family: 'Inter', size: 10, weight: '600' },
+              callback: (val) => 'Rs.' + (val >= 1000 ? (val / 1000).toFixed(1) + 'k' : val)
+            }
+          },
+          yOrders: {
+            type: 'linear',
+            position: 'right',
+            grid: { display: false },
+            ticks: {
+              color: '#38bdf8',
+              font: { family: 'Inter', size: 10, weight: '600' },
+              precision: 0
+            }
+          }
+        }
+      }
+    });
+    chartInstances.push(revChart);
+
+    // Toggle button handlers
+    const toggleBtns = document.querySelectorAll('#revenueViewToggles .admin-chart-toggle-btn');
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        toggleBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const view = this.getAttribute('data-view');
+        if (view === 'revenue') {
+          revChart.setDatasetVisibility(0, true);
+          revChart.setDatasetVisibility(1, false);
+          revChart.options.scales.yRevenue.display = true;
+          revChart.options.scales.yOrders.display = false;
+        } else if (view === 'orders') {
+          revChart.setDatasetVisibility(0, false);
+          revChart.setDatasetVisibility(1, true);
+          revChart.options.scales.yRevenue.display = false;
+          revChart.options.scales.yOrders.display = true;
+        } else {
+          revChart.setDatasetVisibility(0, true);
+          revChart.setDatasetVisibility(1, true);
+          revChart.options.scales.yRevenue.display = true;
+          revChart.options.scales.yOrders.display = true;
+        }
+        revChart.update();
+      });
+    });
+  }
+
+  // =========================================================================
+  // 2. ORDER FULFILLMENT DOUGHNUT CHART WITH CENTER METRIC
+  // =========================================================================
+  const statusCanvas = document.getElementById('orderStatusChart');
+  let statusChart = null;
+  if (statusCanvas) {
+    const rawData = <?= json_encode($statusData) ?>;
+    const labels = Object.keys(rawData).map(s => s.replace(/_/g, ' ').toUpperCase());
+    const dataVals = Object.values(rawData);
+    const totalOrdersCount = <?= $totalOrders ?>;
+
+    const centerTextPlugin = {
+      id: 'centerTextPlugin',
+      beforeDraw(chart) {
+        const { width, height, ctx } = chart;
+        ctx.save();
+        const light = isLight();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '800 24px "Plus Jakarta Sans", sans-serif';
+        ctx.fillStyle = light ? '#0f172a' : '#f8fafc';
+        ctx.fillText(totalOrdersCount, width / 2, height / 2 - 8);
+        ctx.font = '700 10px "Inter", sans-serif';
+        ctx.fillStyle = light ? '#64748b' : '#94a3b8';
+        ctx.fillText('ORDERS', width / 2, height / 2 + 14);
+        ctx.restore();
+      }
+    };
+
+    statusChart = new Chart(statusCanvas, {
       type: 'doughnut',
+      plugins: [centerTextPlugin],
       data: {
         labels: labels.length ? labels : ['NO ORDERS'],
         datasets: [{
           data: dataVals.length ? dataVals : [1],
           backgroundColor: [
-            'rgba(245, 158, 11, 0.85)', // placed
-            'rgba(6, 182, 212, 0.85)',  // accepted
-            'rgba(16, 185, 129, 0.85)', // ready_for_pickup
-            'rgba(99, 102, 241, 0.85)', // completed
-            'rgba(239, 68, 68, 0.85)',  // cancelled
-            'rgba(148, 163, 184, 0.5)'  // declined
+            'rgba(245, 158, 11, 0.9)', // placed
+            'rgba(6, 182, 212, 0.9)',  // accepted
+            'rgba(34, 197, 94, 0.9)',  // ready_for_pickup
+            'rgba(99, 102, 241, 0.9)', // completed
+            'rgba(239, 68, 68, 0.85)', // cancelled
+            'rgba(148, 163, 184, 0.6)' // declined
           ],
-          borderWidth: 2,
-          borderColor: 'transparent'
+          hoverBackgroundColor: [
+            '#fbbf24',
+            '#22d3ee',
+            '#4ade80',
+            '#818cf8',
+            '#f87171',
+            '#cbd5e1'
+          ],
+          borderWidth: 3,
+          borderColor: isLight() ? '#ffffff' : '#081d2e',
+          hoverOffset: 6
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          animateRotate: true,
+          animateScale: true,
+          duration: 1100,
+          easing: 'easeOutCubic'
+        },
         plugins: {
           legend: {
             position: 'right',
             labels: {
-              color: '#94a3b8',
-              font: { family: 'Inter', size: 11, weight: '600' },
-              padding: 12
+              color: palette.textColor,
+              font: { family: 'Inter', size: 10, weight: '600' },
+              padding: 10,
+              usePointStyle: true,
+              boxWidth: 10
+            }
+          },
+          tooltip: {
+            backgroundColor: palette.tooltipBg,
+            titleColor: palette.tooltipTitle,
+            bodyColor: palette.tooltipBody,
+            borderColor: palette.tooltipBorder,
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: function(context) {
+                const count = context.parsed;
+                const pct = totalOrdersCount > 0 ? ((count / totalOrdersCount) * 100).toFixed(1) : 0;
+                return ` ${context.label}: ${count} (${pct}%)`;
+              }
             }
           }
         },
-        cutout: '70%'
+        cutout: '72%'
       }
     });
+    chartInstances.push(statusChart);
   }
+
+  // =========================================================================
+  // 3. TOP PRODUCER STALLS HORIZONTAL BAR CHART
+  // =========================================================================
+  const stallsCanvas = document.getElementById('topStallsChart');
+  let stallsChart = null;
+  if (stallsCanvas) {
+    const sLabels = <?= json_encode(!empty($stallLabels) ? $stallLabels : ['No Producers']) ?>;
+    const sRevenues = <?= json_encode(!empty($stallRevenues) ? $stallRevenues : [0]) ?>;
+    const sOrders = <?= json_encode(!empty($stallOrders) ? $stallOrders : [0]) ?>;
+
+    const barColors = [
+      'rgba(34, 197, 94, 0.85)',
+      'rgba(245, 158, 11, 0.85)',
+      'rgba(56, 189, 248, 0.85)',
+      'rgba(167, 139, 250, 0.85)',
+      'rgba(16, 185, 129, 0.85)',
+      'rgba(244, 63, 94, 0.85)'
+    ];
+
+    stallsChart = new Chart(stallsCanvas, {
+      type: 'bar',
+      data: {
+        labels: sLabels,
+        datasets: [{
+          label: 'Total Gross Sales',
+          data: sRevenues,
+          backgroundColor: barColors,
+          borderRadius: 6,
+          borderSkipped: false,
+          barThickness: 16
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart',
+          delay: (ctx) => ctx.dataIndex * 80
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: palette.tooltipBg,
+            titleColor: palette.tooltipTitle,
+            bodyColor: palette.tooltipBody,
+            borderColor: palette.tooltipBorder,
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: function(ctx) {
+                const idx = ctx.dataIndex;
+                const rev = formatCurrency(ctx.parsed.x);
+                const ord = sOrders[idx] ? `${sOrders[idx]} orders` : '';
+                return ` Gross Sales: ${rev} (${ord})`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: palette.gridColor, drawBorder: false },
+            ticks: {
+              color: palette.textColor,
+              font: { family: 'Inter', size: 9, weight: '500' },
+              callback: (v) => 'Rs.' + (v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v)
+            }
+          },
+          y: {
+            grid: { display: false },
+            ticks: {
+              color: palette.headingColor,
+              font: { family: 'Inter', size: 10, weight: '600' },
+              callback: function(val) {
+                const text = this.getLabelForValue(val);
+                return text.length > 18 ? text.substring(0, 16) + '...' : text;
+              }
+            }
+          }
+        }
+      }
+    });
+    chartInstances.push(stallsChart);
+  }
+
+  // =========================================================================
+  // 4. LIVE CROP CATEGORY SATURATION (VERTICAL COLUMNS)
+  // =========================================================================
+  const catCanvas = document.getElementById('categoryDistChart');
+  let catChart = null;
+  if (catCanvas) {
+    const cLabels = <?= json_encode(!empty($catLabels) ? $catLabels : ['None']) ?>;
+    const cCounts = <?= json_encode(!empty($catCounts) ? $catCounts : [0]) ?>;
+
+    const columnColors = [
+      'rgba(34, 197, 94, 0.85)',
+      'rgba(16, 185, 129, 0.85)',
+      'rgba(245, 158, 11, 0.85)',
+      'rgba(234, 179, 8, 0.85)',
+      'rgba(56, 189, 248, 0.85)',
+      'rgba(168, 85, 247, 0.85)',
+      'rgba(6, 182, 212, 0.85)'
+    ];
+
+    catChart = new Chart(catCanvas, {
+      type: 'bar',
+      data: {
+        labels: cLabels,
+        datasets: [{
+          label: 'Active Produce Items',
+          data: cCounts,
+          backgroundColor: columnColors,
+          borderRadius: 6,
+          barThickness: 20
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1100,
+          easing: 'easeOutBack',
+          delay: (ctx) => ctx.dataIndex * 70
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: palette.tooltipBg,
+            titleColor: palette.tooltipTitle,
+            bodyColor: palette.tooltipBody,
+            borderColor: palette.tooltipBorder,
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: (ctx) => ` Active Products: ${ctx.parsed.y} listed`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              color: palette.textColor,
+              font: { family: 'Inter', size: 9, weight: '500' },
+              callback: function(val) {
+                const label = this.getLabelForValue(val);
+                return label.length > 11 ? label.substring(0, 9) + '..' : label;
+              }
+            }
+          },
+          y: {
+            grid: { color: palette.gridColor, drawBorder: false },
+            ticks: {
+              color: palette.textColor,
+              font: { family: 'Inter', size: 9, weight: '500' },
+              precision: 0
+            }
+          }
+        }
+      }
+    });
+    chartInstances.push(catChart);
+  }
+
+  // =========================================================================
+  // 5. MARKET HUB STALL DENSITY (POLAR AREA CHART)
+  // =========================================================================
+  const marketCanvas = document.getElementById('marketDensityChart');
+  let marketChart = null;
+  if (marketCanvas) {
+    const mLabels = <?= json_encode(!empty($marketLabels) ? $marketLabels : ['No Markets']) ?>;
+    const mCounts = <?= json_encode(!empty($marketStallCounts) ? $marketStallCounts : [0]) ?>;
+
+    marketChart = new Chart(marketCanvas, {
+      type: 'polarArea',
+      data: {
+        labels: mLabels,
+        datasets: [{
+          data: mCounts,
+          backgroundColor: [
+            'rgba(34, 197, 94, 0.72)',
+            'rgba(56, 189, 248, 0.72)',
+            'rgba(250, 204, 21, 0.72)',
+            'rgba(167, 139, 250, 0.72)',
+            'rgba(244, 63, 94, 0.72)',
+            'rgba(20, 184, 166, 0.72)'
+          ],
+          borderColor: isLight() ? 'rgba(255, 255, 255, 0.9)' : 'rgba(8, 27, 20, 0.8)',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          animateRotate: true,
+          animateScale: true,
+          duration: 1200,
+          easing: 'easeOutQuart'
+        },
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              color: palette.textColor,
+              font: { family: 'Inter', size: 9, weight: '600' },
+              padding: 8,
+              usePointStyle: true,
+              boxWidth: 8
+            }
+          },
+          tooltip: {
+            backgroundColor: palette.tooltipBg,
+            titleColor: palette.tooltipTitle,
+            bodyColor: palette.tooltipBody,
+            borderColor: palette.tooltipBorder,
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: (ctx) => ` Stalls: ${ctx.parsed.r} active producers`
+            }
+          }
+        },
+        scales: {
+          r: {
+            grid: { color: palette.gridColor },
+            angleLines: { color: palette.gridColor },
+            ticks: {
+              display: false,
+              backdropColor: 'transparent'
+            }
+          }
+        }
+      }
+    });
+    chartInstances.push(marketChart);
+  }
+
+  // =========================================================================
+  // Theme Switching Live Observer
+  // =========================================================================
+  const observer = new MutationObserver(() => {
+    palette = getThemePalette();
+    chartInstances.forEach(c => {
+      if (c && c.options) {
+        if (c.options.scales) {
+          Object.values(c.options.scales).forEach(scale => {
+            if (scale.ticks) scale.ticks.color = palette.textColor;
+            if (scale.grid) scale.grid.color = palette.gridColor;
+          });
+        }
+        if (c.options.plugins?.legend?.labels) {
+          c.options.plugins.legend.labels.color = palette.textColor;
+        }
+        c.update('none');
+      }
+    });
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 });
 
 // Farmer Action Handler (Approve / Reject)

@@ -1076,39 +1076,46 @@ require_once __DIR__ . '/includes/header.php';
   will-change: opacity, transform;
 }
 
-/* ── Diverse Per-Card Entrance Animation Initial States ── */
-.testimonial-card.anim-fade-left {
+/* ── Diverse Per-Card Entrance Animation Initial States (Stalls & Reviews) ── */
+.testimonial-card.anim-fade-left,
+.stall-bento-card.anim-fade-left {
   opacity: 0;
   transform: translateX(-55px) rotate(-1.5deg) scale(0.95);
 }
 
-.testimonial-card.anim-fade-up {
+.testimonial-card.anim-fade-up,
+.stall-bento-card.anim-fade-up {
   opacity: 0;
   transform: translateY(55px) scale(0.92);
 }
 
-.testimonial-card.anim-fade-right {
+.testimonial-card.anim-fade-right,
+.stall-bento-card.anim-fade-right {
   opacity: 0;
   transform: translateX(55px) rotate(1.5deg) scale(0.95);
 }
 
-.testimonial-card.anim-tilt-left {
+.testimonial-card.anim-tilt-left,
+.stall-bento-card.anim-tilt-left {
   opacity: 0;
   transform: translateX(-45px) translateY(40px) rotate(2deg) scale(0.94);
 }
 
-.testimonial-card.anim-scale-pop {
+.testimonial-card.anim-scale-pop,
+.stall-bento-card.anim-scale-pop {
   opacity: 0;
   transform: translateY(45px) scale(0.88) perspective(600px) rotateX(10deg);
 }
 
-.testimonial-card.anim-tilt-right {
+.testimonial-card.anim-tilt-right,
+.stall-bento-card.anim-tilt-right {
   opacity: 0;
   transform: translateX(45px) translateY(40px) rotate(-2deg) scale(0.94);
 }
 
 /* ── Active In-View State for all cards ── */
-.testimonial-card.in-view {
+.testimonial-card.in-view,
+.stall-bento-card.in-view {
   opacity: 1 !important;
   transform: translate(0, 0) scale(1) rotate(0deg) perspective(600px) rotateX(0deg) !important;
 }
@@ -1125,12 +1132,19 @@ require_once __DIR__ . '/includes/header.php';
   .testimonial-card.anim-fade-right,
   .testimonial-card.anim-tilt-left,
   .testimonial-card.anim-scale-pop,
-  .testimonial-card.anim-tilt-right {
+  .testimonial-card.anim-tilt-right,
+  .stall-bento-card.anim-fade-left,
+  .stall-bento-card.anim-fade-up,
+  .stall-bento-card.anim-fade-right,
+  .stall-bento-card.anim-tilt-left,
+  .stall-bento-card.anim-scale-pop,
+  .stall-bento-card.anim-tilt-right {
     opacity: 0;
     transform: none !important;
     transition: opacity 0.35s ease !important;
   }
-  .testimonial-card.in-view {
+  .testimonial-card.in-view,
+  .stall-bento-card.in-view {
     opacity: 1 !important;
     transform: none !important;
   }

@@ -271,25 +271,41 @@
     });
   }
 
-  // ─── 7. Stall Cards (0.2s Stagger After Section Entrance) ─────────────────
+  // ─── 7. Stall Cards — Diverse Per-Card Entrance Animations ─────────────────
   function initStallCards() {
     const grid = document.querySelector('.stalls-bento-grid, .stalls-grid');
-    if (!grid || prefersReduced) return;
+    if (!grid) return;
     const cards = grid.querySelectorAll('.stall-bento-card, [class*="stall-card"]');
     if (!cards.length) return;
 
-    cards.forEach(c => {
-      c.style.opacity = '0';
-      c.style.transform = 'translateY(24px)';
-      c.style.transition = 'opacity 0.55s ease-out,transform 0.55s cubic-bezier(0.16,1,0.3,1),box-shadow 0.3s ease,border-color 0.3s ease';
+    const animVariants = [
+      'anim-fade-left',
+      'anim-fade-up',
+      'anim-fade-right',
+      'anim-tilt-left',
+      'anim-scale-pop',
+      'anim-tilt-right'
+    ];
+
+    cards.forEach((c, i) => {
+      const animClass = animVariants[i % animVariants.length];
+      if (!c.classList.contains(animClass)) {
+        c.classList.add(animClass);
+      }
+      c.style.removeProperty('opacity');
+      c.style.removeProperty('transform');
+      if (prefersReduced) {
+        c.classList.add('in-view');
+      }
     });
+
+    if (prefersReduced) return;
 
     const obs = new IntersectionObserver((entries) => {
       if (!entries[0].isIntersecting) return;
       cards.forEach((card, i) => {
         setTimeout(() => {
-          card.style.opacity = '1';
-          card.style.transform = 'translateY(0)';
+          card.classList.add('in-view');
           const bar = card.querySelector('.slots-progress-fill, [class*="avail-bar"], .availability-bar');
           if (bar) {
             const tw = bar.dataset.targetWidth || bar.style.width || '80%';
@@ -297,7 +313,7 @@
             bar.style.transition = 'width 0.9s cubic-bezier(0.16,1,0.3,1)';
             setTimeout(() => { bar.style.width = tw; }, 120);
           }
-        }, 200 + i * 90);
+        }, 180 + i * 110);
       });
       obs.disconnect();
     }, { threshold: 0.1 });
