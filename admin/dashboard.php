@@ -339,27 +339,27 @@ try {
 
   <!-- Micro-KPI Summary Ribbon -->
   <div class="admin-analytics-summary-bar">
-    <div class="analytics-micro-kpi">
+    <div class="analytics-micro-kpi anim-stagger-kpi" data-kpi-index="0">
       <div class="analytics-micro-icon" style="background:rgba(34, 197, 94, 0.15); color:#4ade80;">
         <i data-lucide="receipt"></i>
       </div>
       <div class="analytics-micro-info">
         <span class="analytics-micro-lbl">Avg Order Value</span>
-        <span class="analytics-micro-val">Rs. <?= number_format($avgOrderValue, 0) ?></span>
+        <span class="analytics-micro-val" data-counter-prefix="Rs. " data-counter-val="<?= round($avgOrderValue) ?>">Rs. <?= number_format($avgOrderValue, 0) ?></span>
       </div>
     </div>
 
-    <div class="analytics-micro-kpi">
+    <div class="analytics-micro-kpi anim-stagger-kpi" data-kpi-index="1">
       <div class="analytics-micro-icon" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8;">
         <i data-lucide="check-check"></i>
       </div>
       <div class="analytics-micro-info">
         <span class="analytics-micro-lbl">Fulfillment Rate</span>
-        <span class="analytics-micro-val"><?= $fulfillmentRate ?>%</span>
+        <span class="analytics-micro-val" data-counter-suffix="%" data-counter-val="<?= $fulfillmentRate ?>"><?= $fulfillmentRate ?>%</span>
       </div>
     </div>
 
-    <div class="analytics-micro-kpi">
+    <div class="analytics-micro-kpi anim-stagger-kpi" data-kpi-index="2">
       <div class="analytics-micro-icon" style="background:rgba(250, 204, 21, 0.15); color:#facc15;">
         <i data-lucide="award"></i>
       </div>
@@ -371,7 +371,7 @@ try {
       </div>
     </div>
 
-    <div class="analytics-micro-kpi">
+    <div class="analytics-micro-kpi anim-stagger-kpi" data-kpi-index="3">
       <div class="analytics-micro-icon" style="background:rgba(167, 139, 250, 0.15); color:#a78bfa;">
         <i data-lucide="sprout"></i>
       </div>
@@ -387,7 +387,7 @@ try {
   <!-- Hero Row: Revenue Spline Area Chart + Order Fulfillment Doughnut -->
   <div class="admin-charts-hero-grid">
     <!-- Chart 1: Revenue & Order Trajectory Spline -->
-    <div class="admin-chart-card">
+    <div class="admin-chart-card anim-stagger-chart" id="cardRevenueGrowth" data-chart-index="1">
       <div class="admin-chart-card-header">
         <div>
           <h3 class="admin-chart-title">
@@ -397,6 +397,7 @@ try {
           <p class="admin-chart-subtitle">Smooth spline trend showing daily revenue velocity and customer order demand</p>
         </div>
         <div class="admin-chart-actions">
+          <span class="chart-seq-badge"><span class="chart-seq-dot"></span> Live Stream</span>
           <div class="admin-chart-toggle-group" id="revenueViewToggles">
             <button type="button" class="admin-chart-toggle-btn active" data-view="both">Dual Stream</button>
             <button type="button" class="admin-chart-toggle-btn" data-view="revenue">Revenue</button>
@@ -410,7 +411,7 @@ try {
     </div>
 
     <!-- Chart 2: Fulfillment Status Doughnut -->
-    <div class="admin-chart-card">
+    <div class="admin-chart-card anim-stagger-chart" id="cardOrderStatus" data-chart-index="2">
       <div class="admin-chart-card-header">
         <div>
           <h3 class="admin-chart-title">
@@ -419,6 +420,9 @@ try {
           </h3>
           <p class="admin-chart-subtitle">Distribution across fulfillment lifecycle</p>
         </div>
+        <span class="chart-seq-badge" style="background:rgba(56, 189, 248, 0.1); color:#38bdf8; border-color:rgba(56, 189, 248, 0.25);">
+          <span class="chart-seq-dot" style="background:#38bdf8; box-shadow:0 0 8px #38bdf8;"></span> Lifecycle
+        </span>
       </div>
       <div class="admin-chart-canvas-wrap" style="height: 310px; display:flex; align-items:center; justify-content:center;">
         <canvas id="orderStatusChart"></canvas>
@@ -429,7 +433,7 @@ try {
   <!-- Row 2: Triple Intelligence Bento Grid -->
   <div class="admin-charts-triple-grid">
     <!-- Chart 3: Top Producer Stalls by Gross Volume (Horizontal Bar) -->
-    <div class="admin-chart-card">
+    <div class="admin-chart-card anim-stagger-chart" id="cardTopStalls" data-chart-index="3">
       <div class="admin-chart-card-header">
         <div>
           <h3 class="admin-chart-title">
@@ -446,7 +450,7 @@ try {
     </div>
 
     <!-- Chart 4: Live Crop Category & Product Saturation (Vertical Rounded Columns) -->
-    <div class="admin-chart-card">
+    <div class="admin-chart-card anim-stagger-chart" id="cardCategoryDist" data-chart-index="4">
       <div class="admin-chart-card-header">
         <div>
           <h3 class="admin-chart-title">
@@ -463,7 +467,7 @@ try {
     </div>
 
     <!-- Chart 5: Market Hub Saturation & Stall Density (Polar Area) -->
-    <div class="admin-chart-card">
+    <div class="admin-chart-card anim-stagger-chart" id="cardMarketDensity" data-chart-index="5">
       <div class="admin-chart-card-header">
         <div>
           <h3 class="admin-chart-title">

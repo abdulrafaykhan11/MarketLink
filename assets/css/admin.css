@@ -1472,3 +1472,141 @@ html[data-theme="light"] .admin-brand .dashboard-logo-light { display: block !im
   color: var(--admin-text-muted);
 }
 
+/* --------------------------------------------------------------------------
+   8. Sequential 1-by-1 Cascading Entrance Animations & Shimmer Effects
+   -------------------------------------------------------------------------- */
+.analytics-micro-kpi.anim-stagger-kpi {
+  opacity: 0;
+  transform: translateY(18px) scale(0.97);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
+  will-change: opacity, transform;
+}
+
+.analytics-micro-kpi.anim-stagger-kpi.loaded {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.admin-chart-card.anim-stagger-chart {
+  opacity: 0;
+  transform: translateY(32px) scale(0.96);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+  will-change: opacity, transform;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-chart-card.anim-stagger-chart.loaded {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Ambient sweep flare when each card activates */
+.admin-chart-card.anim-stagger-chart::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 75%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(74, 222, 128, 0.08) 35%,
+    rgba(56, 189, 248, 0.14) 65%,
+    transparent 100%
+  );
+  transform: skewX(-25deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.admin-chart-card.anim-stagger-chart.loaded::before {
+  animation: chartCardLightSweep 1.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes chartCardLightSweep {
+  0% { left: -120%; opacity: 0; }
+  25% { opacity: 1; }
+  100% { left: 220%; opacity: 0; }
+}
+
+/* Canvas reveal transition */
+.admin-chart-canvas-wrap canvas {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+.admin-chart-canvas-wrap.chart-ready canvas {
+  opacity: 1;
+}
+
+/* Loading skeleton pulse placeholder before chart arrives */
+.admin-chart-canvas-wrap:not(.chart-ready)::after {
+  content: '';
+  position: absolute;
+  top: 25%;
+  left: 10%;
+  right: 10%;
+  bottom: 25%;
+  background: radial-gradient(ellipse at center, rgba(34, 197, 94, 0.08) 0%, transparent 70%);
+  animation: chartPlaceholderPulse 1.5s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes chartPlaceholderPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.95); }
+  50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+.chart-seq-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.chart-seq-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+  animation: pulseDotSmall 1.8s infinite ease-in-out;
+}
+
+@keyframes pulseDotSmall {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analytics-micro-kpi.anim-stagger-kpi,
+  .admin-chart-card.anim-stagger-chart {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .admin-chart-card.anim-stagger-chart::before {
+    display: none !important;
+  }
+  .admin-chart-canvas-wrap canvas {
+    opacity: 1 !important;
+  }
+}
+
+
