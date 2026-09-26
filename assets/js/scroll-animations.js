@@ -343,26 +343,48 @@
     obs.observe(footer);
   }
 
-  // ─── 10. Testimonials ────────────────────────────────────────────────────
+  // ─── 10. Testimonials — Diverse Per-Card Entrance Animations ─────────────
   function initTestimonials() {
     const grid = document.querySelector('.testimonials-grid');
-    if (!grid || prefersReduced) return;
+    if (!grid) return;
     const cards = grid.querySelectorAll('.testimonial-card');
-    cards.forEach(c => {
-      c.style.opacity = '0';
-      c.style.transform = 'translateY(28px)';
-      c.style.transition = 'opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+    if (!cards.length) return;
+
+    const animVariants = [
+      'anim-fade-left',
+      'anim-fade-up',
+      'anim-fade-right',
+      'anim-tilt-left',
+      'anim-scale-pop',
+      'anim-tilt-right'
+    ];
+
+    cards.forEach((c, i) => {
+      // Ensure distinct animation class is present
+      const animClass = animVariants[i % animVariants.length];
+      if (!c.classList.contains(animClass)) {
+        c.classList.add(animClass);
+      }
+      // Clear any conflicting inline transform or opacity
+      c.style.removeProperty('opacity');
+      c.style.removeProperty('transform');
+
+      if (prefersReduced) {
+        c.classList.add('in-view');
+      }
     });
+
+    if (prefersReduced) return;
+
     const obs = new IntersectionObserver((entries) => {
       if (!entries[0].isIntersecting) return;
       cards.forEach((c, i) => {
         setTimeout(() => {
-          c.style.opacity = '1';
-          c.style.transform = 'translateY(0)';
-        }, 200 + i * 110);
+          c.classList.add('in-view');
+        }, 180 + i * 130); // Smooth cascading entry (card 1, then card 2, etc.)
       });
       obs.disconnect();
-    }, { threshold: 0.08 });
+    }, { threshold: 0.1 });
     obs.observe(grid);
   }
 

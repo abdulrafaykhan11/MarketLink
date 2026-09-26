@@ -1068,16 +1068,72 @@ require_once __DIR__ . '/includes/header.php';
   flex-direction: column;
   justify-content: space-between;
   box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5);
-  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.35s ease;
   overflow: hidden;
+  will-change: opacity, transform;
 }
 
-.testimonial-card:hover {
-  transform: translateY(-8px);
+/* ── Diverse Per-Card Entrance Animation Initial States ── */
+.testimonial-card.anim-fade-left {
+  opacity: 0;
+  transform: translateX(-55px) rotate(-1.5deg) scale(0.95);
+}
+
+.testimonial-card.anim-fade-up {
+  opacity: 0;
+  transform: translateY(55px) scale(0.92);
+}
+
+.testimonial-card.anim-fade-right {
+  opacity: 0;
+  transform: translateX(55px) rotate(1.5deg) scale(0.95);
+}
+
+.testimonial-card.anim-tilt-left {
+  opacity: 0;
+  transform: translateX(-45px) translateY(40px) rotate(2deg) scale(0.94);
+}
+
+.testimonial-card.anim-scale-pop {
+  opacity: 0;
+  transform: translateY(45px) scale(0.88) perspective(600px) rotateX(10deg);
+}
+
+.testimonial-card.anim-tilt-right {
+  opacity: 0;
+  transform: translateX(45px) translateY(40px) rotate(-2deg) scale(0.94);
+}
+
+/* ── Active In-View State for all cards ── */
+.testimonial-card.in-view {
+  opacity: 1 !important;
+  transform: translate(0, 0) scale(1) rotate(0deg) perspective(600px) rotateX(0deg) !important;
+}
+
+.testimonial-card.in-view:hover {
+  transform: translateY(-8px) scale(1.01) !important;
   border-color: rgba(74, 222, 128, 0.55);
   box-shadow: 0 25px 55px -12px rgba(34, 197, 94, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-card.anim-fade-left,
+  .testimonial-card.anim-fade-up,
+  .testimonial-card.anim-fade-right,
+  .testimonial-card.anim-tilt-left,
+  .testimonial-card.anim-scale-pop,
+  .testimonial-card.anim-tilt-right {
+    opacity: 0;
+    transform: none !important;
+    transition: opacity 0.35s ease !important;
+  }
+  .testimonial-card.in-view {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 .testimonial-card-glow {
@@ -1492,7 +1548,9 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <div class="testimonials-grid">
-      <?php foreach ($testimonials as $t): 
+      <?php 
+      $cardAnimVariants = ['anim-fade-left', 'anim-fade-up', 'anim-fade-right', 'anim-tilt-left', 'anim-scale-pop', 'anim-tilt-right'];
+      foreach ($testimonials as $tIndex => $t): 
         $rating = (int)($t['rating'] ?? 5);
         $custName = htmlspecialchars($t['customer_name'] ?? 'Verified Customer');
         $stallName = htmlspecialchars($t['stall_name'] ?? 'Local Stall');
@@ -1501,8 +1559,9 @@ require_once __DIR__ . '/includes/header.php';
         $farmerReply = !empty($t['farmer_response']) ? htmlspecialchars($t['farmer_response']) : '';
         $stallUrl = !empty($t['farmer_id']) ? BASE_URL . '/stall.php?id=' . (int)$t['farmer_id'] : BASE_URL . '/#local-stalls';
         $initials = strtoupper(substr($custName, 0, 2));
+        $animClass = $cardAnimVariants[$tIndex % count($cardAnimVariants)];
       ?>
-        <div class="testimonial-card">
+        <div class="testimonial-card <?= $animClass ?>" data-anim="<?= $animClass ?>">
           <div class="testimonial-card-glow" aria-hidden="true"></div>
           
           <div class="testimonial-top">

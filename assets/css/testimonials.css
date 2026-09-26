@@ -150,16 +150,78 @@
   flex-direction: column;
   justify-content: space-between;
   box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5);
-  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.35s ease;
   overflow: hidden;
+  will-change: opacity, transform;
 }
 
-.testimonial-card:hover {
-  transform: translateY(-8px);
+/* ── Diverse Per-Card Entrance Animation Initial States ── */
+/* Card 1: Slide & fade from Left with subtle angle */
+.testimonial-card.anim-fade-left {
+  opacity: 0;
+  transform: translateX(-55px) rotate(-1.5deg) scale(0.95);
+}
+
+/* Card 2: Rise & fade from Bottom Center with zoom */
+.testimonial-card.anim-fade-up {
+  opacity: 0;
+  transform: translateY(55px) scale(0.92);
+}
+
+/* Card 3: Slide & fade from Right with subtle angle */
+.testimonial-card.anim-fade-right {
+  opacity: 0;
+  transform: translateX(55px) rotate(1.5deg) scale(0.95);
+}
+
+/* Card 4: Slide & fade from Bottom-Left with dynamic tilt */
+.testimonial-card.anim-tilt-left {
+  opacity: 0;
+  transform: translateX(-45px) translateY(40px) rotate(2deg) scale(0.94);
+}
+
+/* Card 5: 3D perspective pop & scale rise */
+.testimonial-card.anim-scale-pop {
+  opacity: 0;
+  transform: translateY(45px) scale(0.88) perspective(600px) rotateX(10deg);
+}
+
+/* Card 6: Slide & fade from Bottom-Right with dynamic tilt */
+.testimonial-card.anim-tilt-right {
+  opacity: 0;
+  transform: translateX(45px) translateY(40px) rotate(-2deg) scale(0.94);
+}
+
+/* ── Active In-View State for all cards ── */
+.testimonial-card.in-view {
+  opacity: 1 !important;
+  transform: translate(0, 0) scale(1) rotate(0deg) perspective(600px) rotateX(0deg) !important;
+}
+
+.testimonial-card.in-view:hover {
+  transform: translateY(-8px) scale(1.01) !important;
   border-color: rgba(74, 222, 128, 0.55);
   box-shadow: 0 25px 55px -12px rgba(34, 197, 94, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-card.anim-fade-left,
+  .testimonial-card.anim-fade-up,
+  .testimonial-card.anim-fade-right,
+  .testimonial-card.anim-tilt-left,
+  .testimonial-card.anim-scale-pop,
+  .testimonial-card.anim-tilt-right {
+    opacity: 0;
+    transform: none !important;
+    transition: opacity 0.35s ease !important;
+  }
+  .testimonial-card.in-view {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* Ambient Radial Glow on Hover */
