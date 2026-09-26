@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * MarketLink - Shared Site Footer
  */
@@ -9,8 +9,8 @@ if (!defined('BASE_URL')) {
 <!-- ==========================================================================
      LUXURY FOOTER
      ========================================================================== -->
-<footer class="site-footer">
-  <div class="footer-container">
+<footer class="site-footer section-reveal">
+  <div class="footer-container section-reveal-container">
 
     <div class="footer-top-grid">
       <!-- Brand Column -->

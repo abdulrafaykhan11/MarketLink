@@ -65,6 +65,7 @@ $flashInfo    = getFlash('info');
 <!-- JavaScript Assets -->
 <script src="<?= BASE_URL ?>/assets/js/toast.js"></script>
 <script src="<?= BASE_URL ?>/assets/js/home.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/scroll-animations.js?v=<?= filemtime(__DIR__ . '/../assets/js/scroll-animations.js') ?>"></script>
 <script src="<?= BASE_URL ?>/assets/js/auth-validation.js"></script>
 
 <!-- Server-side Session Flash Toasts -->

@@ -80,9 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Filter and Search
+// Filter by Status only
 $filterStatus = $_GET['status'] ?? 'all';
-$searchQuery  = trim($_GET['q'] ?? '');
 
 $sql = "SELECT cm.*, u.username as replied_by_username 
         FROM contact_messages cm 
@@ -96,11 +95,6 @@ if ($filterStatus === 'unread') {
     $sql .= " AND cm.status = 'replied'";
 } elseif ($filterStatus === 'read') {
     $sql .= " AND cm.status = 'read'";
-}
-
-if (!empty($searchQuery)) {
-    $sql .= " AND (cm.name LIKE :q OR cm.email LIKE :q OR cm.subject LIKE :q OR cm.message LIKE :q)";
-    $params[':q'] = "%{$searchQuery}%";
 }
 
 $sql .= " ORDER BY cm.created_at DESC";
@@ -175,38 +169,25 @@ if ($activeInquiryId > 0) {
   </div>
 </div>
 
-<!-- Filters & Search Toolbar -->
+<!-- Status Filter Toolbar -->
 <div class="admin-card" style="padding:1.25rem 1.5rem; margin-bottom:1.5rem; border-radius:16px;">
-  <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
-    <!-- Status Filter Pills -->
-    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-      <a href="?status=all<?= !empty($searchQuery) ? '&q=' . urlencode($searchQuery) : '' ?>" 
-         class="admin-btn <?= $filterStatus === 'all' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem;">
-        All (<?= $metricTotal ?>)
-      </a>
-      <a href="?status=unread<?= !empty($searchQuery) ? '&q=' . urlencode($searchQuery) : '' ?>" 
-         class="admin-btn <?= $filterStatus === 'unread' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem;">
-        Unread (<?= $metricUnread ?>)
-      </a>
-      <a href="?status=replied<?= !empty($searchQuery) ? '&q=' . urlencode($searchQuery) : '' ?>" 
-         class="admin-btn <?= $filterStatus === 'replied' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem;">
-        Replied (<?= $metricReplied ?>)
-      </a>
-    </div>
-
-    <!-- Search Form -->
-    <form method="GET" action="" style="display:flex; gap:0.5rem; flex:1; max-width:400px;">
-      <input type="hidden" name="status" value="<?= htmlspecialchars($filterStatus) ?>">
-      <div style="position:relative; width:100%;">
-        <input type="text" name="q" value="<?= htmlspecialchars($searchQuery) ?>" placeholder="Search by name, email, subject..." 
-               class="admin-input" style="width:100%; border-radius:999px; padding-left:2.5rem; height:40px;">
-        <i data-lucide="search" style="position:absolute; left:0.85rem; top:50%; transform:translateY(-50%); width:16px; height:16px; color:#64748b;"></i>
-      </div>
-      <button type="submit" class="admin-btn admin-btn-outline" style="border-radius:999px; height:40px; padding:0 1.2rem;">Search</button>
-      <?php if (!empty($searchQuery)): ?>
-        <a href="?status=<?= urlencode($filterStatus) ?>" class="admin-btn admin-btn-outline" style="border-radius:999px; height:40px;" title="Clear search">✕</a>
-      <?php endif; ?>
-    </form>
+  <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
+    <a href="?status=all" 
+       class="admin-btn <?= $filterStatus === 'all' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem;">
+      All (<?= $metricTotal ?>)
+    </a>
+    <a href="?status=unread" 
+       class="admin-btn <?= $filterStatus === 'unread' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem;">
+      Unread (<?= $metricUnread ?>)
+    </a>
+    <a href="?status=replied" 
+       class="admin-btn <?= $filterStatus === 'replied' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem;">
+      Replied (<?= $metricReplied ?>)
+    </a>
+    <a href="?status=read" 
+       class="admin-btn <?= $filterStatus === 'read' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem;">
+      Read
+    </a>
   </div>
 </div>
 

@@ -211,7 +211,7 @@ require_once __DIR__ . '/includes/header.php';
 <!-- ==========================================================================
      HERO SECTION: Full-Screen Looping Farm Video
      ========================================================================== -->
-<section class="hero-section" id="hero">
+<section class="hero-section section-reveal clip-reveal" id="hero">
 
   <!-- Full-screen autoplay looping video -->
   <div class="hero-fullscreen-bg">
@@ -226,7 +226,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="hero-fullscreen-overlay"></div>
   </div>
 
-  <div class="hero-mobile-panel">
+  <div class="hero-mobile-panel section-reveal-container">
     <span class="hero-mobile-kicker"><span></span> Live local harvest</span>
     <h1>Fresh from the farm, ready for your table.</h1>
     <p>Browse nearby growers, reserve today's harvest, and collect it at your local market.</p>
@@ -246,11 +246,11 @@ require_once __DIR__ . '/includes/header.php';
      SECTION 2: Sophisticated Storytelling Bento Grid — Silicon Valley Tier
      Unifies Farm-to-Fork Journey & Broken Supermarket Supply Chain
      ========================================================================== -->
-<section class="bento-story-section" id="how-it-works">
+<section class="bento-story-section section-reveal" id="how-it-works">
   <!-- Anchor for direct jump from navbar link 'Why Direct?' -->
   <span id="farm-contrast" style="position: absolute; top: -80px;"></span>
 
-  <div class="section-container">
+  <div class="section-container section-reveal-container">
     
     <!-- Section Header -->
     <div class="bento-section-header">
@@ -273,7 +273,7 @@ require_once __DIR__ . '/includes/header.php';
            PANEL 1: The Farm-to-Fork Journey (Primary Wide Panel, Spans 7 cols)
            Electric Neon Transparent Process ⚡
            ==================================================================== -->
-      <div class="bento-card bento-journey-card electric-process-card">
+      <div class="bento-card bento-journey-card electric-process-card section-reveal">
         
         <!-- Ambient Electric Glow Aura -->
         <div class="process-glow-aura" aria-hidden="true"></div>
@@ -510,7 +510,7 @@ require_once __DIR__ . '/includes/header.php';
       <!-- ====================================================================
            PANEL 4: The Efficiency Gap Graph (Spans 5 cols)
            ==================================================================== -->
-      <div class="bento-card bento-efficiency-card">
+      <div class="bento-card bento-efficiency-card section-reveal clip-reveal">
         <div class="bento-card-header">
           <div class="bento-tag bento-tag-gold">
             <span class="bento-tag-icon">📊</span>
@@ -769,8 +769,8 @@ require_once __DIR__ . '/includes/header.php';
 <!-- ==========================================================================
      SECTION 4: Featured Live Stalls & Seasonal Showcase — Asymmetric Bento Grid
      ========================================================================== -->
-<section class="stalls-section" id="local-stalls">
-  <div class="section-container">
+<section class="stalls-section section-reveal" id="local-stalls">
+  <div class="section-container section-reveal-container">
 
     <div class="section-header stalls-bento-header-wrap">
       <div class="stalls-badge-group">
@@ -1477,8 +1477,8 @@ require_once __DIR__ . '/includes/header.php';
 }
 </style>
 
-<section class="testimonials-section" id="testimonials">
-  <div class="section-container">
+<section class="testimonials-section section-reveal" id="testimonials">
+  <div class="section-container section-reveal-container">
     
     <div class="section-header testimonials-header">
       <div class="testimonials-badge-wrap">
@@ -1568,7 +1568,7 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <!-- Live Trust Banner Below Testimonials -->
-    <div class="testimonials-trust-footer">
+    <div class="testimonials-trust-footer section-reveal clip-reveal">
       <div class="trust-stat-item">
         <span class="trust-stat-val">4.96 ★</span>
         <span class="trust-stat-lbl">Average Stall Rating</span>
@@ -1598,8 +1598,8 @@ require_once __DIR__ . '/includes/header.php';
 <!-- ==========================================================================
      SECTION 5: Dual Audience Community Invitation
      ========================================================================== -->
-<section class="audience-section" id="community">
-  <div class="section-container">
+<section class="audience-section section-reveal" id="community">
+  <div class="section-container section-reveal-container">
 
     <div class="audience-grid">
       <!-- For Customers: Emerald & Cyan Glow -->
@@ -1645,8 +1645,8 @@ require_once __DIR__ . '/includes/header.php';
 <!-- ==========================================================================
      SECTION 6: Interactive FAQ Accordion
      ========================================================================== -->
-<section class="faq-section" id="faq">
-  <div class="section-container">
+<section class="faq-section section-reveal" id="faq">
+  <div class="section-container section-reveal-container">
 
     <div class="section-header">
       <span class="section-tag section-tag-gold">Got Questions?</span>
@@ -1702,8 +1702,8 @@ require_once __DIR__ . '/includes/header.php';
 <!-- ==========================================================================
      SECTION 7: High-Impact Call to Action Banner
      ========================================================================== -->
-<section style="padding: 6rem 1.5rem; background: var(--bg-primary); position: relative;">
-  <div class="section-container">
+<section class="cta-section section-reveal clip-reveal" id="cta" style="padding: 6rem 1.5rem; background: var(--bg-primary); position: relative;">
+  <div class="section-container section-reveal-container">
     <div style="background: linear-gradient(135deg, #09261a 0%, #0c3826 40%, #0e2942 100%); border: 2px solid var(--border-hover); border-radius: var(--radius-xl); padding: 5rem 2.5rem; text-align: center; position: relative; overflow: hidden; box-shadow: 0 30px 70px -15px rgba(0,0,0,0.6);">
       <!-- Subtle ambient inner glow -->
       <div style="position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(ellipse, rgba(52, 211, 153, 0.25) 0%, transparent 70%); pointer-events: none;"></div>

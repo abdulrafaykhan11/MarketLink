@@ -663,3 +663,253 @@ a:hover {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
+/* ==========================================================================
+   SCROLL ANIMATIONS — IntersectionObserver Utility
+   ========================================================================== */
+
+/* ── .reveal utility (base state: invisible, ready to animate in) ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Stagger delay helpers ── */
+.reveal-delay-1 { transition-delay: 0.08s; }
+.reveal-delay-2 { transition-delay: 0.16s; }
+.reveal-delay-3 { transition-delay: 0.24s; }
+.reveal-delay-4 { transition-delay: 0.32s; }
+.reveal-delay-5 { transition-delay: 0.40s; }
+
+/* ── Navbar .scrolled state (backdrop blur + solid surface) ── */
+#siteHeader.scrolled {
+  backdrop-filter: blur(20px) saturate(1.6) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.6) !important;
+  background: rgba(6, 21, 36, 0.92) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35) !important;
+}
+[data-theme="light"] #siteHeader.scrolled {
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ── Scroll-Down Bounce Arrow ── */
+.scroll-down-arrow {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1.5px solid rgba(74, 222, 128, 0.45);
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+.scroll-down-arrow:hover {
+  background: rgba(34, 197, 94, 0.3);
+  transform: translateX(-50%) scale(1.1);
+}
+.scroll-arrow-icon {
+  font-size: 1.25rem;
+  color: #4ade80;
+  animation: bounceArrow 1.8s ease-in-out infinite;
+  display: block;
+  line-height: 1;
+}
+
+@keyframes bounceArrow {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(6px); }
+}
+
+/* ── Step Icon Scale-Bounce ── */
+@keyframes stepIconBounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.22); }
+  60%  { transform: scale(0.92); }
+  80%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* ── CTA Button Glow-Pulse on Hover ── */
+.btn-primary:hover,
+.btn-trust-order:hover {
+  animation: ctaGlowPulse 0.5s ease-out;
+}
+@keyframes ctaGlowPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+  60%  { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* ── Comparison + Stall Card Hover Glow ── */
+.comparison-card:hover,
+.compare-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 16px 40px -8px rgba(34, 197, 94, 0.22) !important;
+}
+
+/* ── Stall Card Hover: Scale + Green Glow ── */
+[class*="stall-card"]:hover,
+[class*="bento-card"]:hover,
+[class*="stall-bento"]:hover {
+  transform: scale(1.02) translateY(-3px) !important;
+  box-shadow: 0 18px 45px -10px rgba(34, 197, 94, 0.3) !important;
+  border-color: rgba(74, 222, 128, 0.65) !important;
+}
+
+/* ==========================================================================
+   SECTION-LEVEL SCROLL ANIMATIONS (Awwwards-Tier Vanilla CSS)
+   ========================================================================== */
+
+.section-reveal {
+  position: relative;
+}
+
+/* 1. Wrap each section's content in a container:
+      Initial state: opacity: 0, transform: scale(0.94) translateY(40px)
+      Active state:  opacity: 1, transform: scale(1) translateY(0)
+      Transition:    0.8s cubic-bezier(0.16, 1, 0.3, 1) */
+.section-reveal > .section-container,
+.section-reveal > .footer-container,
+.section-reveal > .hero-mobile-panel,
+.section-reveal .section-reveal-container,
+.section-reveal.section-reveal-unit {
+  opacity: 0;
+  transform: scale(0.94) translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, clip-path;
+}
+
+/* Active state when section enters viewport */
+.section-reveal.in-view > .section-container,
+.section-reveal.in-view > .footer-container,
+.section-reveal.in-view > .hero-mobile-panel,
+.section-reveal.in-view .section-reveal-container,
+.section-reveal.section-reveal-unit.in-view {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* Standalone cards or sub-units marked as section-reveal */
+.bento-card.section-reveal,
+.section-reveal.section-reveal-standalone {
+  opacity: 0;
+  transform: scale(0.94) translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, clip-path;
+}
+.bento-card.section-reveal.in-view,
+.section-reveal.section-reveal-standalone.in-view {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* 3. Subtle clip-path reveal on key sections (Hero, Stats, CTA):
+      Animate from clip-path: inset(8% 0 0 0) to clip-path: inset(0 0 0 0) */
+.section-reveal.clip-reveal > .section-container,
+.section-reveal.clip-reveal > .footer-container,
+.section-reveal.clip-reveal > .hero-mobile-panel,
+.section-reveal.clip-reveal .section-reveal-container,
+.section-reveal.clip-reveal.section-reveal-unit,
+.bento-card.section-reveal.clip-reveal {
+  clip-path: inset(8% 0 0 0);
+}
+
+.section-reveal.clip-reveal.in-view > .section-container,
+.section-reveal.clip-reveal.in-view > .footer-container,
+.section-reveal.clip-reveal.in-view > .hero-mobile-panel,
+.section-reveal.clip-reveal.in-view .section-reveal-container,
+.section-reveal.clip-reveal.section-reveal-unit.in-view,
+.bento-card.section-reveal.clip-reveal.in-view {
+  clip-path: inset(0 0 0 0);
+}
+
+/* 5. Subtle background parallax between sections */
+.hero-fullscreen-bg {
+  will-change: transform;
+}
+.bento-story-section::before,
+.testimonials-section::before {
+  transform: translate3d(-50%, var(--parallax-y, 0px), 0) !important;
+  will-change: transform;
+}
+
+/* 6. Coordinated element-level stagger delays after section entrance */
+.section-reveal .reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.section-reveal.in-view .reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.section-reveal.in-view .reveal-delay-1 { transition-delay: 0.18s; }
+.section-reveal.in-view .reveal-delay-2 { transition-delay: 0.28s; }
+.section-reveal.in-view .reveal-delay-3 { transition-delay: 0.38s; }
+.section-reveal.in-view .reveal-delay-4 { transition-delay: 0.48s; }
+.section-reveal.in-view .reveal-delay-5 { transition-delay: 0.58s; }
+
+/* ── prefers-reduced-motion — hard override ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .scroll-down-arrow,
+  .scroll-arrow-icon,
+  [class*="stall-card"],
+  [class*="bento-card"],
+  .comparison-card,
+  .compare-card,
+  .btn-primary,
+  .btn-trust-order,
+  .section-reveal > .section-container,
+  .section-reveal > .footer-container,
+  .section-reveal > .hero-mobile-panel,
+  .section-reveal .section-reveal-container,
+  .section-reveal.section-reveal-unit,
+  .bento-card.section-reveal {
+    transition: opacity 0.35s ease !important;
+    animation: none !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .section-reveal > .section-container,
+  .section-reveal > .footer-container,
+  .section-reveal > .hero-mobile-panel,
+  .section-reveal .section-reveal-container,
+  .section-reveal.section-reveal-unit,
+  .bento-card.section-reveal {
+    opacity: 0;
+  }
+  .section-reveal.in-view > .section-container,
+  .section-reveal.in-view > .footer-container,
+  .section-reveal.in-view > .hero-mobile-panel,
+  .section-reveal.in-view .section-reveal-container,
+  .section-reveal.section-reveal-unit.in-view,
+  .bento-card.section-reveal.in-view {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
+
+
