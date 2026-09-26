@@ -21,8 +21,12 @@ if (!empty($filterStatus) && $filterStatus !== 'all') {
 }
 
 if (!empty($searchQuery)) {
-    $whereClauses[] = "(fp.stall_name LIKE :q OR fp.contact_person LIKE :q OR u.email LIKE :q OR fp.business_phone LIKE :q)";
-    $params[':q'] = "%{$searchQuery}%";
+    $whereClauses[] = "(fp.stall_name LIKE :q_stall OR fp.contact_person LIKE :q_contact OR u.email LIKE :q_email OR fp.business_phone LIKE :q_phone)";
+    $searchPattern = "%{$searchQuery}%";
+    $params[':q_stall'] = $searchPattern;
+    $params[':q_contact'] = $searchPattern;
+    $params[':q_email'] = $searchPattern;
+    $params[':q_phone'] = $searchPattern;
 }
 
 $whereSql = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) : "";
@@ -165,7 +169,7 @@ $allCount = array_sum($counts);
                     <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" 
                             title="Suspend Seller Privileges"
                             onclick="updateFarmer(<?= $f['farmer_id'] ?>, 'suspend')">
-                      <i data-lucide="pause-circle"></i> Suspend
+                      <i data-lucide="circle-pause"></i> Suspend
                     </button>
                   <?php endif; ?>
 

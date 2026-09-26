@@ -815,6 +815,14 @@ html[data-theme="light"] .sidebar-brand .dashboard-logo-light { display: block !
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
+/* Status/category pills are primary navigation controls. Keep the selected
+   state deterministic even if a legacy page supplies other theme styling. */
+[data-theme="light"] .filter-pill.active {
+  background: linear-gradient(135deg, #166534, #047857);
+  color: #ffffff;
+  border-color: #047857;
+}
+
 /* Product Cards Grid */
 .products-catalog-grid {
   display: grid;
@@ -886,6 +894,31 @@ html[data-theme="light"] .sidebar-brand .dashboard-logo-light { display: block !
 .product-fav-btn.is-favorite {
   color: #ef4444;
   transform: scale(1.15);
+}
+
+/* The premium favorite treatment above uses a dark translucent background in
+   dark mode; make its icon and selected state readable on light surfaces. */
+[data-theme="light"] .product-fav-btn {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: #bae6fd !important;
+  color: #475569;
+}
+[data-theme="light"] .product-fav-btn:hover,
+[data-theme="light"] .product-fav-btn.is-favorite {
+  background: #fff1f2 !important;
+  border-color: #fda4af !important;
+  color: #dc2626;
+}
+[data-theme="light"] .product-stock-badge {
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #14532d !important;
+  border-color: #86efac !important;
+}
+[data-theme="light"] button.btn-secondary[onclick*="quickReorder"],
+[data-theme="light"] a.btn-secondary[href*="reorder"] {
+  background: #eff6ff;
+  color: #075985;
+  border-color: #7dd3fc;
 }
 
 .product-stock-tag {

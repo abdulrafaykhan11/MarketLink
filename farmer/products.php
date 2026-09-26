@@ -33,8 +33,10 @@ if ($selectedCat > 0) {
 }
 
 if (!empty($searchTerm)) {
-    $where[] = "(p.product_name LIKE :term OR p.description LIKE :term)";
-    $params[':term'] = "%{$searchTerm}%";
+    $where[] = "(p.product_name LIKE :term_product OR p.description LIKE :term_description)";
+    $searchPattern = "%{$searchTerm}%";
+    $params[':term_product'] = $searchPattern;
+    $params[':term_description'] = $searchPattern;
 }
 
 $whereSql = implode(' AND ', $where);

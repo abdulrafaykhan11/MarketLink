@@ -22,7 +22,7 @@ $user = currentUser();
     </a>
 
     <!-- Navigation Links -->
-    <nav class="nav-menu" id="navMenu">
+    <nav class="nav-menu" id="navMenu" aria-label="Primary navigation">
       <ul class="nav-list">
         <li><a href="<?= BASE_URL ?>/#how-it-works" class="nav-link">The Journey</a></li>
         <li><a href="<?= BASE_URL ?>/#local-stalls" class="nav-link">Local Stalls</a></li>
@@ -31,14 +31,31 @@ $user = currentUser();
         <li><a href="<?= BASE_URL ?>/about.php" class="nav-link">About Us</a></li>
         <li><a href="<?= BASE_URL ?>/contact.php" class="nav-link">Contact</a></li>
       </ul>
+
+      <!-- Account actions deliberately live inside the mobile drawer. This keeps
+           the compact header focused on the logo, theme switch, and menu. -->
+      <div class="nav-mobile-actions">
+        <?php if ($user): ?>
+          <div class="nav-mobile-user-summary">
+            <span class="nav-mobile-user-name"><?= htmlspecialchars($user['name']) ?></span>
+            <span class="nav-mobile-user-role role-<?= htmlspecialchars($user['role']) ?>"><?= ucfirst(htmlspecialchars($user['role'])) ?> account</span>
+          </div>
+          <a href="<?= BASE_URL ?>/<?= htmlspecialchars($user['role']) ?>/dashboard.php" class="nav-mobile-portal-link">
+            Go to <?= ucfirst(htmlspecialchars($user['role'])) ?> Portal <span aria-hidden="true">→</span>
+          </a>
+          <a href="<?= BASE_URL ?>/logout.php" class="nav-mobile-logout-link">Sign Out</a>
+        <?php else: ?>
+          <a href="<?= BASE_URL ?>/login.php" class="nav-mobile-login-link">Sign In</a>
+          <a href="<?= BASE_URL ?>/register.php" class="nav-mobile-portal-link">Create Free Account <span aria-hidden="true">→</span></a>
+        <?php endif; ?>
+      </div>
     </nav>
 
     <!-- Nav Actions: Theme Switcher & Auth Buttons -->
     <div class="nav-actions">
       <!-- Theme Toggle Switch (Dark & Light Mode) -->
       <button type="button" class="theme-toggle-btn" aria-label="Toggle Dark and Light Mode" title="Toggle theme">
-        <span class="theme-toggle-icon">🌙</span>
-        <span class="theme-toggle-text">Dark</span>
+        <span class="theme-toggle-icon"><i class="fa-solid fa-moon" aria-hidden="true"></i></span>
       </button>
 
       <?php if ($user): ?>
@@ -64,7 +81,7 @@ $user = currentUser();
       <?php endif; ?>
 
       <!-- Mobile Hamburger Menu Button -->
-      <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
+      <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu" aria-controls="navMenu" aria-expanded="false">
         <span></span>
         <span></span>
         <span></span>

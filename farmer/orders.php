@@ -58,8 +58,11 @@ if ($dateFilter === 'today') {
 }
 
 if (!empty($searchTerm)) {
-    $whereConditions[] = "(o.order_number LIKE :term OR cp.full_name LIKE :term OR u.phone_number LIKE :term)";
-    $params[':term'] = "%{$searchTerm}%";
+    $whereConditions[] = "(o.order_number LIKE :term_order OR cp.full_name LIKE :term_customer OR u.phone_number LIKE :term_phone)";
+    $searchPattern = "%{$searchTerm}%";
+    $params[':term_order'] = $searchPattern;
+    $params[':term_customer'] = $searchPattern;
+    $params[':term_phone'] = $searchPattern;
 }
 
 $whereSql = implode(' AND ', $whereConditions);

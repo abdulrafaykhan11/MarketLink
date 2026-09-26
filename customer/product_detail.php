@@ -154,7 +154,7 @@ $relatedProducts = $relatedStmt->fetchAll();
           🌿 Farm Fresh Local
         </span>
         <?php if ($stock > 0): ?>
-          <span style="background:rgba(6, 21, 36, 0.88); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.75rem; font-weight:600; padding:0.35rem 0.75rem; border-radius:999px; backdrop-filter:blur(4px);">
+          <span class="product-stock-badge" style="border:1px solid var(--border-color); color:var(--text-primary); font-size:0.75rem; font-weight:600; padding:0.35rem 0.75rem; border-radius:999px; backdrop-filter:blur(4px);">
             ● <?= (float)$stock ?> <?= $unit ?> Available
           </span>
         <?php else: ?>

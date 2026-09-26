@@ -275,7 +275,7 @@ for ($i = 6; $i >= 0; $i--) {
   <!-- Section: Sales Analytics Chart & Next Upcoming Market Pickup Window -->
   <div class="farmer-grid-2-col">
     <!-- Chart Card -->
-    <div class="farmer-card">
+    <div class="farmer-card farmer-analytics-chart">
       <div class="farmer-card-header">
         <div class="farmer-card-title-group">
           <h3 class="farmer-card-title">

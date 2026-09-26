@@ -52,6 +52,7 @@ $activePage = $activePage ?? 'dashboard';
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
   <!-- Core & Theme Engine -->
   <script src="<?= BASE_URL ?>/assets/js/theme.js"></script>
@@ -93,7 +94,7 @@ $activePage = $activePage ?? 'dashboard';
       <div class="topbar-right">
         <!-- Theme Switcher -->
         <button type="button" class="theme-toggle-btn" aria-label="Toggle theme mode" title="Toggle theme">
-          <span class="theme-toggle-icon">🌙</span>
+          <span class="theme-toggle-icon"><i class="fa-solid fa-moon" aria-hidden="true"></i></span>
         </button>
 
         <!-- Notification Bell -->

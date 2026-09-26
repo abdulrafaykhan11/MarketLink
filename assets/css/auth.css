@@ -326,6 +326,21 @@
   border: 1px solid var(--slate-200);
 }
 
+/* Registration account-type choices need an explicit foreground in light mode;
+   this also protects them from shared theme token overrides. */
+[data-theme="light"] .role-selector {
+  background: #eaf7ef;
+  border: 1px solid #c7e8d4;
+}
+[data-theme="light"] .role-option {
+  color: #1e4035;
+}
+[data-theme="light"] .role-option.active {
+  color: #14532d;
+  background: #ffffff;
+  border-color: #86efac;
+}
+
 /* ==========================================================================
    Form Groups, Labels & Inputs
    ========================================================================== */

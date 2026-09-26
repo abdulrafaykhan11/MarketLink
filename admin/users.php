@@ -26,8 +26,12 @@ if (!empty($filterStatus) && $filterStatus !== 'all') {
 }
 
 if (!empty($searchQuery)) {
-    $whereClauses[] = "(u.username LIKE :q OR u.email LIKE :q OR u.phone_number LIKE :q OR cp.full_name LIKE :q)";
-    $params[':q'] = "%{$searchQuery}%";
+    $whereClauses[] = "(u.username LIKE :q_username OR u.email LIKE :q_email OR u.phone_number LIKE :q_phone OR cp.full_name LIKE :q_name)";
+    $searchPattern = "%{$searchQuery}%";
+    $params[':q_username'] = $searchPattern;
+    $params[':q_email'] = $searchPattern;
+    $params[':q_phone'] = $searchPattern;
+    $params[':q_name'] = $searchPattern;
 }
 
 $whereSql = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) : "";
@@ -168,7 +172,7 @@ $totalUsersCount = array_sum($roleCounts);
                       <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" 
                               title="Suspend user account"
                               onclick="toggleUserStatus(<?= $u['user_id'] ?>, 'suspend')">
-                        <i data-lucide="slash"></i> Suspend
+                        <i data-lucide="circle-pause"></i> Suspend
                       </button>
                     <?php else: ?>
                       <button type="button" class="admin-btn admin-btn-emerald admin-btn-sm" 

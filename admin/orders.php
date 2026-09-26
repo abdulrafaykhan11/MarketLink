@@ -20,8 +20,12 @@ if (!empty($filterStatus) && $filterStatus !== 'all') {
 }
 
 if (!empty($searchQuery)) {
-    $whereClauses[] = "(o.order_number LIKE :q OR u.username LIKE :q OR fp.stall_name LIKE :q OR m.market_name LIKE :q)";
-    $params[':q'] = "%{$searchQuery}%";
+    $whereClauses[] = "(o.order_number LIKE :q_order OR u.username LIKE :q_customer OR fp.stall_name LIKE :q_stall OR m.market_name LIKE :q_market)";
+    $searchPattern = "%{$searchQuery}%";
+    $params[':q_order'] = $searchPattern;
+    $params[':q_customer'] = $searchPattern;
+    $params[':q_stall'] = $searchPattern;
+    $params[':q_market'] = $searchPattern;
 }
 
 $whereSql = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) : "";

@@ -26,8 +26,11 @@ if ($filterFarmer > 0) {
 }
 
 if (!empty($searchQuery)) {
-    $whereClauses[] = "(p.product_name LIKE :q OR p.description LIKE :q OR fp.stall_name LIKE :q)";
-    $params[':q'] = "%{$searchQuery}%";
+    $whereClauses[] = "(p.product_name LIKE :q_product OR p.description LIKE :q_description OR fp.stall_name LIKE :q_stall)";
+    $searchPattern = "%{$searchQuery}%";
+    $params[':q_product'] = $searchPattern;
+    $params[':q_description'] = $searchPattern;
+    $params[':q_stall'] = $searchPattern;
 }
 
 $whereSql = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) : "";

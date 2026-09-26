@@ -50,15 +50,12 @@
     const btns = document.querySelectorAll('.theme-toggle-btn');
     btns.forEach(btn => {
       const icon = btn.querySelector('.theme-toggle-icon');
-      const label = btn.querySelector('.theme-toggle-text');
       if (theme === 'dark') {
-        if (icon) icon.innerHTML = '🌙';
-        if (label) label.textContent = 'Dark';
+        if (icon) icon.innerHTML = '<i class="fa-solid fa-sun" aria-hidden="true"></i>';
         btn.setAttribute('aria-label', 'Switch to Light Mode');
         btn.title = 'Switch to Light Mode';
       } else {
-        if (icon) icon.innerHTML = '☀️';
-        if (label) label.textContent = 'Light';
+        if (icon) icon.innerHTML = '<i class="fa-solid fa-moon" aria-hidden="true"></i>';
         btn.setAttribute('aria-label', 'Switch to Dark Mode');
         btn.title = 'Switch to Dark Mode';
       }

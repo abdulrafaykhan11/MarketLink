@@ -15,18 +15,12 @@ if (!defined('BASE_URL')) {
     <div class="footer-top-grid">
       <!-- Brand Column -->
       <div class="footer-brand-col">
-        <a href="<?= BASE_URL ?>/" class="nav-brand">
+        <a href="<?= BASE_URL ?>/" class="footer-brand-logo" aria-label="MarketLink home">
           <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="MarketLink" class="nav-logo-img">
         </a>
         <p class="footer-desc">
           MarketLink is Pakistan's premier digital community farmers market platform. Empowering local agricultural growers with zero-commission stall pre-orders and providing families with transparent, 24-hour dawn fresh harvest.
         </p>
-        <div>
-          <button type="button" class="theme-toggle-btn" aria-label="Toggle theme in footer">
-            <span class="theme-toggle-icon">🌙</span>
-            <span class="theme-toggle-text">Dark Mode</span>
-          </button>
-        </div>
       </div>
 
       <!-- Quick Links -->
@@ -58,10 +52,15 @@ if (!defined('BASE_URL')) {
         <p class="footer-desc" style="margin-bottom: 0.5rem;">
           Get every Thursday's dawn harvest list and weekend stall pickup schedules straight to your inbox.
         </p>
-        <form id="newsletterForm" class="newsletter-form">
-          <input type="email" id="newsletterEmail" class="newsletter-input" placeholder="Enter your email address" required>
-          <button type="submit" class="newsletter-btn">Subscribe</button>
+        <form id="newsletterForm" class="newsletter-form" action="<?= BASE_URL ?>/api/newsletter_subscribe.php" method="post">
+          <label class="sr-only" for="newsletterEmail">Email address</label>
+          <input type="email" id="newsletterEmail" name="email" class="newsletter-input" placeholder="Enter your email address" autocomplete="email" required>
+          <button type="submit" class="newsletter-btn">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+            <span>Subscribe</span>
+          </button>
         </form>
+        <p class="newsletter-status" id="newsletterStatus" role="status" aria-live="polite"></p>
       </div>
     </div>
 

@@ -620,6 +620,24 @@ html[data-theme="light"] .farmer-sidebar-brand .dashboard-logo-light { display: 
   transform: translateY(-1px);
 }
 
+/* Secondary controls sit on both hero and page surfaces. Give light mode a solid,
+   readable surface instead of the dark-theme translucent treatment. */
+[data-theme="light"] .farmer-btn-secondary {
+  background: #ffffff;
+  color: #153b2a;
+  border-color: #86efac;
+}
+[data-theme="light"] .farmer-btn-secondary:hover {
+  background: #ecfdf5;
+  border-color: #16a34a;
+  color: #14532d;
+}
+[data-theme="light"] .farmer-hero-banner .farmer-btn-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
 .farmer-hero-illustration {
   position: relative;
   z-index: 1;
@@ -772,6 +790,33 @@ html[data-theme="light"] .farmer-sidebar-brand .dashboard-logo-light { display: 
   padding: 1.75rem;
   box-shadow: var(--shadow-sm);
   position: relative;
+}
+
+/* Farmer-specific analytics treatment: an animated, lighter-weight counterpart
+   to the administrator command-center charts. */
+.farmer-analytics-chart {
+  overflow: hidden;
+  animation: farmerChartEnter 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.farmer-analytics-chart::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 28%, rgba(34, 197, 94, 0.13) 48%, transparent 68%);
+  transform: translateX(-115%);
+  animation: farmerChartSweep 1.45s 0.3s ease-out both;
+}
+@keyframes farmerChartEnter {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes farmerChartSweep {
+  to { transform: translateX(115%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .farmer-analytics-chart,
+  .farmer-analytics-chart::before { animation: none; }
 }
 
 [data-theme="light"] .farmer-card {

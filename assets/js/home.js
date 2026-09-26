@@ -24,22 +24,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (mobileBtn && navMenu) {
     mobileBtn.addEventListener('click', function () {
-      const isVisible = navMenu.style.display === 'flex';
-      if (isVisible) {
-        navMenu.style.display = '';
-      } else {
-        navMenu.style.display = 'flex';
-        navMenu.style.flexDirection = 'column';
-        navMenu.style.position = 'absolute';
-        navMenu.style.top = '100%';
-        navMenu.style.left = '0';
-        navMenu.style.width = '100%';
-        navMenu.style.background = 'var(--bg-surface)';
-        navMenu.style.padding = '1.5rem';
-        navMenu.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
-        navMenu.style.borderBottom = '1px solid var(--border-color)';
-      }
+      const isOpen = navMenu.classList.toggle('is-open');
+      mobileBtn.setAttribute('aria-expanded', String(isOpen));
+      if (header) header.classList.toggle('menu-open', isOpen);
     });
+
+    navMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      navMenu.classList.remove('is-open');
+      mobileBtn.setAttribute('aria-expanded', 'false');
+      if (header) header.classList.remove('menu-open');
+    }));
   }
 
   // ==========================================================================
@@ -90,9 +84,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // ==========================================================================
   const newsletterForm = document.getElementById('newsletterForm');
   if (newsletterForm) {
-    newsletterForm.addEventListener('submit', function (e) {
+    newsletterForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       const emailInput = document.getElementById('newsletterEmail');
+      const status = document.getElementById('newsletterStatus');
+      const submitBtn = newsletterForm.querySelector('button[type="submit"]');
       const val = emailInput ? emailInput.value.trim() : '';
 
       if (!val || !val.includes('@')) {
@@ -102,10 +98,37 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      if (window.Toast) {
-        Toast.success('Subscribed!', 'You will receive weekly fresh harvest lists every Thursday.');
+      if (status) {
+        status.className = 'newsletter-status';
+        status.textContent = 'Saving your subscription…';
       }
-      newsletterForm.reset();
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const response = await fetch(newsletterForm.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ email: val })
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.error || 'Subscription could not be completed.');
+
+        if (status) {
+          status.className = 'newsletter-status is-success';
+          status.textContent = result.message;
+        }
+        if (window.Toast) Toast.success('Subscribed!', result.message);
+        newsletterForm.reset();
+      } catch (error) {
+        const message = error.message || 'Please try again in a moment.';
+        if (status) {
+          status.className = 'newsletter-status is-error';
+          status.textContent = message;
+        }
+        if (window.Toast) Toast.error('Subscription failed', message);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
     });
   }
 
