@@ -155,7 +155,7 @@ if ($activeInquiryId > 0) {
 <div class="admin-metrics-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:2rem;">
   <div class="admin-card" style="padding:1.4rem 1.6rem; border-radius:16px;">
     <div style="font-size:0.82rem; font-weight:700; color:var(--admin-text-subtle, #94a3b8); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">Total Messages</div>
-    <div style="font-size:2rem; font-weight:800; color:#f8fafc;"><?= $metricTotal ?></div>
+    <div style="font-size:2rem; font-weight:800; color:var(--admin-text-main);"><?= $metricTotal ?></div>
   </div>
 
   <div class="admin-card" style="padding:1.4rem 1.6rem; border-radius:16px; border-left:4px solid #ef4444;">

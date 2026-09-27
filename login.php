@@ -27,7 +27,7 @@ require_once __DIR__ . '/includes/header.php';
 
       <div class="banner-header">
         <a href="<?= BASE_URL ?>/" class="banner-logo-link">
-          <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="MarketLink Logo" style="height: 48px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));">
+          <img src="<?= BASE_URL ?>/assets/images/logo-dark.svg" alt="MarketLink Logo" style="height: 48px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));">
         </a>
       </div>
 

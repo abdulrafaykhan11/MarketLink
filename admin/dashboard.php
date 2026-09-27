@@ -425,7 +425,15 @@ try {
         </span>
       </div>
       <div class="admin-chart-canvas-wrap" style="height: 310px; display:flex; align-items:center; justify-content:center;">
+        <?php if ($totalOrders > 0): ?>
         <canvas id="orderStatusChart"></canvas>
+        <?php else: ?>
+        <div class="admin-chart-empty-state" role="status" style="text-align:center; color:var(--admin-text-subtle);">
+          <i data-lucide="pie-chart" style="width:44px; height:44px; margin-bottom:0.75rem; color:#38bdf8;"></i>
+          <strong style="display:block; color:var(--admin-text-main); font-size:1rem;">No orders yet</strong>
+          <span style="display:block; margin-top:0.35rem; font-size:0.82rem;">Fulfillment data will appear here after the first pre-order.</span>
+        </div>
+        <?php endif; ?>
       </div>
     </div>
   </div>

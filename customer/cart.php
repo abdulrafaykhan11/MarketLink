@@ -17,7 +17,11 @@ $stmt = $pdo->prepare("SELECT ci.cart_item_id, ci.product_id, ci.stall_id, ci.qu
                               fms.stall_number_location
                        FROM cart_items ci
                        JOIN products p ON ci.product_id = p.product_id
-                       JOIN weekly_inventory wi ON ci.product_id = wi.product_id AND ci.stall_id = wi.stall_id
+                       JOIN (
+                           SELECT product_id, stall_id, MAX(price) AS price, MAX(stock_quantity) AS stock_quantity
+                           FROM weekly_inventory
+                           GROUP BY product_id, stall_id
+                       ) wi ON ci.product_id = wi.product_id AND ci.stall_id = wi.stall_id
                        JOIN farmer_market_stalls fms ON ci.stall_id = fms.stall_id
                        JOIN farmer_profiles fp ON fms.farmer_id = fp.farmer_id
                        JOIN markets m ON fms.market_id = m.market_id
@@ -180,7 +184,7 @@ if ($firstStallId) {
           <select name="pickup_slot_id" id="checkoutPickupSlot" required class="topbar-search-input" style="border-radius:var(--radius-md);">
             <?php if (!empty($pickupSlots)): ?>
               <?php foreach ($pickupSlots as $ps): ?>
-                <option value="<?= $ps['pickup_slot_id'] ?>">
+                <option value="<?= $ps['pickup_slot_id'] ?>" data-slot-date="<?= htmlspecialchars($ps['slot_date']) ?>">
                   <?= date('D, M d', strtotime($ps['slot_date'])) ?> — <?= date('h:i A', strtotime($ps['start_time'])) ?> to <?= date('h:i A', strtotime($ps['end_time'])) ?>
                 </option>
               <?php endforeach; ?>
@@ -188,6 +192,7 @@ if ($firstStallId) {
               <option value="1">Default Morning Window (08:00 AM - 11:00 AM)</option>
             <?php endif; ?>
           </select>
+          <p id="pickupSlotDateHint" style="margin:0.45rem 0 0; font-size:0.78rem; color:var(--text-muted);" role="status"></p>
         </div>
 
         <!-- Totals Row -->
@@ -227,8 +232,46 @@ if ($firstStallId) {
 <?php endif; ?>
 
 <script>
+const pickupDateInput = document.getElementById('checkoutPickupDate');
+const pickupSlotSelect = document.getElementById('checkoutPickupSlot');
+const pickupSlotDateHint = document.getElementById('pickupSlotDateHint');
+
+function syncPickupWindowsToDate() {
+  if (!pickupDateInput || !pickupSlotSelect) return;
+
+  const selectedDate = pickupDateInput.value;
+  const matchingOptions = Array.from(pickupSlotSelect.options).filter(option => {
+    const matches = option.dataset.slotDate === selectedDate;
+    option.hidden = !matches;
+    option.disabled = !matches;
+    return matches;
+  });
+
+  if (matchingOptions.length) {
+    pickupSlotSelect.disabled = false;
+    if (pickupSlotSelect.selectedOptions[0]?.dataset.slotDate !== selectedDate) {
+      pickupSlotSelect.value = matchingOptions[0].value;
+    }
+    pickupSlotSelect.setCustomValidity('');
+    if (pickupSlotDateHint) pickupSlotDateHint.textContent = matchingOptions.length + ' pickup window' + (matchingOptions.length === 1 ? '' : 's') + ' available for this date.';
+  } else {
+    pickupSlotSelect.value = '';
+    pickupSlotSelect.disabled = true;
+    pickupSlotSelect.setCustomValidity('Please select a date with an available pickup window.');
+    if (pickupSlotDateHint) pickupSlotDateHint.textContent = 'No pickup window is available for this date. Please choose another date.';
+  }
+}
+
+pickupDateInput?.addEventListener('change', syncPickupWindowsToDate);
+syncPickupWindowsToDate();
+
 document.getElementById('preOrderCheckoutForm')?.addEventListener('submit', function(e) {
   e.preventDefault();
+  if (!pickupDateInput?.value || pickupSlotSelect?.selectedOptions[0]?.dataset.slotDate !== pickupDateInput.value) {
+    syncPickupWindowsToDate();
+    showPortalToast('Please select a pickup window for the same pickup date.', 'error');
+    return;
+  }
   const btn = document.getElementById('btnPlacePreOrder');
   btn.disabled = true;
   btn.innerHTML = '<span>⏳</span> Processing Pre-Order...';

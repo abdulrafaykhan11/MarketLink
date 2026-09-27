@@ -78,18 +78,26 @@ try {
         $updateStmt->execute([':qty' => $qty, ':cid' => $cartItemId, ':uid' => $userId]);
 
         // Get single item subtotal
-        $subStmt = $pdo->prepare("SELECT ci.quantity, wi.price 
+        $subStmt = $pdo->prepare("SELECT ci.quantity, wi.price
                                   FROM cart_items ci
-                                  JOIN weekly_inventory wi ON ci.product_id = wi.product_id AND ci.stall_id = wi.stall_id
-                                  WHERE ci.cart_item_id = :cid LIMIT 1");
-        $subStmt->execute([':cid' => $cartItemId]);
+                                  JOIN (
+                                      SELECT product_id, stall_id, MAX(price) AS price
+                                      FROM weekly_inventory
+                                      GROUP BY product_id, stall_id
+                                  ) wi ON ci.product_id = wi.product_id AND ci.stall_id = wi.stall_id
+                                  WHERE ci.cart_item_id = :cid AND ci.customer_id = :uid LIMIT 1");
+        $subStmt->execute([':cid' => $cartItemId, ':uid' => $userId]);
         $row = $subStmt->fetch();
         $itemSubtotal = $row ? number_format($row['quantity'] * $row['price'], 2) : '0.00';
 
         // Get grand total
-        $grandStmt = $pdo->prepare("SELECT SUM(ci.quantity * wi.price) 
+        $grandStmt = $pdo->prepare("SELECT COALESCE(SUM(ci.quantity * wi.price), 0)
                                     FROM cart_items ci
-                                    JOIN weekly_inventory wi ON ci.product_id = wi.product_id AND ci.stall_id = wi.stall_id
+                                    JOIN (
+                                        SELECT product_id, stall_id, MAX(price) AS price
+                                        FROM weekly_inventory
+                                        GROUP BY product_id, stall_id
+                                    ) wi ON ci.product_id = wi.product_id AND ci.stall_id = wi.stall_id
                                     WHERE ci.customer_id = :uid");
         $grandStmt->execute([':uid' => $userId]);
         $grandTotal = number_format((float)$grandStmt->fetchColumn(), 2);
@@ -100,6 +108,7 @@ try {
 
         echo json_encode([
             'status' => 'success',
+            'quantity' => $row ? (int)$row['quantity'] : $qty,
             'item_subtotal' => $itemSubtotal,
             'grand_total' => $grandTotal,
             'total_items' => $totalItems
@@ -113,9 +122,13 @@ try {
         $delStmt = $pdo->prepare("DELETE FROM cart_items WHERE cart_item_id = :cid AND customer_id = :uid");
         $delStmt->execute([':cid' => $cartItemId, ':uid' => $userId]);
 
-        $grandStmt = $pdo->prepare("SELECT COALESCE(SUM(ci.quantity * wi.price), 0) 
+        $grandStmt = $pdo->prepare("SELECT COALESCE(SUM(ci.quantity * wi.price), 0)
                                     FROM cart_items ci
-                                    JOIN weekly_inventory wi ON ci.product_id = wi.product_id AND ci.stall_id = wi.stall_id
+                                    JOIN (
+                                        SELECT product_id, stall_id, MAX(price) AS price
+                                        FROM weekly_inventory
+                                        GROUP BY product_id, stall_id
+                                    ) wi ON ci.product_id = wi.product_id AND ci.stall_id = wi.stall_id
                                     WHERE ci.customer_id = :uid");
         $grandStmt->execute([':uid' => $userId]);
         $grandTotal = number_format((float)$grandStmt->fetchColumn(), 2);
@@ -137,7 +150,8 @@ try {
         $pickupDate = $_POST['pickup_date'] ?? '';
         $pickupSlotId = (int)($_POST['pickup_slot_id'] ?? 0);
 
-        if (empty($pickupDate) || !$pickupSlotId) {
+        $pickupDateObject = DateTime::createFromFormat('!Y-m-d', $pickupDate);
+        if (!$pickupDateObject || $pickupDateObject->format('Y-m-d') !== $pickupDate || !$pickupSlotId) {
             echo json_encode(['status' => 'error', 'message' => 'Please select a pickup date and pickup time window.']);
             exit;
         }
@@ -146,11 +160,14 @@ try {
         $cartItemsStmt = $pdo->prepare("SELECT ci.cart_item_id, ci.product_id, ci.stall_id, ci.quantity, 
                                                wi.price, fms.farmer_id, fms.market_id, p.product_name
                                         FROM cart_items ci
-                                        JOIN weekly_inventory wi ON ci.product_id = wi.product_id AND ci.stall_id = wi.stall_id
+                                        JOIN (
+                                            SELECT product_id, stall_id, MAX(price) AS price
+                                            FROM weekly_inventory
+                                            GROUP BY product_id, stall_id
+                                        ) wi ON ci.product_id = wi.product_id AND ci.stall_id = wi.stall_id
                                         JOIN farmer_market_stalls fms ON ci.stall_id = fms.stall_id
                                         JOIN products p ON ci.product_id = p.product_id
-                                        WHERE ci.customer_id = :uid
-                                        GROUP BY ci.cart_item_id");
+                                        WHERE ci.customer_id = :uid");
         $cartItemsStmt->execute([':uid' => $userId]);
         $cartItems = $cartItemsStmt->fetchAll();
 
@@ -163,6 +180,30 @@ try {
         $byStall = [];
         foreach ($cartItems as $item) {
             $byStall[$item['stall_id']][] = $item;
+        }
+
+        // A pickup slot must belong to every ordered stall and be on the exact
+        // date selected by the customer. Never accept a mismatched date/slot.
+        $slotValidationStmt = $pdo->prepare("SELECT pickup_slot_id
+                                             FROM pickup_slots
+                                             WHERE pickup_slot_id = :slot_id
+                                               AND stall_id = :stall_id
+                                               AND slot_date = :pickup_date
+                                               AND status = 'available'
+                                             LIMIT 1");
+        foreach (array_keys($byStall) as $stallId) {
+            $slotValidationStmt->execute([
+                ':slot_id' => $pickupSlotId,
+                ':stall_id' => $stallId,
+                ':pickup_date' => $pickupDate
+            ]);
+            if (!$slotValidationStmt->fetch()) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'The selected pickup window does not match the selected date or stall. Please choose a valid pickup window.'
+                ]);
+                exit;
+            }
         }
 
         $createdOrderIds = [];

@@ -104,12 +104,21 @@ window.addToPreOrder = function(productId, stallId, quantity = 1) {
     });
 };
 
+const cartQuantityRequests = new Set();
+
 window.updateCartItemQty = function(cartItemId, delta) {
+  if (cartQuantityRequests.has(cartItemId)) return;
+
   const inputElem = document.getElementById(`cart-qty-${cartItemId}`);
   if (!inputElem) return;
   let currentQty = parseInt(inputElem.value, 10) || 1;
   let newQty = currentQty + delta;
   if (newQty < 1) newQty = 1;
+  if (newQty === currentQty) return;
+
+  cartQuantityRequests.add(cartItemId);
+  const quantityButtons = inputElem.parentElement?.querySelectorAll('.cart-qty-btn') || [];
+  quantityButtons.forEach(button => { button.disabled = true; });
 
   const formData = new FormData();
   formData.append('action', 'update_qty');
@@ -123,7 +132,7 @@ window.updateCartItemQty = function(cartItemId, delta) {
     .then(res => res.json())
     .then(data => {
       if (data.status === 'success') {
-        inputElem.value = newQty;
+        inputElem.value = data.quantity ?? newQty;
         // Update subtotal cell
         const subtotalCell = document.getElementById(`cart-subtotal-${cartItemId}`);
         if (subtotalCell && data.item_subtotal) {
@@ -134,12 +143,20 @@ window.updateCartItemQty = function(cartItemId, delta) {
         if (grandTotalElem && data.grand_total) {
           grandTotalElem.textContent = `Rs. ${data.grand_total}`;
         }
+        const subtotalDisplay = document.getElementById('cart-subtotal-display');
+        if (subtotalDisplay && data.grand_total) {
+          subtotalDisplay.textContent = `Rs. ${data.grand_total}`;
+        }
         updateAllCartBadges(data.total_items);
       } else {
         showPortalToast(data.message, 'error');
       }
     })
-    .catch(() => showPortalToast('Error updating item quantity.', 'error'));
+    .catch(() => showPortalToast('Error updating item quantity.', 'error'))
+    .finally(() => {
+      cartQuantityRequests.delete(cartItemId);
+      quantityButtons.forEach(button => { button.disabled = false; });
+    });
 };
 
 window.removeCartItem = function(cartItemId) {
@@ -169,6 +186,10 @@ window.removeCartItem = function(cartItemId) {
         const grandTotalElem = document.getElementById('cart-grand-total');
         if (grandTotalElem && data.grand_total) {
           grandTotalElem.textContent = `Rs. ${data.grand_total}`;
+        }
+        const subtotalDisplay = document.getElementById('cart-subtotal-display');
+        if (subtotalDisplay && data.grand_total) {
+          subtotalDisplay.textContent = `Rs. ${data.grand_total}`;
         }
         updateAllCartBadges(data.total_items);
         showPortalToast('Item removed from basket.', 'info');
