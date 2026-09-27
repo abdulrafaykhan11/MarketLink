@@ -938,17 +938,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const centerTextPlugin = {
       id: 'centerTextPlugin',
       beforeDraw(chart) {
-        const { width, height, ctx } = chart;
+        const { ctx, chartArea } = chart;
+        if (!chartArea) return;
+        const centerX = (chartArea.left + chartArea.right) / 2;
+        const centerY = (chartArea.top + chartArea.bottom) / 2;
         ctx.save();
         const light = isLight();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = '800 24px "Plus Jakarta Sans", sans-serif';
         ctx.fillStyle = light ? '#0f172a' : '#f8fafc';
-        ctx.fillText(Math.round(displayOrdersCount), width / 2, height / 2 - 8);
+        ctx.fillText(Math.round(displayOrdersCount), centerX, centerY - 8);
         ctx.font = '700 10px "Inter", sans-serif';
         ctx.fillStyle = light ? '#64748b' : '#94a3b8';
-        ctx.fillText('ORDERS', width / 2, height / 2 + 14);
+        ctx.fillText('ORDERS', centerX, centerY + 14);
         ctx.restore();
       }
     };

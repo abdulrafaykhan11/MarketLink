@@ -42,15 +42,17 @@ foreach ($cartItems as $it) {
     if (!$firstStallId) $firstStallId = $it['stall_id'];
 }
 
-// 2. Fetch available pickup slots for stall
-$pickupSlots = [];
-if ($firstStallId) {
-    $slotStmt = $pdo->prepare("SELECT pickup_slot_id, slot_date, start_time, end_time, status 
-                              FROM pickup_slots 
-                              WHERE stall_id = :sid AND status = 'available' AND slot_date >= CURDATE()
-                              ORDER BY slot_date ASC, start_time ASC LIMIT 10");
-    $slotStmt->execute([':sid' => $firstStallId]);
-    $pickupSlots = $slotStmt->fetchAll();
+// 2. Fetch available pickup slots for every stall in the basket.
+$pickupSlotsByStall = [];
+if (!empty($itemsByStall)) {
+    $slotStmt = $pdo->prepare("SELECT pickup_slot_id, slot_date, start_time, end_time
+                               FROM pickup_slots
+                               WHERE stall_id = :sid AND status = 'available' AND slot_date >= CURDATE()
+                               ORDER BY slot_date ASC, start_time ASC");
+    foreach (array_keys($itemsByStall) as $stallId) {
+        $slotStmt->execute([':sid' => $stallId]);
+        $pickupSlotsByStall[$stallId] = $slotStmt->fetchAll();
+    }
 }
 ?>
 
@@ -166,14 +168,24 @@ if ($firstStallId) {
 
       <!-- Checkout Form -->
       <form id="preOrderCheckoutForm">
+        <?php foreach ($itemsByStall as $stallId => $items): ?>
+          <?php
+            $stallMeta = $items[0];
+            $stallSlots = $pickupSlotsByStall[$stallId] ?? [];
+            $defaultPickupDate = !empty($stallSlots) ? $stallSlots[0]['slot_date'] : '';
+          ?>
+          <div class="pickup-stall-schedule" style="margin-bottom:1.5rem; padding:1rem; border:1px solid var(--border-color); border-radius:var(--radius-md);">
+            <div style="font-size:0.85rem; font-weight:800; color:var(--text-primary); margin-bottom:1rem;">
+              <?= htmlspecialchars($stallMeta['stall_name']) ?> pickup
+            </div>
         <!-- Date Selector -->
         <div style="margin-bottom:1.25rem;">
           <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.4rem;">
             Select Pickup Date *
           </label>
-          <input type="date" name="pickup_date" id="checkoutPickupDate" 
-                 min="<?= date('Y-m-d') ?>" value="<?= !empty($pickupSlots) ? $pickupSlots[0]['slot_date'] : date('Y-m-d', strtotime('+1 day')) ?>" 
-                 required class="topbar-search-input" style="border-radius:var(--radius-md);">
+          <input type="date" name="pickup_date[<?= (int)$stallId ?>]"
+                 min="<?= date('Y-m-d') ?>" value="<?= htmlspecialchars($defaultPickupDate) ?>"
+                 required class="topbar-search-input checkout-pickup-date" data-stall-id="<?= (int)$stallId ?>" style="border-radius:var(--radius-md);">
         </div>
 
         <!-- Time Slot Selector -->
@@ -181,19 +193,17 @@ if ($firstStallId) {
           <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.4rem;">
             Farmer Stall Pickup Window *
           </label>
-          <select name="pickup_slot_id" id="checkoutPickupSlot" required class="topbar-search-input" style="border-radius:var(--radius-md);">
-            <?php if (!empty($pickupSlots)): ?>
-              <?php foreach ($pickupSlots as $ps): ?>
+          <select name="pickup_slot_id[<?= (int)$stallId ?>]" required class="topbar-search-input checkout-pickup-slot" data-stall-id="<?= (int)$stallId ?>" style="border-radius:var(--radius-md);">
+            <?php foreach ($stallSlots as $ps): ?>
                 <option value="<?= $ps['pickup_slot_id'] ?>" data-slot-date="<?= htmlspecialchars($ps['slot_date']) ?>">
                   <?= date('D, M d', strtotime($ps['slot_date'])) ?> — <?= date('h:i A', strtotime($ps['start_time'])) ?> to <?= date('h:i A', strtotime($ps['end_time'])) ?>
                 </option>
-              <?php endforeach; ?>
-            <?php else: ?>
-              <option value="1">Default Morning Window (08:00 AM - 11:00 AM)</option>
-            <?php endif; ?>
+            <?php endforeach; ?>
           </select>
-          <p id="pickupSlotDateHint" style="margin:0.45rem 0 0; font-size:0.78rem; color:var(--text-muted);" role="status"></p>
+          <p class="pickup-slot-date-hint" style="margin:0.45rem 0 0; font-size:0.78rem; color:var(--text-muted);" role="status"></p>
         </div>
+          </div>
+        <?php endforeach; ?>
 
         <!-- Totals Row -->
         <div style="border-top:1px solid var(--border-color); padding-top:1.25rem; margin-bottom:1.5rem;">
@@ -232,43 +242,50 @@ if ($firstStallId) {
 <?php endif; ?>
 
 <script>
-const pickupDateInput = document.getElementById('checkoutPickupDate');
-const pickupSlotSelect = document.getElementById('checkoutPickupSlot');
-const pickupSlotDateHint = document.getElementById('pickupSlotDateHint');
+function syncPickupWindowsToDate(dateInput) {
+  const schedule = dateInput.closest('.pickup-stall-schedule');
+  const slotSelect = schedule?.querySelector('.checkout-pickup-slot');
+  const hint = schedule?.querySelector('.pickup-slot-date-hint');
+  if (!slotSelect) return;
 
-function syncPickupWindowsToDate() {
-  if (!pickupDateInput || !pickupSlotSelect) return;
-
-  const selectedDate = pickupDateInput.value;
-  const matchingOptions = Array.from(pickupSlotSelect.options).filter(option => {
-    const matches = option.dataset.slotDate === selectedDate;
+  const matchingOptions = Array.from(slotSelect.options).filter(option => {
+    const matches = option.dataset.slotDate === dateInput.value;
     option.hidden = !matches;
     option.disabled = !matches;
     return matches;
   });
 
   if (matchingOptions.length) {
-    pickupSlotSelect.disabled = false;
-    if (pickupSlotSelect.selectedOptions[0]?.dataset.slotDate !== selectedDate) {
-      pickupSlotSelect.value = matchingOptions[0].value;
+    slotSelect.disabled = false;
+    if (slotSelect.selectedOptions[0]?.dataset.slotDate !== dateInput.value) {
+      slotSelect.value = matchingOptions[0].value;
     }
-    pickupSlotSelect.setCustomValidity('');
-    if (pickupSlotDateHint) pickupSlotDateHint.textContent = matchingOptions.length + ' pickup window' + (matchingOptions.length === 1 ? '' : 's') + ' available for this date.';
+    slotSelect.setCustomValidity('');
+    if (hint) hint.textContent = matchingOptions.length + ' pickup window' + (matchingOptions.length === 1 ? '' : 's') + ' available for this date.';
   } else {
-    pickupSlotSelect.value = '';
-    pickupSlotSelect.disabled = true;
-    pickupSlotSelect.setCustomValidity('Please select a date with an available pickup window.');
-    if (pickupSlotDateHint) pickupSlotDateHint.textContent = 'No pickup window is available for this date. Please choose another date.';
+    slotSelect.value = '';
+    slotSelect.disabled = true;
+    slotSelect.setCustomValidity('Please select a date with an available pickup window.');
+    if (hint) hint.textContent = 'No pickup window is available for this date. Please choose another date.';
   }
 }
 
-pickupDateInput?.addEventListener('change', syncPickupWindowsToDate);
-syncPickupWindowsToDate();
+document.querySelectorAll('.checkout-pickup-date').forEach(dateInput => {
+  dateInput.addEventListener('change', () => syncPickupWindowsToDate(dateInput));
+  syncPickupWindowsToDate(dateInput);
+});
 
 document.getElementById('preOrderCheckoutForm')?.addEventListener('submit', function(e) {
   e.preventDefault();
-  if (!pickupDateInput?.value || pickupSlotSelect?.selectedOptions[0]?.dataset.slotDate !== pickupDateInput.value) {
-    syncPickupWindowsToDate();
+  const hasInvalidSchedule = Array.from(document.querySelectorAll('.checkout-pickup-date')).some(dateInput => {
+    const slotSelect = dateInput.closest('.pickup-stall-schedule')?.querySelector('.checkout-pickup-slot');
+    if (!dateInput.value || slotSelect?.selectedOptions[0]?.dataset.slotDate !== dateInput.value) {
+      syncPickupWindowsToDate(dateInput);
+      return true;
+    }
+    return false;
+  });
+  if (hasInvalidSchedule) {
     showPortalToast('Please select a pickup window for the same pickup date.', 'error');
     return;
   }
