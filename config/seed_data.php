@@ -153,7 +153,7 @@ try {
                 'description' => 'Vine-ripened, juicy heirloom tomatoes bursting with natural acidity and sweetness. Pesticide-free, harvested morning of market.',
                 'unit' => 'kg',
                 'price' => 140.00,
-                'image_url' => 'assets/images/products/tomatoes.svg'
+                'image_url' => 'assets/images/products/tomatoes.jpg'
             ],
             [
                 'farmer_id' => 2,
@@ -162,7 +162,7 @@ try {
                 'description' => 'Sweet, vibrant orange root carrots pulled straight from nutrient-rich organic soil. Bundled with fresh leafy tops.',
                 'unit' => 'kg',
                 'price' => 110.00,
-                'image_url' => 'assets/images/products/carrots.svg'
+                'image_url' => 'assets/images/products/carrots.jpg'
             ],
             [
                 'farmer_id' => 2,

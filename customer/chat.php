@@ -8,6 +8,7 @@
 $pageTitle = 'Seller Order Messages';
 $activePage = 'chat';
 require_once __DIR__ . '/includes/customer_header.php';
+require_once __DIR__ . '/../config/pusher.php';
 
 $initialOrderId = (int)($_GET['order_id'] ?? 0);
 ?>
@@ -15,7 +16,7 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
 <div class="page-header-row" style="margin-bottom:1.5rem;">
   <div>
     <h1 class="page-heading">
-      <span>💬</span> Seller Order Chat
+      <span><i class="fa-solid fa-comments" aria-hidden="true"></i></span> Seller Order Chat
     </h1>
     <p class="page-subheading">
       Directly communicate with local farmers, send pickup notes, share photos, and view harvest documents
@@ -30,14 +31,14 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
   <aside class="chat-sidebar-panel">
     <div class="chat-sidebar-header">
       <div class="chat-search-box">
-        <span>🔍</span>
+        <span><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
         <input type="text" id="convSearchInput" placeholder="Search orders, stalls..." autocomplete="off">
       </div>
     </div>
 
     <div class="chat-conversations-list" id="convListContainer">
       <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); font-size:0.875rem;">
-        <span>⏳</span> Loading conversations...
+        <span><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i></span> Loading conversations...
       </div>
     </div>
   </aside>
@@ -47,7 +48,7 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
     
     <!-- Empty State (No chat selected) -->
     <div id="chatEmptyState" class="chat-empty-panel">
-      <div style="font-size:3.5rem; margin-bottom:1rem;">💬</div>
+      <div style="font-size:3.5rem; margin-bottom:1rem;"><i class="fa-solid fa-comments" aria-hidden="true"></i></div>
       <h3 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;">Select an Order Conversation</h3>
       <p style="color:var(--text-secondary); max-width:400px; margin:0 auto 1.5rem; font-size:0.9rem; line-height:1.5;">
         Choose a harvest order from the left panel to message the producer directly about pickup details, harvest questions, or receipts.
@@ -64,7 +65,7 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
             &larr;
           </button>
           <div class="chat-avatar-circle" id="threadAvatar">
-            🌾
+            <i class="fa-solid fa-wheat-awn" aria-hidden="true"></i>
           </div>
           <div>
             <div style="font-weight:800; font-size:1.05rem; color:var(--text-primary); line-height:1.2;" id="threadTitle">
@@ -77,6 +78,7 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
         </div>
 
         <div style="display:flex; align-items:center; gap:0.65rem;">
+          <button type="button" id="btnRefreshChat" class="btn-secondary" style="font-size:0.75rem; padding:0.4rem 0.75rem;">Refresh</button>
           <span class="order-status-badge" id="threadStatusBadge">● Placed</span>
           <a href="#" id="threadOrderLink" class="btn-secondary" style="font-size:0.75rem; padding:0.4rem 0.75rem; text-decoration:none;">
             View Order
@@ -86,7 +88,7 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
 
       <!-- Closed Banner (Shown if order is completed / cancelled) -->
       <div id="chatClosedBanner" class="chat-closed-alert" style="display:none;">
-        <span>🔒</span>
+        <span><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
         <div>
           <strong>Order Ended &bull; Conversation Archived:</strong>
           This pre-order is closed. The messaging thread is preserved in read-only mode for your records.
@@ -101,7 +103,7 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
       <!-- Attachment Preview Chip -->
       <div id="attachmentPreviewBox" class="chat-attachment-preview" style="display:none;">
         <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--text-primary);">
-          <span id="attachIconPreview">📎</span>
+          <span id="attachIconPreview"><i class="fa-solid fa-paperclip" aria-hidden="true"></i></span>
           <span id="attachNamePreview" style="font-weight:600; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">file.pdf</span>
         </div>
         <button type="button" id="btnRemoveAttachment" style="background:none; border:none; color:var(--rose-500); cursor:pointer; font-weight:700; font-size:1rem;">
@@ -119,7 +121,7 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
 
           <!-- Attachment Trigger Button -->
           <button type="button" id="btnTriggerFile" class="chat-btn-icon" title="Attach Photo or Document">
-            📎
+            <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
           </button>
 
           <!-- Text Input -->
@@ -538,10 +540,13 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
 }
 </style>
 
+<script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
 <script>
 let currentOrderId = <?= $initialOrderId ?>;
 let conversationsData = [];
-let pollInterval = null;
+const pusherConfig = <?= json_encode(getPusherClientConfig(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+let pusher = null;
+let activeChannel = null;
 
 const convListContainer = document.getElementById('convListContainer');
 const convSearchInput = document.getElementById('convSearchInput');
@@ -576,7 +581,7 @@ async function loadConversations() {
       conversationsData = data.conversations;
       renderConversationsList();
 
-      if (currentOrderId > 0) {
+      if (currentOrderId > 0 && !chatActiveThread.dataset.loaded) {
         selectOrderChat(currentOrderId);
       }
     }
@@ -656,13 +661,18 @@ async function selectOrderChat(orderId) {
 
   await loadMessages(orderId);
 
-  // Clear previous polling and start fresh
-  if (pollInterval) clearInterval(pollInterval);
-  pollInterval = setInterval(() => {
-    if (currentOrderId === orderId) {
-      loadMessages(orderId, true);
-    }
-  }, 3500);
+  chatActiveThread.dataset.loaded = 'true';
+  subscribeToOrderChannel(orderId);
+}
+
+function subscribeToOrderChannel(orderId) {
+  if (!pusher) return;
+  if (activeChannel) pusher.unsubscribe(activeChannel.name);
+  activeChannel = pusher.subscribe(`private-order-${orderId}`);
+  activeChannel.bind('new-message', (event) => {
+    if (Number(event.order_id) === Number(currentOrderId)) loadMessages(currentOrderId, true);
+    loadConversations();
+  });
 }
 
 // 3. Load Messages for Order
@@ -701,7 +711,7 @@ function renderMessagesStream(messages, isPolling) {
   if (messages.length === 0) {
     messagesContainer.innerHTML = `
       <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted); font-size:0.875rem;">
-        🌿 No messages in this pre-order chat yet. Ask the seller about harvest status or pickup instructions!
+        <i class="fa-solid fa-leaf" aria-hidden="true"></i> No messages in this pre-order chat yet. Ask the seller about harvest status or pickup instructions!
       </div>`;
     return;
   }
@@ -718,7 +728,7 @@ function renderMessagesStream(messages, isPolling) {
       } else {
         attachmentHtml = `
           <a href="<?= BASE_URL ?>/${escapeHtml(m.attachment_path)}" target="_blank" download class="chat-doc-card">
-            <span style="font-size:1.5rem;">📄</span>
+            <span style="font-size:1.5rem;"><i class="fa-solid fa-file" aria-hidden="true"></i></span>
             <div>
               <div style="font-weight:700; font-size:0.8rem;">${escapeHtml(m.attachment_name || 'Document')}</div>
               <div style="font-size:0.6875rem; opacity:0.8;">${m.file_size_formatted} &bull; Click to Download</div>
@@ -736,7 +746,7 @@ function renderMessagesStream(messages, isPolling) {
           ${attachmentHtml}
           <div class="chat-bubble-meta">
             <span>${m.time_formatted}</span>
-            ${m.is_mine ? (m.is_read ? '<span>✓✓</span>' : '<span>✓</span>') : ''}
+            ${m.is_mine ? (m.is_read ? '<span><i class="fa-solid fa-check-double" aria-hidden="true"></i></span>' : '<span><i class="fa-solid fa-check" aria-hidden="true"></i></span>') : ''}
           </div>
         </div>
       </div>`;
@@ -805,7 +815,9 @@ if (btnTriggerFile && chatFileInput) {
       const file = chatFileInput.files[0];
       attachNamePreview.innerText = file.name;
       const isImg = file.type.startsWith('image/');
-      attachIconPreview.innerText = isImg ? '📷' : '📄';
+      attachIconPreview.innerHTML = isImg
+        ? '<i class="fa-solid fa-camera" aria-hidden="true"></i>'
+        : '<i class="fa-solid fa-file" aria-hidden="true"></i>';
       attachmentPreviewBox.style.display = 'flex';
     }
   });
@@ -846,6 +858,17 @@ if (btnBackMobile) {
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+const btnRefreshChat = document.getElementById('btnRefreshChat');
+if (btnRefreshChat) btnRefreshChat.addEventListener('click', async () => {
+  if (currentOrderId) await loadMessages(currentOrderId, true);
+  await loadConversations();
+});
+
+if (pusherConfig.enabled && window.Pusher) {
+  pusher = new Pusher(pusherConfig.key, { cluster: pusherConfig.cluster,
+    authEndpoint: '<?= BASE_URL ?>/api/chat_service.php?action=pusher_auth' });
 }
 
 // Initialize on page load

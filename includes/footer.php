@@ -13,7 +13,7 @@ $flashInfo    = getFlash('info');
   <div class="modal-window">
     <div class="modal-header">
       <div class="modal-header-title">
-        <div class="modal-header-icon">📜</div>
+        <div class="modal-header-icon"><i class="fa-solid fa-file-contract" aria-hidden="true"></i></div>
         <div>
           <div class="modal-title" id="modalTitle">MarketLink Terms & Agreement</div>
           <div class="modal-subtitle">Last updated: September 2026 • Platform Version 2.4</div>
@@ -54,7 +54,7 @@ $flashInfo    = getFlash('info');
     <div class="modal-footer">
       <button type="button" class="btn-secondary" data-close-modal>Dismiss</button>
       <button type="button" class="btn-primary" id="acceptTermsModalBtn" style="width: auto; padding: 0 1.5rem;">
-        ✓ I Accept the Terms & Agreement
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i> I Accept the Terms &amp; Agreement
       </button>
     </div>
   </div>
@@ -63,10 +63,10 @@ $flashInfo    = getFlash('info');
 <?php require_once __DIR__ . '/ai_chatbot_widget.php'; ?>
 
 <!-- JavaScript Assets -->
-<script src="<?= BASE_URL ?>/assets/js/toast.js"></script>
-<script src="<?= BASE_URL ?>/assets/js/home.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/toast.js?v=<?= filemtime(__DIR__ . '/../assets/js/toast.js') ?>"></script>
+<script src="<?= BASE_URL ?>/assets/js/home.js?v=<?= filemtime(__DIR__ . '/../assets/js/home.js') ?>"></script>
 <script src="<?= BASE_URL ?>/assets/js/scroll-animations.js?v=<?= filemtime(__DIR__ . '/../assets/js/scroll-animations.js') ?>"></script>
-<script src="<?= BASE_URL ?>/assets/js/auth-validation.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/auth-validation.js?v=<?= filemtime(__DIR__ . '/../assets/js/auth-validation.js') ?>"></script>
 
 <!-- Server-side Session Flash Toasts -->
 <script>

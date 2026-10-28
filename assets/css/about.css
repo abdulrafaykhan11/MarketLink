@@ -417,3 +417,58 @@
   max-width: 680px;
   margin: 0 auto;
 }
+
+/* ---- Light Theme: scoped About / Contact refinements ---- */
+[data-theme="light"] .about-hero,
+[data-theme="light"] .contact-hero {
+  background:
+    radial-gradient(ellipse at 25% 30%, rgba(14, 165, 233, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 70%, rgba(22, 163, 74, 0.12) 0%, transparent 55%),
+    #f0f9ff;
+}
+
+[data-theme="light"] .about-hero-overlay,
+[data-theme="light"] .contact-hero-overlay {
+  background: radial-gradient(ellipse at 50% 0%, rgba(14, 165, 233, 0.08) 0%, transparent 60%);
+}
+
+[data-theme="light"] .abt-grad-green {
+  background-image: linear-gradient(130deg, #166534 0%, #15803d 50%, #16a34a 100%);
+}
+
+[data-theme="light"] .abt-grad-sky {
+  background-image: linear-gradient(130deg, #075985 0%, #0369a1 50%, #0284c7 100%);
+}
+
+[data-theme="light"] .abt-mv-card,
+[data-theme="light"] .abt-stat-card,
+[data-theme="light"] .abt-principle-card {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] .card-mission .abt-mv-icon { color: #15803d; }
+[data-theme="light"] .card-vision .abt-mv-icon { color: #0369a1; }
+[data-theme="light"] .abt-principle-icon { color: #15803d; }
+
+[data-theme="light"] .abt-problem-section,
+[data-theme="light"] .abt-story-section {
+  background-color: #f8fffe;
+}
+
+[data-theme="light"] .abt-story-img-frame {
+  box-shadow: 0 20px 42px -18px rgba(15, 23, 42, 0.28), 0 0 28px rgba(14, 165, 233, 0.16);
+}
+
+[data-theme="light"] .abt-story-badge {
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.14);
+}
+
+/* These two About-only primary links are anchors, so the global light-theme
+   anchor color must not override their button foreground. */
+[data-theme="light"] .abt-story-text .btn-primary,
+[data-theme="light"] .abt-story-text .btn-primary:hover,
+[data-theme="light"] .abt-cta-box .btn-primary,
+[data-theme="light"] .abt-cta-box .btn-primary:hover {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+}

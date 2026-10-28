@@ -374,13 +374,16 @@ EOT;
      */
     private static function callGeminiAPI(string $systemInstruction, array $contents): array {
         $apiKey = GEMINI_API_KEY;
-        $candidateModels = [
-            GEMINI_MODEL,              // gemini-flash-latest (primary)
-            'gemini-flash-lite-latest',
-            'gemini-3.1-flash-lite',
-            'gemini-3.8-flash',
+        if (empty($apiKey)) {
+            return ['success' => false, 'error' => 'Gemini API key is not configured.'];
+        }
+
+        $candidateModels = array_values(array_unique([
+            GEMINI_MODEL,
+            'gemini-3.7-flash',
+            'gemini-3.6-flash',
             'gemini-3.5-flash'
-        ];
+        ]));
 
         $payload = [
             'systemInstruction' => [
@@ -400,18 +403,19 @@ EOT;
         $lastError = 'Unknown error';
 
         foreach ($candidateModels as $model) {
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key=" . $apiKey;
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
 
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json'
+                'Content-Type: application/json',
+                'x-goog-api-key: ' . $apiKey
             ]);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
             curl_setopt($ch, CURLOPT_TIMEOUT, 15);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 6);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
             $rawResponse = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

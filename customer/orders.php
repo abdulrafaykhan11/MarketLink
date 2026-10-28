@@ -103,7 +103,7 @@ foreach ($orders as $editableOrder) {
 <div class="page-header-row">
   <div>
     <h1 class="page-heading">
-      <span>📦</span> Pre-Orders & Pickup Tracking
+      <span><i class="fa-solid fa-box" aria-hidden="true"></i></span> Pre-Orders & Pickup Tracking
     </h1>
     <p class="page-subheading">
       Monitor live harvest progress, manage pickup dates, and reorder previous farm purchases
@@ -117,13 +117,13 @@ foreach ($orders as $editableOrder) {
     All Orders (<?= $totalOrdersCount ?>)
   </a>
   <a href="<?= BASE_URL ?>/customer/orders.php?status=active" class="filter-pill <?= ($filter === 'active') ? 'active' : '' ?>">
-    🌱 Active Pre-Orders (<?= $activeOrdersCount ?>)
+    <i class="fa-solid fa-seedling" aria-hidden="true"></i> Active Pre-Orders (<?= $activeOrdersCount ?>)
   </a>
   <a href="<?= BASE_URL ?>/customer/orders.php?status=completed" class="filter-pill <?= ($filter === 'completed') ? 'active' : '' ?>">
-    ✔ Picked Up & Completed (<?= $completedOrdersCount ?>)
+    <i class="fa-solid fa-check" aria-hidden="true"></i> Picked Up & Completed (<?= $completedOrdersCount ?>)
   </a>
   <a href="<?= BASE_URL ?>/customer/orders.php?status=cancelled" class="filter-pill <?= ($filter === 'cancelled') ? 'active' : '' ?>">
-    ✖ Cancelled / Declined (<?= $cancelledOrdersCount ?>)
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancelled / Declined (<?= $cancelledOrdersCount ?>)
   </a>
 </div>
 
@@ -170,22 +170,22 @@ foreach ($orders as $editableOrder) {
         <?php if ($currIndex >= 0): ?>
           <div class="order-stepper" style="margin:1.5rem 0 2rem;">
             <div class="order-step <?= ($currIndex >= 0) ? ($currIndex > 0 ? 'completed' : 'active') : '' ?>">
-              <div class="order-step-bubble"><?= ($currIndex > 0) ? '✔' : '1' ?></div>
+              <div class="order-step-bubble"><?= ($currIndex > 0) ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : '1' ?></div>
               <span class="order-step-title">Order Placed</span>
             </div>
 
             <div class="order-step <?= ($currIndex >= 1) ? ($currIndex > 1 ? 'completed' : 'active') : '' ?>">
-              <div class="order-step-bubble"><?= ($currIndex > 1) ? '✔' : '2' ?></div>
+              <div class="order-step-bubble"><?= ($currIndex > 1) ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : '2' ?></div>
               <span class="order-step-title">Farmer Confirmed</span>
             </div>
 
             <div class="order-step <?= ($currIndex >= 2) ? ($currIndex > 2 ? 'completed' : 'active') : '' ?>">
-              <div class="order-step-bubble"><?= ($currIndex > 2) ? '✔' : '3' ?></div>
+              <div class="order-step-bubble"><?= ($currIndex > 2) ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : '3' ?></div>
               <span class="order-step-title">Ready at Stall</span>
             </div>
 
             <div class="order-step <?= ($currIndex >= 3) ? 'completed' : '' ?>">
-              <div class="order-step-bubble"><?= ($currIndex >= 3) ? '✔' : '4' ?></div>
+              <div class="order-step-bubble"><?= ($currIndex >= 3) ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : '4' ?></div>
               <span class="order-step-title">Picked Up</span>
             </div>
           </div>
@@ -207,7 +207,7 @@ foreach ($orders as $editableOrder) {
               <span style="color:var(--text-muted); display:block; font-size:0.75rem; text-transform:uppercase;">Farmer Stall</span>
               <strong style="color:var(--text-primary); font-size:0.95rem;"><?= htmlspecialchars($ord['stall_name']) ?></strong>
               <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
-                📞 <?= htmlspecialchars($ord['business_phone']) ?> (<?= htmlspecialchars($ord['contact_person']) ?>)
+                <i class="fa-solid fa-phone" aria-hidden="true"></i> <?= htmlspecialchars($ord['business_phone']) ?> (<?= htmlspecialchars($ord['contact_person']) ?>)
               </div>
             </div>
 
@@ -215,7 +215,7 @@ foreach ($orders as $editableOrder) {
               <span style="color:var(--text-muted); display:block; font-size:0.75rem; text-transform:uppercase;">Market & Stall Location</span>
               <strong style="color:var(--text-primary);"><?= htmlspecialchars($ord['market_name']) ?></strong>
               <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
-                📍 <?= htmlspecialchars($ord['stall_number_location'] ?? 'Stall') ?>
+                <i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= htmlspecialchars($ord['stall_number_location'] ?? 'Stall') ?>
               </div>
             </div>
 
@@ -223,7 +223,7 @@ foreach ($orders as $editableOrder) {
               <span style="color:var(--text-muted); display:block; font-size:0.75rem; text-transform:uppercase;">Pickup Reservation</span>
               <strong style="color:var(--emerald-400);"><?= date('l, M d, Y', strtotime($ord['pickup_date'])) ?></strong>
               <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;">
-                ⏰ <?= !empty($ord['start_time']) ? date('h:i A', strtotime($ord['start_time'])).' - '.date('h:i A', strtotime($ord['end_time'])) : 'Market Hours' ?>
+                <i class="fa-solid fa-clock" aria-hidden="true"></i> <?= !empty($ord['start_time']) ? date('h:i A', strtotime($ord['start_time'])).' - '.date('h:i A', strtotime($ord['end_time'])) : 'Market Hours' ?>
               </div>
             </div>
 
@@ -286,19 +286,19 @@ foreach ($orders as $editableOrder) {
           <a href="<?= BASE_URL ?>/customer/chat.php?order_id=<?= $ord['order_id'] ?>" 
              class="<?= in_array($st, ['placed', 'accepted', 'ready_for_pickup']) ? 'btn-primary' : 'btn-secondary' ?>" 
              style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1.15rem; font-size:0.85rem; text-decoration:none; <?= in_array($st, ['placed', 'accepted', 'ready_for_pickup']) ? 'background:var(--emerald-600);' : '' ?>">
-            <span>💬</span> <?= in_array($st, ['placed', 'accepted', 'ready_for_pickup']) ? 'Chat with Seller' : 'View Chat History' ?>
+            <span><i class="fa-solid fa-comments" aria-hidden="true"></i></span> <?= in_array($st, ['placed', 'accepted', 'ready_for_pickup']) ? 'Chat with Seller' : 'View Chat History' ?>
           </a>
 
           <!-- Quick 1-Click Reorder -->
           <button type="button" class="btn-secondary" onclick="quickReorder(<?= $ord['order_id'] ?>)" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1.15rem; font-size:0.85rem;">
-            <span>🔄</span> Reorder These Items
+            <span><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></span> Reorder These Items
           </button>
 
           <!-- Rate & Review Button for Completed Orders -->
           <?php if ($st === 'completed'): ?>
             <a href="<?= BASE_URL ?>/customer/reviews.php?order_id=<?= $ord['order_id'] ?>" 
                class="btn-primary" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1.15rem; font-size:0.85rem; text-decoration:none;">
-              <span>⭐</span> <?= $ord['has_farmer_review'] ? 'View My Review' : 'Rate & Review Produce' ?>
+              <span><i class="fa-solid fa-star" aria-hidden="true"></i></span> <?= $ord['has_farmer_review'] ? 'View My Review' : 'Rate & Review Produce' ?>
             </a>
           <?php endif; ?>
 
@@ -323,13 +323,13 @@ foreach ($orders as $editableOrder) {
   </div>
 <?php else: ?>
   <div class="portal-card" style="text-align:center; padding:4rem 1.5rem;">
-    <div style="font-size:4rem; margin-bottom:1rem;">📦</div>
+    <div style="font-size:4rem; margin-bottom:1rem;"><i class="fa-solid fa-box" aria-hidden="true"></i></div>
     <h3 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;">No Pre-Orders in this category</h3>
     <p style="color:var(--text-muted); font-size:0.95rem; max-width:480px; margin:0 auto 1.5rem;">
       You have no orders matching "<?= htmlspecialchars($filter) ?>". Browse local stalls to reserve your fresh market harvest.
     </p>
     <a href="<?= BASE_URL ?>/customer/products.php" class="btn-primary" style="display:inline-block; text-decoration:none; padding:0.65rem 1.75rem;">
-      🥬 Browse Fresh Harvest
+      <i class="fa-solid fa-carrot" aria-hidden="true"></i> Browse Fresh Harvest
     </a>
   </div>
 <?php endif; ?>

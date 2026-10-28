@@ -34,7 +34,7 @@ foreach ($allStalls as $st) {
 <div class="page-header-row">
   <div>
     <h1 class="page-heading">
-      <span>📍</span> Farmers Markets & Stalls
+      <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span> Farmers Markets & Stalls
     </h1>
     <p class="page-subheading">
       Explore local weekend markets, locate farmer stalls on the map, and get pickup directions
@@ -54,7 +54,7 @@ foreach ($allStalls as $st) {
 <div class="page-header-row" style="margin-top:2rem; margin-bottom:1.25rem;">
   <div>
     <h2 class="page-heading" style="font-size:1.35rem;">
-      <span>🏡</span> Participating Farmers Markets (<?= count($markets) ?> Locations)
+      <span><i class="fa-solid fa-store" aria-hidden="true"></i></span> Participating Farmers Markets (<?= count($markets) ?> Locations)
     </h2>
     <p class="page-subheading">Browse operating days, directions, and verified growers at each pickup destination</p>
   </div>
@@ -77,7 +77,7 @@ foreach ($allStalls as $st) {
       </div>
 
       <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:0.85rem; line-height:1.45;">
-        📍 <?= htmlspecialchars($m['address']) ?>, <?= htmlspecialchars($m['city']) ?>
+        <i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= htmlspecialchars($m['address']) ?>, <?= htmlspecialchars($m['city']) ?>
       </div>
 
       <div style="background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.8rem;">
@@ -106,7 +106,7 @@ foreach ($allStalls as $st) {
                     <?= htmlspecialchars($st['stall_name']) ?>
                   </div>
                   <div style="font-size:0.72rem; color:var(--text-muted);">
-                    📍 <?= htmlspecialchars($st['stall_number_location'] ?? 'Stall') ?> • <?= htmlspecialchars($st['contact_person']) ?>
+                    <i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= htmlspecialchars($st['stall_number_location'] ?? 'Stall') ?> • <?= htmlspecialchars($st['contact_person']) ?>
                   </div>
                 </div>
 
@@ -114,7 +114,7 @@ foreach ($allStalls as $st) {
                   <button type="button" class="product-fav-btn js-fav-toggle <?= $st['is_fav'] ? 'is-favorite' : '' ?>" 
                           data-type="farmer" data-id="<?= $st['farmer_id'] ?>" style="position:static; width:28px; height:28px; font-size:0.9rem;"
                           title="Save Favorite Farmer" aria-label="Save Favorite Farmer">
-                    <?= $st['is_fav'] ? '❤️' : '🤍' ?>
+                    <i class="<?= $st['is_fav'] ? 'fa-solid' : 'fa-regular' ?> fa-heart" aria-hidden="true"></i>
                   </button>
                   <a href="<?= BASE_URL ?>/customer/products.php?market_id=<?= $m['market_id'] ?>" 
                      style="background:var(--emerald-500); color:#fff; padding:0.35rem 0.65rem; border-radius:var(--radius-sm); font-size:0.72rem; font-weight:700; text-decoration:none;">
@@ -133,11 +133,11 @@ foreach ($allStalls as $st) {
       <div style="display:flex; gap:0.65rem; padding-top:1rem; border-top:1px solid var(--border-subtle);">
         <a href="https://www.google.com/maps/dir/?api=1&destination=<?= $m['latitude'] ?>,<?= $m['longitude'] ?>" 
            target="_blank" rel="noopener noreferrer" class="btn-secondary" style="flex:1; text-align:center; text-decoration:none; padding:0.5rem; font-size:0.8rem; display:flex; align-items:center; justify-content:center; gap:0.35rem;">
-          <span>🗺️</span> Get Directions
+          <span><i class="fa-solid fa-map" aria-hidden="true"></i></span> Get Directions
         </a>
         <a href="<?= BASE_URL ?>/customer/products.php?market_id=<?= $m['market_id'] ?>" 
            class="btn-primary" style="flex:1; text-align:center; text-decoration:none; padding:0.5rem; font-size:0.8rem; display:flex; align-items:center; justify-content:center; gap:0.35rem;">
-          <span>🛒</span> Shop Market
+          <span><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></span> Shop Market
         </a>
       </div>
     </div>

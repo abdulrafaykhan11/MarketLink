@@ -32,7 +32,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['update_profil
             $cpStmt->execute([':uid' => $currentUserId, ':name' => $fullName, ':addr' => $address]);
 
             $_SESSION['full_name'] = $fullName;
-            $successMsg = "Your profile and pickup details have been updated successfully! ✔";
+            $successMsg = "Your profile and pickup details have been updated successfully.";
 
             // Refresh user variable
             $stmt = $pdo->prepare("SELECT u.username, u.email, u.phone_number, cp.full_name, cp.default_address, u.created_at as member_since
@@ -70,7 +70,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['change_passwo
             $newHash = password_hash($newPass, PASSWORD_BCRYPT);
             $pUpd = $pdo->prepare("UPDATE users SET password_hash = :hash WHERE user_id = :uid");
             $pUpd->execute([':hash' => $newHash, ':uid' => $currentUserId]);
-            $successMsg = "Your password has been changed securely. ✔";
+            $successMsg = "Your password has been changed securely.";
         } else {
             $errorMsg = "Current password is incorrect.";
         }
@@ -99,7 +99,7 @@ $activeOrdersCount = (int)$acStmt->fetchColumn();
 <div class="page-header-row">
   <div>
     <h1 class="page-heading">
-      <span>👤</span> Profile & Pickup Settings
+      <span><i class="fa-solid fa-user" aria-hidden="true"></i></span> Profile & Pickup Settings
     </h1>
     <p class="page-subheading">
       Manage your customer information, primary market contact, and security preferences
@@ -125,7 +125,7 @@ $activeOrdersCount = (int)$acStmt->fetchColumn();
   <div class="portal-card">
     <div class="portal-card-header">
       <h3 class="portal-card-title">
-        <span>📝</span> Personal & Contact Details
+        <span><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span> Personal & Contact Details
       </h3>
     </div>
 
@@ -170,7 +170,7 @@ $activeOrdersCount = (int)$acStmt->fetchColumn();
       </div>
 
       <button type="submit" class="btn-primary" style="padding:0.7rem 1.75rem; font-size:0.95rem; cursor:pointer;">
-        <span>💾</span> Save Profile Changes
+        <span><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i></span> Save Profile Changes
       </button>
     </form>
   </div>
@@ -182,7 +182,7 @@ $activeOrdersCount = (int)$acStmt->fetchColumn();
     <div class="portal-card">
       <div class="portal-card-header">
         <h3 class="portal-card-title">
-          <span>🌿</span> Account Status
+          <span><i class="fa-solid fa-leaf" aria-hidden="true"></i></span> Account Status
         </h3>
       </div>
 
@@ -210,7 +210,7 @@ $activeOrdersCount = (int)$acStmt->fetchColumn();
     <div class="portal-card">
       <div class="portal-card-header">
         <h3 class="portal-card-title">
-          <span>🔒</span> Security & Password
+          <span><i class="fa-solid fa-lock" aria-hidden="true"></i></span> Security & Password
         </h3>
       </div>
 

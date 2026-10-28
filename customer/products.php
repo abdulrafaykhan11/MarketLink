@@ -93,7 +93,7 @@ $products = $stmt->fetchAll();
 <div class="page-header-row">
   <div>
     <h1 class="page-heading">
-      <span>🥬</span> Browse Harvest & Produce
+      <span><i class="fa-solid fa-carrot" aria-hidden="true"></i></span> Browse Harvest & Produce
     </h1>
     <p class="page-subheading">
       Showing <?= count($products) ?> fresh item<?= count($products) === 1 ? '' : 's' ?> directly from local farmers
@@ -133,7 +133,7 @@ $products = $stmt->fetchAll();
 <div class="filter-pills-row">
   <a href="<?= BASE_URL ?>/customer/products.php<?= $selectedMarket ? '?market_id='.$selectedMarket : '' ?>" 
      class="filter-pill <?= ($selectedCat === 0) ? 'active' : '' ?>">
-    <span>🌱</span> All Categories
+    <span><i class="fa-solid fa-seedling" aria-hidden="true"></i></span> All Categories
   </a>
   <?php foreach ($categories as $cat): ?>
     <a href="<?= BASE_URL ?>/customer/products.php?category=<?= $cat['category_id'] ?><?= $selectedMarket ? '&market_id='.$selectedMarket : '' ?>" 
@@ -155,7 +155,7 @@ $products = $stmt->fetchAll();
           <button type="button" class="product-fav-btn js-fav-toggle <?= $prod['is_fav'] ? 'is-favorite' : '' ?>" 
                   data-type="product" data-id="<?= $prod['product_id'] ?>" title="Save to Favorites" aria-label="Save to Favorites"
                   onclick="event.stopPropagation();">
-            <?= $prod['is_fav'] ? '❤️' : '🤍' ?>
+            <i class="<?= $prod['is_fav'] ? 'fa-solid' : 'fa-regular' ?> fa-heart" aria-hidden="true"></i>
           </button>
 
           <span class="product-stock-tag">
@@ -176,13 +176,13 @@ $products = $stmt->fetchAll();
           </p>
 
           <div class="product-farmer-meta">
-            <span>🏡</span> 
+            <span><i class="fa-solid fa-store" aria-hidden="true"></i></span>
             <a href="<?= BASE_URL ?>/customer/product_detail.php?id=<?= $prod['product_id'] ?>" style="color:inherit; text-decoration:none;">
               <strong><?= htmlspecialchars($prod['stall_name']) ?></strong>
             </a>
           </div>
           <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.85rem;">
-            📍 <?= htmlspecialchars($prod['market_name']) ?>
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= htmlspecialchars($prod['market_name']) ?>
           </div>
 
           <div class="product-card-price-row">
@@ -200,7 +200,7 @@ $products = $stmt->fetchAll();
   </div>
 <?php else: ?>
   <div class="portal-card" style="text-align:center; padding:3.5rem 1.5rem; margin-top:1.5rem;">
-    <div style="font-size:3.5rem; margin-bottom:1rem;">🧺</div>
+    <div style="font-size:3.5rem; margin-bottom:1rem;"><i class="fa-solid fa-basket-shopping" aria-hidden="true"></i></div>
     <h3 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;">No Produce Found</h3>
     <p style="color:var(--text-muted); font-size:0.95rem; max-width:480px; margin:0 auto 1.5rem;">
       No harvest items matched your search or filters. Try choosing another category or clearing your search term.

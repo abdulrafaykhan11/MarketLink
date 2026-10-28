@@ -33,7 +33,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="abt-mv-grid">
 
       <div class="abt-mv-card card-mission">
-        <div class="abt-mv-icon">🌱</div>
+        <div class="abt-mv-icon"><i class="fa-solid fa-seedling" aria-hidden="true"></i></div>
         <h2 class="abt-mv-title">Our Mission</h2>
         <p class="abt-mv-desc">
           To eliminate every middleman standing between a farmer's morning harvest and a family's dinner table — making fresh, traceable, chemical-free produce accessible to every Pakistani household through transparent direct trade.
@@ -46,7 +46,7 @@ require_once __DIR__ . '/includes/header.php';
       </div>
 
       <div class="abt-mv-card card-vision">
-        <div class="abt-mv-icon">🔭</div>
+        <div class="abt-mv-icon"><i class="fa-solid fa-eye" aria-hidden="true"></i></div>
         <h2 class="abt-mv-title">Our Vision</h2>
         <p class="abt-mv-desc">
           A Pakistan where every rural farming family thrives with guaranteed income, every urban household eats real food, and the trust between grower and consumer is as natural as the seasons themselves.
@@ -100,32 +100,32 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     <div class="abt-principles-grid">
       <div class="abt-principle-card">
-        <div class="abt-principle-icon">🤝</div>
+        <div class="abt-principle-icon"><i class="fa-solid fa-handshake" aria-hidden="true"></i></div>
         <h3 class="abt-principle-title">Zero Commission</h3>
         <p class="abt-principle-desc">We charge farmers nothing on their sales. We sustain ourselves through optional premium features — never at the cost of a farmer's fair wage.</p>
       </div>
       <div class="abt-principle-card">
-        <div class="abt-principle-icon">📍</div>
+        <div class="abt-principle-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></div>
         <h3 class="abt-principle-title">Full Traceability</h3>
         <p class="abt-principle-desc">Every product on MarketLink carries the farmer's name, farm location, and harvest date. No anonymous produce, ever.</p>
       </div>
       <div class="abt-principle-card">
-        <div class="abt-principle-icon">⏱️</div>
+        <div class="abt-principle-icon"><i class="fa-solid fa-stopwatch" aria-hidden="true"></i></div>
         <h3 class="abt-principle-title">24-Hour Freshness</h3>
         <p class="abt-principle-desc">Our platform is designed for same-week stall pickups. From harvest at dawn to your kitchen table in under 24 hours.</p>
       </div>
       <div class="abt-principle-card">
-        <div class="abt-principle-icon">🛡️</div>
+        <div class="abt-principle-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
         <h3 class="abt-principle-title">Vetted Farmers Only</h3>
         <p class="abt-principle-desc">Every farmer is manually reviewed before their stall goes live. We verify identity, farm location, and produce authenticity.</p>
       </div>
       <div class="abt-principle-card">
-        <div class="abt-principle-icon">🌿</div>
+        <div class="abt-principle-icon"><i class="fa-solid fa-leaf" aria-hidden="true"></i></div>
         <h3 class="abt-principle-title">Community First</h3>
         <p class="abt-principle-desc">MarketLink is not just a marketplace — it is a community of farmers and families who believe food should be honest, local, and fair.</p>
       </div>
       <div class="abt-principle-card">
-        <div class="abt-principle-icon">📱</div>
+        <div class="abt-principle-icon"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></div>
         <h3 class="abt-principle-title">Simple for Everyone</h3>
         <p class="abt-principle-desc">Built for farmers who may not be tech-savvy and families who are busy. Reserve a basket in under 60 seconds, collect at market day.</p>
       </div>
@@ -144,14 +144,14 @@ require_once __DIR__ . '/includes/header.php';
         <p class="abt-story-para">That conversation sparked MarketLink. We spent six months speaking with over 200 farmers and 500 households across Pakistan's major cities to understand exactly what a fair, modern, community farmers market platform needed to do.</p>
         <p class="abt-story-para">Today, MarketLink gives farmers like Iqbal a direct channel to loyal local households — with guaranteed pre-orders, zero commission, and the dignity of knowing their harvest is truly valued.</p>
         <a href="<?= BASE_URL ?>/register.php" class="btn-primary" style="width:auto;padding:0 2rem;display:inline-flex;margin-top:1.5rem;">
-          Join Our Community →
+          Join Our Community <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
         </a>
       </div>
       <div class="abt-story-visual">
         <div class="abt-story-img-frame">
           <img src="<?= BASE_URL ?>/assets/images/farmer_hero.jpg" alt="Local Pakistani Farmer" class="abt-story-img">
           <div class="abt-story-badge">
-            <span style="font-size:1.5rem;">👨‍🌾</span>
+            <span style="font-size:1.5rem;"><i class="fa-solid fa-user-tie" aria-hidden="true"></i></span>
             <div>
               <div style="font-weight:800;font-size:0.9rem;color:var(--text-primary);">40+ Farmers</div>
               <div style="font-size:0.75rem;color:var(--text-muted);">Verified & Live on Platform</div>
@@ -170,7 +170,7 @@ require_once __DIR__ . '/includes/header.php';
       <h2 class="abt-cta-title">Ready to Taste the Difference?</h2>
       <p class="abt-cta-sub">Join thousands of families eating fresher, supporting local farmers, and paying fair prices.</p>
       <div class="abt-cta-btns">
-        <a href="<?= BASE_URL ?>/register.php" class="btn-primary" style="width:auto;padding:0 2.5rem;">Create Free Account →</a>
+        <a href="<?= BASE_URL ?>/register.php" class="btn-primary" style="width:auto;padding:0 2.5rem;">Create Free Account <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
         <a href="<?= BASE_URL ?>/contact.php" class="btn-secondary" style="height:54px;padding:0 2rem;display:inline-flex;align-items:center;">Contact Us</a>
       </div>
     </div>

@@ -642,3 +642,20 @@
 [data-theme="light"] .trust-stat-lbl {
   color: #475569;
 }
+
+/* Mobile fallback: stacked testimonial sections can be taller than the viewport,
+   so do not depend on the scroll observer before showing their content. */
+@media (max-width: 720px) {
+  .testimonials-section.section-reveal > .section-container,
+  .testimonials-section.section-reveal .section-reveal-container,
+  .testimonials-section .testimonial-card.anim-fade-left,
+  .testimonials-section .testimonial-card.anim-fade-up,
+  .testimonials-section .testimonial-card.anim-fade-right,
+  .testimonials-section .testimonial-card.anim-tilt-left,
+  .testimonials-section .testimonial-card.anim-scale-pop,
+  .testimonials-section .testimonial-card.anim-tilt-right {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}

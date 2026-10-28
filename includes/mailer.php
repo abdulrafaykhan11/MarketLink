@@ -137,7 +137,7 @@ function sendWelcomeEmail(string $toEmail, string $username, string $fullName, s
           <p>As a <strong>Customer</strong>, you can browse fresh seasonal produce, save favorite farm stalls, reserve harvest pickup slots, and interact directly with farmers through real-time order messaging.</p>';
     }
 
-    $loginUrl = 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/login.php';
+    $loginUrl = BASE_URL . '/login.php';
     $content .= '
       <div style="text-align: center; margin: 28px 0;">
         <a href="' . $loginUrl . '" class="btn-action">Sign In to Your Dashboard &rarr;</a>
@@ -172,7 +172,7 @@ function sendLoginAlertEmail(string $toEmail, string $username, string $fullName
       <p style="font-size:14px; color:#475569;">If this was you, you can safely ignore this notice. If you did not perform this login, please secure your credentials immediately or notify platform support.</p>
       
       <div style="text-align: center; margin: 24px 0;">
-        <a href="http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/login.php" class="btn-action">Access Security Dashboard</a>
+        <a href="' . BASE_URL . '/login.php" class="btn-action">Access Security Dashboard</a>
       </div>';
 
     return sendMarketLinkEmail($toEmail, $fullName ?: $username, $subject, $content, $preheader);
@@ -253,7 +253,7 @@ function sendOrderConfirmationEmails(int $orderId): bool {
         $custSubject = "Order Confirmation: Pre-Order #{$order['order_number']} 🥦";
         $custPreheader = "Your pre-order with {$order['stall_name']} has been submitted.";
         
-        $chatUrl = 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/customer/chat.php?order_id=' . $order['order_id'];
+        $chatUrl = BASE_URL . '/customer/chat.php?order_id=' . $order['order_id'];
 
         $custContent = '
           <h2 style="margin-top:0; color:#0f172a; font-size:22px;">Thank You for Your Harvest Pre-Order!</h2>
@@ -300,7 +300,7 @@ function sendOrderConfirmationEmails(int $orderId): bool {
         $farmSubject = "New Pre-Order Received: #{$order['order_number']} 📦";
         $farmPreheader = "Customer {$order['customer_name']} placed a new pre-order of {$totalFormatted}.";
         
-        $farmerChatUrl = 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/farmer/chat.php?order_id=' . $order['order_id'];
+        $farmerChatUrl = BASE_URL . '/farmer/chat.php?order_id=' . $order['order_id'];
 
         $farmContent = '
           <h2 style="margin-top:0; color:#0f172a; font-size:22px;">New Pre-Order Received!</h2>
@@ -426,7 +426,7 @@ function sendOrderStatusEmail(int $orderId, string $newStatus, string $reason = 
           </div>
 
           <div style="text-align:center; margin:24px 0;">
-            <a href="http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/customer/orders.php" class="btn-action">View Order &amp; Details &rarr;</a>
+            <a href="' . BASE_URL . '/customer/orders.php" class="btn-action">View Order &amp; Details &rarr;</a>
           </div>';
 
         return sendMarketLinkEmail($order['customer_email'], $order['customer_name'] ?: $order['customer_username'], $subject, $content, $statusTitle);
@@ -460,7 +460,7 @@ function sendContactConfirmationEmail(string $name, string $email, string $subje
       <p style="font-size:14px; color:#475569;">Our administrative team actively reviews all incoming communications. You will receive an official response directly to this email address within <strong>24 business hours</strong>.</p>
       
       <div style="text-align:center; margin:28px 0;">
-        <a href="http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/index.php" class="btn-action">Return to MarketLink &rarr;</a>
+        <a href="' . BASE_URL . '/index.php" class="btn-action">Return to MarketLink &rarr;</a>
       </div>';
 
     return sendMarketLinkEmail($email, $name, $emailSubject, $body, $preheader);
@@ -474,7 +474,7 @@ function sendAdminContactAlertEmail(string $name, string $email, string $phone, 
     $adminSubject = "🚨 [New Inquiry #{$ticketNum}] {$subject} — from {$name}";
     $preheader = "New contact form message submitted on MarketLink platform.";
 
-    $adminUrl = 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/admin/inquiries.php?id=' . $inquiryId;
+    $adminUrl = BASE_URL . '/admin/inquiries.php?id=' . $inquiryId;
 
     $body = '
       <h2 style="margin-top:0; color:#991b1b; font-size:22px;">New Contact Inquiry Received</h2>
@@ -533,7 +533,7 @@ function sendAdminReplyEmail(string $customerName, string $customerEmail, string
       <p style="font-size:14px; color:#475569;">If you have any further questions or require further assistance, simply reply directly to this email or visit our community portal.</p>
       
       <div style="text-align:center; margin:28px 0;">
-        <a href="http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_URL . '/index.php" class="btn-action">Visit MarketLink &rarr;</a>
+        <a href="' . BASE_URL . '/index.php" class="btn-action">Visit MarketLink &rarr;</a>
       </div>';
 
     return sendMarketLinkEmail($customerEmail, $customerName, $emailSubject, $body, $preheader);

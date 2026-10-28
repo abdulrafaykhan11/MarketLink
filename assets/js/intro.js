@@ -3,7 +3,7 @@
   'use strict';
 
   const TOTAL_SCROLL = 5200;
-  const BASE = document.documentElement.dataset.baseUrl || '/MarketLink';
+  const BASE = window.BASE_URL || document.documentElement.dataset.baseUrl || '';
   const sel = (id) => document.getElementById(id);
 
   const stage        = sel('intro-stage');

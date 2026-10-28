@@ -13,7 +13,7 @@ define('DB_CHARSET', 'utf8mb4');
 
 // Base URL helper
 define('APP_NAME', 'MarketLink');
-define('BASE_URL', '/MarketLink');
+define('BASE_URL', '/Marketlink');
 
 function getDBConnection(): PDO {
     static $pdo = null;
@@ -31,18 +31,20 @@ function getDBConnection(): PDO {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
             // Log error internally and show clean error message
-            error_log("Database Connection Error: " . $e->getMessage());
-            if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+            error_log('MarketLink database connection failed.');
+            $isJsonRequest = (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)
+                || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+            if ($isJsonRequest) {
                 http_response_code(500);
                 echo json_encode([
                     'status' => 'error',
-                    'message' => 'Database connection failed. Please ensure MySQL is running in XAMPP.'
+                    'message' => 'A database connection error occurred. Please try again later.'
                 ]);
                 exit;
             } else {
                 die('<div style="font-family:sans-serif;padding:2rem;text-align:center;background:#fef2f2;color:#991b1b;border:1px solid #f87171;border-radius:8px;max-width:600px;margin:3rem auto;">
                     <h2 style="margin:0 0 10px 0;">Database Connection Error</h2>
-                    <p>Unable to connect to <strong>' . htmlspecialchars(DB_NAME) . '</strong>. Please verify XAMPP MySQL service is running.</p>
+                    <p>We could not connect to the service. Please try again later.</p>
                 </div>');
             }
         }
@@ -53,7 +55,8 @@ function getDBConnection(): PDO {
 
 /**
  * Resolves a stored image path/URL to a renderable src attribute value.
- * Handles: full https:// URLs (Unsplash etc.), local relative paths, empty/null.
+ * Handles: full HTTPS URLs, local relative paths, empty/null. HTTP URLs are
+ * rejected to prevent mixed-content requests on the HTTPS production site.
  *
  * @param string|null $imageUrl   The raw value from the DB column
  * @param string      $fallback   Fallback src if the field is empty
@@ -63,9 +66,12 @@ function resolveImageUrl(?string $imageUrl, string $fallback = ''): string {
     if (empty($imageUrl)) {
         return $fallback ?: BASE_URL . '/assets/images/logo.svg';
     }
-    // Already an absolute URL (http:// or https://)
-    if (str_starts_with($imageUrl, 'http://') || str_starts_with($imageUrl, 'https://')) {
+    // Only HTTPS external images are safe on the HTTPS production site.
+    if (str_starts_with($imageUrl, 'https://')) {
         return $imageUrl;
+    }
+    if (str_starts_with($imageUrl, 'http://')) {
+        return $fallback ?: BASE_URL . '/assets/images/logo.svg';
     }
     // Local relative path — prepend BASE_URL
     return BASE_URL . '/' . ltrim($imageUrl, '/');

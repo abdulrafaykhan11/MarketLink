@@ -196,19 +196,23 @@ try {
 
     $pdo->commit();
 
-    // Dispatch welcome email via PHPMailer
-    require_once __DIR__ . '/../includes/mailer.php';
-    sendWelcomeEmail($email, $username, $displayName, $role);
+    // Email delivery must never roll back or fail an already-created account.
+    try {
+        require_once __DIR__ . '/../includes/mailer.php';
+        sendWelcomeEmail($email, $username, $displayName, $role);
+    } catch (Throwable $mailError) {
+        error_log('Welcome email could not be sent.');
+    }
 
     // Do NOT auto-login user: redirect to login page with prefilled username
     $loginRedirect = BASE_URL . "/login.php?registered=" . urlencode($username);
 
     sendResponse(true, "Account created successfully! A welcome confirmation email has been dispatched to your address.", $loginRedirect);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     if (isset($pdo) && $pdo->inTransaction()) {
         $pdo->rollBack();
     }
-    error_log("Registration Exception: " . $e->getMessage());
-    sendResponse(false, "Registration could not be completed: " . $e->getMessage());
+    error_log('Registration request failed.');
+    sendResponse(false, 'Registration could not be completed. Please try again later.');
 }

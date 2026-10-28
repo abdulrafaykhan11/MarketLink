@@ -3251,6 +3251,13 @@
 [data-theme="light"] .customer-card { background: linear-gradient(135deg, #f0fdf4 0%, #e6fff4 100%); border-color: #bbf7d0; }
 [data-theme="light"] .farmer-card   { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-color: #fde68a; }
 
+/* The shopper CTA is an anchor; keep its label readable against its green surface
+   without changing any other page or button. */
+[data-theme="light"] .audience-card.customer-card > .btn-primary,
+[data-theme="light"] .audience-card.customer-card > .btn-primary:hover {
+  color: #ffffff !important;
+}
+
 [data-theme="light"] .hero-badge-tag { background: rgba(255,255,255,0.92); color: #15803d; border-color: rgba(22,163,74,0.4); }
 [data-theme="light"] .metric-val { color: #0c1a12; }
 [data-theme="light"] .metric-val .green { color: #15803d; }

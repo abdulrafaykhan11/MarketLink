@@ -130,13 +130,17 @@ try {
         setcookie('marketlink_login_id', $user['username'], time() + (30 * 24 * 60 * 60), '/', '', false, true);
     }
 
-    // Dispatch login security notification via PHPMailer
-    require_once __DIR__ . '/../includes/mailer.php';
-    sendLoginAlertEmail($user['email'], $user['username'], $displayName);
+    // Email delivery must never prevent an otherwise successful login.
+    try {
+        require_once __DIR__ . '/../includes/mailer.php';
+        sendLoginAlertEmail($user['email'], $user['username'], $displayName);
+    } catch (Throwable $mailError) {
+        error_log('Login notification email could not be sent.');
+    }
 
     sendResponse(true, "Welcome back, " . htmlspecialchars($displayName) . "!", $redirectUrl);
 
-} catch (Exception $e) {
-    error_log("Login Exception: " . $e->getMessage());
+} catch (Throwable $e) {
+    error_log('Login request failed.');
     sendResponse(false, "Server error during login. Please try again later.");
 }

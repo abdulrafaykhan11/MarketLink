@@ -7,6 +7,7 @@
 
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/pusher.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
 
 if (!isLoggedIn()) {
@@ -29,7 +30,71 @@ function formatBytes($bytes, $precision = 1) {
     return round($bytes / (1024 ** $pow), $precision) . ' ' . $units[$pow];
 }
 
+/** Send one Pusher Channels event using its signed HTTP API (no SDK required). */
+function triggerPusherEvent(string $channel, string $event, array $data): bool {
+    if (!isPusherConfigured() || !function_exists('curl_init')) {
+        return false;
+    }
+
+    $body = json_encode(['name' => $event, 'channels' => [$channel], 'data' => json_encode($data)]);
+    $path = '/apps/' . PUSHER_APP_ID . '/events';
+    $params = [
+        'auth_key' => PUSHER_APP_KEY,
+        'auth_timestamp' => time(),
+        'auth_version' => '1.0',
+        'body_md5' => md5($body),
+    ];
+    ksort($params);
+    $query = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+    $signature = hash_hmac('sha256', "POST\n{$path}\n{$query}", PUSHER_APP_SECRET);
+    $url = 'https://api-' . PUSHER_CLUSTER . '.pusher.com' . $path . '?' . $query . '&auth_signature=' . $signature;
+
+    $curl = curl_init($url);
+    curl_setopt_array($curl, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $body,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_USERAGENT => 'MarketLink/1.0 (Pusher chat event)',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => 10,
+    ]);
+    curl_exec($curl);
+    $success = curl_getinfo($curl, CURLINFO_HTTP_CODE) >= 200 && curl_getinfo($curl, CURLINFO_HTTP_CODE) < 300;
+    if (!$success) {
+        error_log('Pusher chat event could not be delivered: ' . curl_error($curl));
+    }
+    curl_close($curl);
+    return $success;
+}
+
 try {
+    // Pusher authenticates private order channels through this normal, short request.
+    if ($action === 'pusher_auth') {
+        if (!isPusherConfigured()) {
+            http_response_code(503);
+            echo json_encode(['status' => 'error', 'message' => 'Pusher is not configured']);
+            exit;
+        }
+        $socketId = $_POST['socket_id'] ?? '';
+        $channelName = $_POST['channel_name'] ?? '';
+        if (!preg_match('/^private-order-(\d+)$/', $channelName, $matches) || !preg_match('/^\d+\.\d+$/', $socketId)) {
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'Invalid channel request']);
+            exit;
+        }
+        $check = $pdo->prepare('SELECT 1 FROM orders WHERE order_id = :oid AND (customer_id = :uid1 OR farmer_id = :uid2 OR :role = \'admin\') LIMIT 1');
+        $check->execute([':oid' => (int)$matches[1], ':uid1' => $currentUserId, ':uid2' => $currentUserId, ':role' => $currentUserRole]);
+        if (!$check->fetchColumn()) {
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'Not permitted for this order']);
+            exit;
+        }
+        $signature = hash_hmac('sha256', $socketId . ':' . $channelName, PUSHER_APP_SECRET);
+        echo json_encode(['auth' => PUSHER_APP_KEY . ':' . $signature]);
+        exit;
+    }
+
     // -------------------------------------------------------------
     // 1. FETCH CONVERSATIONS LIST
     // -------------------------------------------------------------
@@ -307,6 +372,14 @@ try {
                 ':title' => "New Message from {$senderName}",
                 ':msg' => "Order #{$order['order_number']}: {$notifSnippet}"
             ]);
+
+        // Publish after the database write. Clients fetch once in response to this event;
+        // no long-polling loop is required on the hosting server.
+        triggerPusherEvent('private-order-' . $orderId, 'new-message', [
+            'order_id' => $orderId,
+            'message_id' => (int)$newMsgId,
+            'sender_id' => $currentUserId,
+        ]);
 
         echo json_encode([
             'status' => 'success',

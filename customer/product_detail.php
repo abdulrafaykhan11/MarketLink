@@ -151,7 +151,7 @@ $relatedProducts = $relatedStmt->fetchAll();
       <!-- Badges overlay -->
       <div style="position:absolute; top:1rem; left:1rem; display:flex; flex-direction:column; gap:0.5rem;">
         <span style="background:rgba(5, 150, 105, 0.95); color:#ffffff; font-weight:700; font-size:0.75rem; padding:0.35rem 0.75rem; border-radius:999px; backdrop-filter:blur(4px); box-shadow:0 2px 6px rgba(0,0,0,0.25);">
-          🌿 Farm Fresh Local
+          <i class="fa-solid fa-leaf" aria-hidden="true"></i> Farm Fresh Local
         </span>
         <?php if ($stock > 0): ?>
           <span class="product-stock-badge" style="border:1px solid var(--border-color); color:var(--text-primary); font-size:0.75rem; font-weight:600; padding:0.35rem 0.75rem; border-radius:999px; backdrop-filter:blur(4px);">
@@ -168,7 +168,7 @@ $relatedProducts = $relatedStmt->fetchAll();
               data-type="product" data-id="<?= $product['product_id'] ?>" 
               title="Save to Favorites"
               style="position:absolute; top:1rem; right:1rem; width:40px; height:40px; border-radius:50%; background:var(--bg-surface); border:1px solid var(--border-color); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.25rem; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
-        <?= $product['is_fav_product'] ? '❤️' : '🤍' ?>
+        <i class="<?= $product['is_fav_product'] ? 'fa-solid' : 'fa-regular' ?> fa-heart" aria-hidden="true"></i>
       </button>
     </div>
 
@@ -230,7 +230,7 @@ $relatedProducts = $relatedStmt->fetchAll();
           per <?= $unit ?>
         </span>
         <span style="margin-left:auto; font-size:0.75rem; font-weight:700; color:var(--text-muted); text-align:right;">
-          ✓ Fixed Farmgate Rate
+          <i class="fa-solid fa-check" aria-hidden="true"></i> Fixed Farmgate Rate
         </span>
       </div>
 
@@ -263,7 +263,7 @@ $relatedProducts = $relatedStmt->fetchAll();
           <a href="<?= BASE_URL ?>/customer/chat.php?order_id=<?= $activeOrder['order_id'] ?>" 
              class="btn-secondary" 
              style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 0.85rem; font-size:0.8rem; text-decoration:none; border-color:var(--emerald-400); color:var(--emerald-400);">
-            <span>💬</span> Chat with Farmer
+            <span><i class="fa-solid fa-comments" aria-hidden="true"></i></span> Chat with Farmer
           </a>
         <?php endif; ?>
       </div>
@@ -300,12 +300,12 @@ $relatedProducts = $relatedStmt->fetchAll();
           <button type="button" id="btnAddToCartDetail" 
                   class="btn-primary" 
                   style="width:100%; padding:0.9rem 1.5rem; font-size:1rem; font-weight:700; display:flex; align-items:center; justify-content:center; gap:0.6rem; box-shadow:0 4px 14px rgba(5, 150, 105, 0.3);">
-            <span>🛒</span> Add to Pre-Order Basket
+            <span><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></span> Add to Pre-Order Basket
           </button>
         </div>
       <?php else: ?>
         <div style="padding:1rem; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); border-radius:var(--radius-md); text-align:center; color:var(--rose-400); font-weight:600;">
-          ⚠️ This item is currently out of stock for this week's harvest cycle.
+          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> This item is currently out of stock for this week's harvest cycle.
         </div>
       <?php endif; ?>
     </div>
@@ -318,7 +318,7 @@ $relatedProducts = $relatedStmt->fetchAll();
   <div style="margin-bottom:3rem;">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
       <h2 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin:0;">
-        <span>🏡</span> More Fresh Harvest from <?= htmlspecialchars($product['stall_name']) ?>
+        <span><i class="fa-solid fa-store" aria-hidden="true"></i></span> More Fresh Harvest from <?= htmlspecialchars($product['stall_name']) ?>
       </h2>
       <a href="<?= BASE_URL ?>/customer/products.php?search=<?= urlencode($product['stall_name']) ?>" style="font-size:0.875rem; color:var(--emerald-400); font-weight:600; text-decoration:none;">
         View Stall Catalog &rarr;
@@ -354,7 +354,7 @@ $relatedProducts = $relatedStmt->fetchAll();
   <div style="margin-bottom:3rem;">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
       <h2 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin:0;">
-        <span>🥬</span> Related in <?= htmlspecialchars($product['category_name']) ?>
+        <span><i class="fa-solid fa-carrot" aria-hidden="true"></i></span> Related in <?= htmlspecialchars($product['category_name']) ?>
       </h2>
       <a href="<?= BASE_URL ?>/customer/products.php?category=<?= $categoryId ?>" style="font-size:0.875rem; color:var(--emerald-400); font-weight:600; text-decoration:none;">
         Explore Category &rarr;
@@ -373,7 +373,7 @@ $relatedProducts = $relatedStmt->fetchAll();
             </div>
             <div class="product-card-body" style="padding:1rem;">
               <div class="product-farmer-meta" style="font-size:0.75rem; margin-bottom:0.25rem;">
-                🏡 <?= htmlspecialchars($rItem['stall_name']) ?>
+                <i class="fa-solid fa-store" aria-hidden="true"></i> <?= htmlspecialchars($rItem['stall_name']) ?>
               </div>
               <h3 class="product-card-title" style="font-size:1rem; margin-bottom:0.5rem;"><?= htmlspecialchars($rItem['product_name']) ?></h3>
               <div class="product-card-price-row">
@@ -393,7 +393,7 @@ $relatedProducts = $relatedStmt->fetchAll();
   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
     <div>
       <h2 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin:0 0 0.25rem 0;">
-        <span>⭐</span> Customer Reviews for <?= htmlspecialchars($product['stall_name']) ?>
+        <span><i class="fa-solid fa-star" aria-hidden="true"></i></span> Customer Reviews for <?= htmlspecialchars($product['stall_name']) ?>
       </h2>
       <p style="font-size:0.875rem; color:var(--text-secondary); margin:0;">
         Verified ratings from customers who picked up fresh orders from this stall
@@ -422,7 +422,7 @@ $relatedProducts = $relatedStmt->fetchAll();
               </div>
               <div>
                 <span style="font-weight:700; font-size:0.9rem; color:var(--text-primary);"><?= htmlspecialchars($rev['full_name'] ?: $rev['username']) ?></span>
-                <span style="font-size:0.75rem; color:var(--emerald-400); margin-left:6px; font-weight:600;">✓ Verified Pickup</span>
+                <span style="font-size:0.75rem; color:var(--emerald-400); margin-left:6px; font-weight:600;"><i class="fa-solid fa-check" aria-hidden="true"></i> Verified Pickup</span>
               </div>
             </div>
             <div style="font-size:0.75rem; color:var(--text-muted);">
@@ -448,7 +448,7 @@ $relatedProducts = $relatedStmt->fetchAll();
     </div>
   <?php else: ?>
     <div style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.9rem;">
-      🌱 No customer reviews published for this stall yet. Place a pre-order to be the first to review!
+      <i class="fa-solid fa-seedling" aria-hidden="true"></i> No customer reviews published for this stall yet. Place a pre-order to be the first to review!
     </div>
   <?php endif; ?>
 </div>
@@ -525,9 +525,9 @@ if (qtyInput) {
 if (btnAddToCart) {
   btnAddToCart.addEventListener('click', async () => {
     const qty = parseInt(qtyInput.value) || 1;
-    const defaultButtonLabel = '<span>🛒</span> Add to Pre-Order Basket';
+    const defaultButtonLabel = '<span><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></span> Add to Pre-Order Basket';
     btnAddToCart.disabled = true;
-    btnAddToCart.innerHTML = '<span>⏳</span> Adding to Basket...';
+    btnAddToCart.innerHTML = '<span><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i></span> Adding to Basket...';
 
     try {
       const fd = new FormData();
@@ -549,7 +549,7 @@ if (btnAddToCart) {
           b.style.display = data.total_items > 0 ? 'inline-block' : 'none';
         });
 
-        btnAddToCart.innerHTML = '<span>✔</span> Added to Basket';
+        btnAddToCart.innerHTML = '<span><i class="fa-solid fa-check" aria-hidden="true"></i></span> Added to Basket';
         if (window.Toast) {
           window.Toast.success('Added to Basket!', `${qty} unit(s) of fresh harvest added to your pre-order basket.`);
         } else if (typeof showPortalToast === 'function') {

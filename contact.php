@@ -41,28 +41,28 @@ require_once __DIR__ . '/includes/header.php';
 
         <div class="contact-info-cards">
           <div class="contact-info-card">
-            <div class="contact-info-icon">📧</div>
+            <div class="contact-info-icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></div>
             <div>
               <div class="contact-info-label">Email Us</div>
               <div class="contact-info-value">support@marketlink.pk</div>
             </div>
           </div>
           <div class="contact-info-card">
-            <div class="contact-info-icon">📞</div>
+            <div class="contact-info-icon"><i class="fa-solid fa-phone" aria-hidden="true"></i></div>
             <div>
               <div class="contact-info-label">Call or WhatsApp</div>
               <div class="contact-info-value">+92 300 123 4567</div>
             </div>
           </div>
           <div class="contact-info-card">
-            <div class="contact-info-icon">📍</div>
+            <div class="contact-info-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></div>
             <div>
               <div class="contact-info-label">Head Office</div>
               <div class="contact-info-value">Model Town, Lahore, Pakistan</div>
             </div>
           </div>
           <div class="contact-info-card">
-            <div class="contact-info-icon">🕐</div>
+            <div class="contact-info-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></div>
             <div>
               <div class="contact-info-label">Support Hours</div>
               <div class="contact-info-value">Mon – Sat, 9:00 AM – 6:00 PM</div>
@@ -91,7 +91,7 @@ require_once __DIR__ . '/includes/header.php';
                 Full Name <span class="cf-required">*</span>
               </label>
               <div class="cf-input-wrap">
-                <span class="cf-icon">👤</span>
+                <span class="cf-icon"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
                 <input
                   type="text"
                   id="contactName"
@@ -112,7 +112,7 @@ require_once __DIR__ . '/includes/header.php';
                 Email Address <span class="cf-required">*</span>
               </label>
               <div class="cf-input-wrap">
-                <span class="cf-icon">✉️</span>
+                <span class="cf-icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></span>
                 <input
                   type="email"
                   id="contactEmail"
@@ -132,7 +132,7 @@ require_once __DIR__ . '/includes/header.php';
                 Phone Number <span class="cf-required">*</span>
               </label>
               <div class="cf-input-wrap">
-                <span class="cf-icon">📱</span>
+                <span class="cf-icon"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></span>
                 <input
                   type="tel"
                   id="contactPhone"
@@ -153,7 +153,7 @@ require_once __DIR__ . '/includes/header.php';
                 Subject <span class="cf-required">*</span>
               </label>
               <div class="cf-input-wrap">
-                <span class="cf-icon">📋</span>
+                <span class="cf-icon"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span>
                 <select id="contactSubject" name="subject" class="cf-input cf-select">
                   <option value="">Select a subject...</option>
                   <option value="farmer_registration">Farmer Registration Help</option>
@@ -192,12 +192,12 @@ require_once __DIR__ . '/includes/header.php';
             <!-- Submit -->
             <button type="submit" class="cf-submit-btn" id="contactSubmitBtn">
               <span class="cf-btn-text">Send Message</span>
-              <span class="cf-btn-icon">→</span>
+              <span class="cf-btn-icon"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
             </button>
 
             <!-- Success state -->
             <div class="cf-success-banner" id="contactSuccess" style="display:none;">
-              <span>✅</span>
+              <span><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
               <div>
                 <strong>Message Sent!</strong>
                 <div>We will get back to you within 24 hours.</div>
@@ -221,17 +221,17 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     <div class="abt-principles-grid">
       <div class="abt-principle-card">
-        <div class="abt-principle-icon">🌾</div>
+        <div class="abt-principle-icon"><i class="fa-solid fa-wheat-awn" aria-hidden="true"></i></div>
         <h3 class="abt-principle-title">How do I register as a farmer?</h3>
         <p class="abt-principle-desc">Create a free account, select "Farmer" as your role, and complete your stall profile. Our team reviews and approves within 48 hours.</p>
       </div>
       <div class="abt-principle-card">
-        <div class="abt-principle-icon">🛒</div>
+        <div class="abt-principle-icon"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></div>
         <h3 class="abt-principle-title">When can I pick up my basket?</h3>
         <p class="abt-principle-desc">Pickup windows are set by each farmer for their market day. You choose your slot when reserving — usually Saturday or Sunday mornings.</p>
       </div>
       <div class="abt-principle-card">
-        <div class="abt-principle-icon">💳</div>
+        <div class="abt-principle-icon"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></div>
         <h3 class="abt-principle-title">How do payments work?</h3>
         <p class="abt-principle-desc">Payment is settled directly at the stall via cash, Easypaisa, or JazzCash. MarketLink charges the farmer zero commission.</p>
       </div>

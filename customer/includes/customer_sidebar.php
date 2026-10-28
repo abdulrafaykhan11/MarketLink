@@ -19,21 +19,21 @@
 
     <a href="<?= BASE_URL ?>/customer/dashboard.php" class="sidebar-link <?= ($activePage === 'dashboard') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">📊</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
         <span>Dashboard</span>
       </div>
     </a>
 
     <a href="<?= BASE_URL ?>/customer/products.php" class="sidebar-link <?= ($activePage === 'products') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">🥬</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-carrot" aria-hidden="true"></i></span>
         <span>Browse Harvest</span>
       </div>
     </a>
 
     <a href="<?= BASE_URL ?>/customer/markets.php" class="sidebar-link <?= ($activePage === 'markets') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">📍</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
         <span>Markets & Map</span>
       </div>
     </a>
@@ -42,7 +42,7 @@
 
     <a href="<?= BASE_URL ?>/customer/cart.php" class="sidebar-link <?= ($activePage === 'cart') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">🛒</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></span>
         <span>Pre-Order Basket</span>
       </div>
       <span class="sidebar-count-badge cart-count-badge" style="<?= ($cartItemCount > 0) ? '' : 'display:none;' ?>">
@@ -52,28 +52,28 @@
 
     <a href="<?= BASE_URL ?>/customer/orders.php" class="sidebar-link <?= ($activePage === 'orders') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">📦</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-box" aria-hidden="true"></i></span>
         <span>My Orders & Tracking</span>
       </div>
     </a>
 
     <a href="<?= BASE_URL ?>/customer/chat.php" class="sidebar-link <?= ($activePage === 'chat') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">💬</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-comments" aria-hidden="true"></i></span>
         <span>Seller Order Chat</span>
       </div>
     </a>
 
     <a href="<?= BASE_URL ?>/customer/favorites.php" class="sidebar-link <?= ($activePage === 'favorites') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">❤️</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-heart" aria-hidden="true"></i></span>
         <span>Saved Favorites</span>
       </div>
     </a>
 
     <a href="<?= BASE_URL ?>/customer/reviews.php" class="sidebar-link <?= ($activePage === 'reviews') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">⭐</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
         <span>Reviews & Ratings</span>
       </div>
     </a>
@@ -82,7 +82,7 @@
 
     <a href="<?= BASE_URL ?>/customer/notifications.php" class="sidebar-link <?= ($activePage === 'notifications') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">🔔</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
         <span>Notifications</span>
       </div>
       <?php if ($unreadNotifsCount > 0): ?>
@@ -92,17 +92,17 @@
 
     <a href="<?= BASE_URL ?>/customer/profile.php" class="sidebar-link <?= ($activePage === 'profile') ? 'active' : '' ?>">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">👤</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
         <span>Profile & Pickup</span>
       </div>
     </a>
 
     <a href="<?= BASE_URL ?>/index.php" class="sidebar-link" target="_blank">
       <div class="sidebar-link-content">
-        <span class="sidebar-link-icon">🌐</span>
+        <span class="sidebar-link-icon"><i class="fa-solid fa-globe" aria-hidden="true"></i></span>
         <span>Visit Main Website</span>
       </div>
-      <span style="font-size:0.75rem; color:var(--text-muted);">↗</span>
+      <span style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
     </a>
   </nav>
 
@@ -117,7 +117,7 @@
         <div class="sidebar-user-role"><?= htmlspecialchars($customerUser['email']) ?></div>
       </div>
       <a href="<?= BASE_URL ?>/logout.php" title="Sign Out" style="color:var(--text-muted); display:flex; align-items:center; justify-content:center; text-decoration:none; padding:4px; border-radius:6px; transition:color 0.2s ease;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
       </a>
     </div>
   </div>

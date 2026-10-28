@@ -55,7 +55,7 @@ function initCustomerSidebar() {
    2. Cart & Pre-Order AJAX State
    ========================================================================== */
 function initCartBadge() {
-  fetch(`${window.BASE_URL || '/MarketLink'}/customer/api/cart.php?action=count`)
+  fetch(`${window.BASE_URL || ''}/customer/api/cart.php?action=count`)
     .then(res => res.json())
     .then(data => {
       if (data.status === 'success') {
@@ -83,7 +83,7 @@ window.addToPreOrder = function(productId, stallId, quantity = 1) {
   formData.append('stall_id', stallId);
   formData.append('quantity', quantity);
 
-  fetch(`${window.BASE_URL || '/MarketLink'}/customer/api/cart.php`, {
+  fetch(`${window.BASE_URL || ''}/customer/api/cart.php`, {
     method: 'POST',
     body: formData
   })
@@ -125,7 +125,7 @@ window.updateCartItemQty = function(cartItemId, delta) {
   formData.append('cart_item_id', cartItemId);
   formData.append('quantity', newQty);
 
-  fetch(`${window.BASE_URL || '/MarketLink'}/customer/api/cart.php`, {
+  fetch(`${window.BASE_URL || ''}/customer/api/cart.php`, {
     method: 'POST',
     body: formData
   })
@@ -166,7 +166,7 @@ window.removeCartItem = function(cartItemId) {
   formData.append('action', 'remove');
   formData.append('cart_item_id', cartItemId);
 
-  fetch(`${window.BASE_URL || '/MarketLink'}/customer/api/cart.php`, {
+  fetch(`${window.BASE_URL || ''}/customer/api/cart.php`, {
     method: 'POST',
     body: formData
   })
@@ -215,7 +215,7 @@ function initFavoriteHandlers() {
     formData.append('type', type);
     formData.append('id', id);
 
-    fetch(`${window.BASE_URL || '/MarketLink'}/customer/api/favorite.php`, {
+    fetch(`${window.BASE_URL || ''}/customer/api/favorite.php`, {
       method: 'POST',
       body: formData
     })
@@ -238,10 +238,10 @@ function initFavoriteHandlers() {
 }
 
 /* ==========================================================================
-   4. AI Chatbot Assistant (Now managed by assets/js/ai-chatbot.js)
+   4. AI Assistant (Now managed by assets/js/ai-assistant.js)
    ========================================================================== */
 function initChatbot() {
-  // Handled universally by assets/js/ai-chatbot.js with Gemini 3.8 Flash
+  // Handled universally by assets/js/ai-assistant.js with Gemini 3.8 Flash
 }
 
 /* ==========================================================================
@@ -323,7 +323,7 @@ function renderLeafletMap(mapElem) {
           <h4 style="margin:0 0 5px 0; color:#065f46; font-size:14px; font-weight:700;">${loc.market_name}</h4>
           <p style="margin:0 0 5px 0; font-size:12px; color:#475569;">📍 ${loc.address}</p>
           <p style="margin:0 0 8px 0; font-size:11px; color:#059669; font-weight:600;">🕒 ${loc.operating_days} (${loc.operating_hours})</p>
-          <a href="${window.BASE_URL || '/MarketLink'}/customer/products.php?market_id=${loc.market_id}" 
+          <a href="${window.BASE_URL || ''}/customer/products.php?market_id=${loc.market_id}"
              style="display:inline-block; background:#10b981; color:#fff; text-decoration:none; padding:4px 10px; border-radius:4px; font-size:11px; font-weight:bold;">
             Browse Stalls & Produce ➔
           </a>

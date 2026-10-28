@@ -97,7 +97,7 @@ function buildNotifLink(array $n): string {
 <div class="page-header-row">
   <div>
     <h1 class="page-heading">
-      <span>🔔</span> Notifications &amp; Alerts
+      <span><i class="fa-solid fa-bell" aria-hidden="true"></i></span> Notifications &amp; Alerts
     </h1>
     <p class="page-subheading">
       Live updates on pre-orders, pickup slot readiness, and farmer announcements
@@ -109,7 +109,7 @@ function buildNotifLink(array $n): string {
       <button type="submit" name="mark_all_read" value="1"
               class="btn-secondary"
               style="padding:0.5rem 1.15rem; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.5rem;">
-        <span>✔</span> Mark All as Read (<?= $unreadNotifsCount ?>)
+        <span><i class="fa-solid fa-check" aria-hidden="true"></i></span> Mark All as Read (<?= $unreadNotifsCount ?>)
       </button>
     </form>
   <?php endif; ?>
@@ -124,10 +124,10 @@ function buildNotifLink(array $n): string {
         $link     = buildNotifLink($n);
 
         $icon = match($type) {
-          'order_status'  => '📦',
-          'restock_alert' => '🥬',
-          'announcement'  => '📢',
-          default         => '🌱'
+          'order_status'  => '<i class="fa-solid fa-box" aria-hidden="true"></i>',
+          'restock_alert' => '<i class="fa-solid fa-carrot" aria-hidden="true"></i>',
+          'announcement'  => '<i class="fa-solid fa-bullhorn" aria-hidden="true"></i>',
+          default         => '<i class="fa-solid fa-seedling" aria-hidden="true"></i>'
         };
 
         $typeLabel = match($type) {
@@ -208,7 +208,7 @@ function buildNotifLink(array $n): string {
 
                 <!-- CTA hint -->
                 <div style="font-size:0.72rem; color: <?= $typeColor ?>; font-weight:600; display:flex; align-items:center; gap:0.3rem;">
-                  <span>→</span>
+                  <span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
                   <?= match($type) {
                     'order_status'  => 'View order details',
                     'restock_alert' => 'Browse available produce',
@@ -231,7 +231,7 @@ function buildNotifLink(array $n): string {
 
   <?php else: ?>
     <div style="text-align:center; padding:4rem 1.5rem;">
-      <div style="font-size:3.5rem; margin-bottom:1rem;">🔕</div>
+      <div style="font-size:3.5rem; margin-bottom:1rem;"><i class="fa-solid fa-bell-slash" aria-hidden="true"></i></div>
       <h3 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;">No Notifications Yet</h3>
       <p style="color:var(--text-muted); font-size:0.95rem; max-width:440px; margin:0 auto;">
         You are all caught up! Order status updates, ready-for-pickup alerts, and restock notices will appear here.

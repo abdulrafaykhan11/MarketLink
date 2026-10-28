@@ -4,6 +4,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
+  const baseUrl = window.BASE_URL || '';
 
   // ==========================================================================
   // 1. Terms & Conditions Modal Controller
@@ -90,20 +91,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (input.type === 'password') {
         input.type = 'text';
-        this.innerHTML = `
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-            <line x1="1" y1="1" x2="23" y2="23"></line>
-          </svg>
-        `;
+        this.innerHTML = '<i class="fa-solid fa-eye-slash" aria-hidden="true"></i>';
       } else {
         input.type = 'password';
-        this.innerHTML = `
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        `;
+        this.innerHTML = '<i class="fa-solid fa-eye" aria-hidden="true"></i>';
       }
     });
   });
@@ -115,19 +106,31 @@ document.addEventListener('DOMContentLoaded', function () {
   const customerFields = document.getElementById('customer-specific-fields');
   const farmerFields = document.getElementById('farmer-specific-fields');
 
+  function setAccountRole(role) {
+    const isFarmer = role === 'farmer';
+    const selectedRadio = document.querySelector(`input[name="role"][value="${role}"]`);
+
+    if (selectedRadio) selectedRadio.checked = true;
+    document.querySelectorAll('.role-option').forEach(option => {
+      option.classList.toggle('active', option.querySelector('input[name="role"]') === selectedRadio);
+    });
+
+    if (customerFields) customerFields.style.display = isFarmer ? 'none' : 'block';
+    if (farmerFields) farmerFields.style.display = isFarmer ? 'block' : 'none';
+  }
+
   roleRadios.forEach(radio => {
     radio.addEventListener('change', function () {
-      document.querySelectorAll('.role-option').forEach(el => el.classList.remove('active'));
-      const activeOption = this.closest('.role-option');
-      if (activeOption) activeOption.classList.add('active');
+      setAccountRole(this.value);
+    });
+  });
 
-      if (this.value === 'farmer') {
-        if (customerFields) customerFields.style.display = 'none';
-        if (farmerFields) farmerFields.style.display = 'block';
-      } else {
-        if (farmerFields) farmerFields.style.display = 'none';
-        if (customerFields) customerFields.style.display = 'block';
-      }
+  // Labels already select their radio inputs, but this direct handler also
+  // supports clicks on the icon/text area in every browser and shared host.
+  document.querySelectorAll('.role-option').forEach(option => {
+    option.addEventListener('click', function () {
+      const radio = this.querySelector('input[name="role"]');
+      if (radio) setAccountRole(radio.value);
     });
   });
 
@@ -163,22 +166,22 @@ document.addEventListener('DOMContentLoaded', function () {
         input.classList.add('is-valid');
         if (hint) {
           hint.className = 'validation-hint hint-success';
-          hint.textContent = message ? `✓ ${message}` : '✓ Looks good';
+          hint.textContent = message || 'Looks good';
         }
         if (icon) {
           icon.className = 'input-feedback-icon visible valid';
-          icon.innerHTML = '✓';
+          icon.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i>';
         }
       } else if (isValid === false) {
         input.classList.remove('is-valid');
         input.classList.add('is-invalid');
         if (hint) {
           hint.className = 'validation-hint hint-error';
-          hint.textContent = message ? `✕ ${message}` : '✕ Invalid input';
+          hint.textContent = message || 'Invalid input';
         }
         if (icon) {
           icon.className = 'input-feedback-icon visible invalid';
-          icon.innerHTML = '✕';
+          icon.innerHTML = '<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>';
         }
       } else {
         // Reset / Neutral
@@ -210,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (icon) {
         icon.className = 'input-feedback-icon visible loading';
-        icon.innerHTML = '⟳';
+        icon.innerHTML = '<i class="fa-solid fa-spinner" aria-hidden="true"></i>';
       }
     }
 
@@ -243,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setFieldLoading(this, 'Checking availability...');
 
         debounceTimer = setTimeout(() => {
-          fetch(`/MarketLink/api/check_availability.php?type=username&value=${encodeURIComponent(val)}`)
+          fetch(`${baseUrl}/api/check_availability.php?type=username&value=${encodeURIComponent(val)}`)
             .then(res => res.json())
             .then(data => {
               if (data.available) {
@@ -268,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!seedName || seedName.trim().length < 2) return;
       if (!suggestionsWrap || !suggestionsList) return;
 
-      fetch(`/MarketLink/api/suggest_usernames.php?name=${encodeURIComponent(seedName.trim())}`)
+      fetch(`${baseUrl}/api/suggest_usernames.php?name=${encodeURIComponent(seedName.trim())}`)
         .then(res => res.json())
         .then(data => {
           if (data.status === 'success' && data.suggestions && data.suggestions.length > 0) {
@@ -345,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setFieldLoading(this, 'Verifying email...');
 
         emailTimer = setTimeout(() => {
-          fetch(`/MarketLink/api/check_availability.php?type=email&value=${encodeURIComponent(val)}`)
+          fetch(`${baseUrl}/api/check_availability.php?type=email&value=${encodeURIComponent(val)}`)
             .then(res => res.json())
             .then(data => {
               if (data.available) {
@@ -530,11 +533,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (passed) {
         el.classList.add('passed');
         const icon = el.querySelector('.icon');
-        if (icon) icon.textContent = '✓';
+        if (icon) icon.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i>';
       } else {
         el.classList.remove('passed');
         const icon = el.querySelector('.icon');
-        if (icon) icon.textContent = '○';
+        if (icon) icon.innerHTML = '<i class="fa-regular fa-circle" aria-hidden="true"></i>';
       }
     }
 
@@ -667,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const formData = new FormData(registerForm);
 
-      fetch('/MarketLink/api/register_process.php', {
+      fetch(`${baseUrl}/api/register_process.php`, {
         method: 'POST',
         headers: {
           'X-Requested-With': 'XMLHttpRequest'
@@ -686,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function () {
             Toast.success('Account Created!', res.message || 'Welcome to MarketLink.');
           }
           setTimeout(() => {
-            window.location.href = res.redirect || '/MarketLink/login.php';
+            window.location.href = res.redirect || `${baseUrl}/login.php`;
           }, 1200);
         } else {
           if (window.Toast) {
@@ -736,22 +739,22 @@ document.addEventListener('DOMContentLoaded', function () {
         input.classList.add('is-valid');
         if (hint) {
           hint.className = 'validation-hint hint-success';
-          hint.textContent = '✓ ' + message;
+          hint.textContent = message || 'Looks good';
         }
         if (icon) {
           icon.className = 'input-feedback-icon visible valid';
-          icon.innerHTML = '✓';
+          icon.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i>';
         }
       } else if (isValid === false) {
         input.classList.remove('is-valid');
         input.classList.add('is-invalid');
         if (hint) {
           hint.className = 'validation-hint hint-error';
-          hint.textContent = '✕ ' + message;
+          hint.textContent = message || 'Invalid input';
         }
         if (icon) {
           icon.className = 'input-feedback-icon visible invalid';
-          icon.innerHTML = '✕';
+          icon.innerHTML = '<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>';
         }
       } else {
         input.classList.remove('is-valid', 'is-invalid');
@@ -824,7 +827,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const formData = new FormData(loginForm);
 
-      fetch('/MarketLink/api/login_process.php', {
+      fetch(`${baseUrl}/api/login_process.php`, {
         method: 'POST',
         headers: {
           'X-Requested-With': 'XMLHttpRequest'
@@ -843,7 +846,7 @@ document.addEventListener('DOMContentLoaded', function () {
             Toast.success('Login Successful', res.message || 'Redirecting to your dashboard...');
           }
           setTimeout(() => {
-            window.location.href = res.redirect || '/MarketLink/index.php';
+            window.location.href = res.redirect || `${baseUrl}/index.php`;
           }, 1000);
         } else {
           if (window.Toast) {

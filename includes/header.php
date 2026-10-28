@@ -29,6 +29,7 @@ $pageTitle = $pageTitle ?? 'Direct Farmers Marketplace';
 
   <!-- Theme Switcher Engine (Prevents FOUC) -->
   <script src="<?= BASE_URL ?>/assets/js/theme.js"></script>
+  <script>window.BASE_URL = <?= json_encode(BASE_URL, JSON_UNESCAPED_SLASHES) ?>;</script>
 
   <!-- Core Styles -->
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/main.css?v=<?= filemtime(__DIR__ . '/../assets/css/main.css') ?>">
@@ -36,6 +37,7 @@ $pageTitle = $pageTitle ?? 'Direct Farmers Marketplace';
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/testimonials.css?v=<?= filemtime(__DIR__ . '/../assets/css/testimonials.css') ?>">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/auth.css?v=<?= filemtime(__DIR__ . '/../assets/css/auth.css') ?>">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/responsive.css?v=<?= filemtime(__DIR__ . '/../assets/css/responsive.css') ?>">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/ai-assistant.css?v=<?= filemtime(__DIR__ . '/../assets/css/ai-assistant.css') ?>">
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="<?= BASE_URL ?>/assets/images/logo.svg">

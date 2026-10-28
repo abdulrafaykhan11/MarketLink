@@ -44,7 +44,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <div class="banner-features">
           <div class="feature-item">
-            <div class="feature-icon-box">📦</div>
+            <div class="feature-icon-box"><i class="fa-solid fa-box-open" aria-hidden="true"></i></div>
             <div>
               <div class="feature-title">Live Pickup Slot Tracking</div>
               <div class="feature-subtitle">Check stall pickup readiness and time windows instantly</div>
@@ -52,7 +52,7 @@ require_once __DIR__ . '/includes/header.php';
           </div>
 
           <div class="feature-item">
-            <div class="feature-icon-box">🥦</div>
+            <div class="feature-icon-box"><i class="fa-solid fa-carrot" aria-hidden="true"></i></div>
             <div>
               <div class="feature-title">Weekly Fresh Restock Alerts</div>
               <div class="feature-subtitle">Get notified as soon as local organic farmers post inventory</div>
@@ -60,7 +60,7 @@ require_once __DIR__ . '/includes/header.php';
           </div>
 
           <div class="feature-item">
-            <div class="feature-icon-box">🛡</div>
+            <div class="feature-icon-box"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
             <div>
               <div class="feature-title">Verified Producers Only</div>
               <div class="feature-subtitle">Every farmer is vetted for community standards</div>
@@ -100,7 +100,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <?php if (!empty($registeredUser)): ?>
           <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.75rem;">
-            <span style="font-size: 1.5rem; line-height: 1;">🎉</span>
+            <i class="fa-solid fa-circle-check" aria-hidden="true" style="font-size: 1.5rem; line-height: 1; color: #059669;"></i>
             <div>
               <div style="font-weight: 700; color: #065f46; font-size: 0.9375rem; margin-bottom: 0.15rem;">Registration Successful!</div>
               <div style="font-size: 0.8125rem; color: #047857; line-height: 1.45;">Your account has been created. Please enter your password to sign in and access your dashboard.</div>
@@ -123,7 +123,7 @@ require_once __DIR__ . '/includes/header.php';
               <span>Username or Email Address <span class="required">*</span></span>
             </label>
             <div class="input-container">
-              <span class="input-icon-left">👤</span>
+              <span class="input-icon-left"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
               <input type="text" id="login_id" name="login_id" class="form-input" 
                      placeholder="Enter your username or email" 
                      value="<?= htmlspecialchars($rememberedUsername) ?>" 
@@ -139,15 +139,12 @@ require_once __DIR__ . '/includes/header.php';
               <span>Password <span class="required">*</span></span>
             </label>
             <div class="input-container">
-              <span class="input-icon-left">🔒</span>
+              <span class="input-icon-left"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
               <input type="password" id="password" name="password" class="form-input" 
                      placeholder="Enter your account password" 
                      autocomplete="current-password" required>
               <button type="button" class="password-toggle-btn" data-target="password" aria-label="Toggle password visibility">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
+                <i class="fa-solid fa-eye" aria-hidden="true"></i>
               </button>
             </div>
             <div class="validation-hint hint-neutral">Enter your secure password</div>
@@ -168,12 +165,12 @@ require_once __DIR__ . '/includes/header.php';
           <button type="submit" class="btn-primary" id="loginSubmitBtn">
             <span class="spinner"></span>
             <span class="btn-text">Sign In to Account</span>
-            <span style="font-size: 1.1rem;">→</span>
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
           </button>
 
           <!-- Quick Demo Hint for Admin & User -->
           <div style="margin-top: 1.75rem; padding: 0.875rem; background: var(--slate-50); border: 1px dashed var(--slate-300); border-radius: var(--radius-md); font-size: 0.75rem; color: var(--slate-600); text-align: center;">
-            🌾 <strong>New to the platform?</strong> Register as a <strong>Customer</strong> to browse produce or as a <strong>Farmer</strong> to manage market stalls!
+            <i class="fa-solid fa-wheat-awn" aria-hidden="true"></i> <strong>New to the platform?</strong> Register as a <strong>Customer</strong> to browse produce or as a <strong>Farmer</strong> to manage market stalls!
           </div>
 
         </form>

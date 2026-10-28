@@ -44,7 +44,7 @@ try {
         } else {
             $ins = $pdo->prepare("INSERT INTO favorite_products (customer_id, product_id, created_at) VALUES (:uid, :pid, NOW())");
             $ins->execute([':uid' => $userId, ':pid' => $id]);
-            echo json_encode(['status' => 'success', 'is_favorite' => true, 'message' => 'Saved to favorite products! ❤️']);
+            echo json_encode(['status' => 'success', 'is_favorite' => true, 'message' => 'Saved to favorite products!']);
         }
         exit;
     }
@@ -61,7 +61,7 @@ try {
         } else {
             $ins = $pdo->prepare("INSERT INTO favorite_farmers (customer_id, farmer_id, created_at) VALUES (:uid, :fid, NOW())");
             $ins->execute([':uid' => $userId, ':fid' => $id]);
-            echo json_encode(['status' => 'success', 'is_favorite' => true, 'message' => 'Farmer saved to favorites! ❤️']);
+            echo json_encode(['status' => 'success', 'is_favorite' => true, 'message' => 'Farmer saved to favorites!']);
         }
         exit;
     }

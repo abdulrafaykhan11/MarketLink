@@ -220,7 +220,7 @@ require_once __DIR__ . '/includes/header.php';
       autoplay muted loop playsinline
       poster="<?= BASE_URL ?>/assets/images/farm_fresh_hero.jpg"
     >
-      <source src="<?= BASE_URL ?>/assets/videos/Grass_text_sways_in_breeze_20260924102508.mp4" type="video/mp4">
+      <source src="<?= BASE_URL ?>/assets/videos/grass_text_sways_in_breeze_20260924102508.mp4" type="video/mp4">
     </video>
     <!-- Subtle dark overlay for navbar readability -->
     <div class="hero-fullscreen-overlay"></div>
@@ -797,31 +797,31 @@ require_once __DIR__ . '/includes/header.php';
           $bentoClass = 'stall-bento-hero'; // Featured Hero Bento Box (Wide Panoramic)
           $accentColor = '#34d399';
           $accentRgb = '52, 211, 153';
-          $cardBadge = '🌟 Featured Producer of the Week';
+          $cardBadge = '<i class="fa-solid fa-star" aria-hidden="true"></i> Featured Producer of the Week';
           $badgeClass = 'badge-emerald';
         } elseif ($i === 1) {
           $bentoClass = 'stall-bento-tall'; // Featured Pillar Bento Box (Warm Amber Gold)
           $accentColor = '#fbbf24';
           $accentRgb = '251, 191, 36';
-          $cardBadge = '⚡ High Demand Stall';
+          $cardBadge = '<i class="fa-solid fa-bolt" aria-hidden="true"></i> High Demand Stall';
           $badgeClass = 'badge-gold';
         } elseif ($i === 2) {
           $bentoClass = ($totalStalls === 3) ? 'stall-bento-wide' : 'stall-bento-standard';
           $accentColor = '#38bdf8';
           $accentRgb = '56, 189, 248';
-          $cardBadge = '🍯 Pure Apiary & Certified Fresh';
+          $cardBadge = '<i class="fa-solid fa-jar" aria-hidden="true"></i> Pure Apiary & Certified Fresh';
           $badgeClass = 'badge-cyan';
         } elseif ($i === 3) {
           $bentoClass = 'stall-bento-standard';
           $accentColor = '#a78bfa';
           $accentRgb = '167, 139, 250';
-          $cardBadge = '🌱 Hydroponic & Zero Pesticides';
+          $cardBadge = '<i class="fa-solid fa-seedling" aria-hidden="true"></i> Hydroponic & Zero Pesticides';
           $badgeClass = 'badge-violet';
         } else {
           $bentoClass = 'stall-bento-standard';
           $accentColor = '#10b981';
           $accentRgb = '16, 185, 129';
-          $cardBadge = '🍊 Direct Orchard Harvest';
+          $cardBadge = '<i class="fa-solid fa-lemon" aria-hidden="true"></i> Direct Orchard Harvest';
           $badgeClass = 'badge-emerald';
         }
 
@@ -843,7 +843,7 @@ require_once __DIR__ . '/includes/header.php';
               <?= $cardBadge ?>
             </span>
             <div class="stall-bento-rating-pill">
-              <span class="rating-star">★</span>
+              <span class="rating-star"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
               <span class="rating-val"><?= htmlspecialchars($stall['rating']) ?></span>
             </div>
           </div>
@@ -862,12 +862,12 @@ require_once __DIR__ . '/includes/header.php';
                 <span class="farmer-avatar-chip" style="<?= !empty($stall['profile_image']) ? 'display:none;' : '' ?>">
                   <?= strtoupper(substr($stall['farmer'] ?: 'ML', 0, 2)) ?>
                 </span>
-                <span class="farmer-verified-badge" title="Verified Stall Producer">✓</span>
+                <span class="farmer-verified-badge" title="Verified Stall Producer"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
               </div>
               <div class="farmer-meta">
                 <span class="farmer-name"><?= htmlspecialchars($stall['farmer']) ?></span>
                 <span class="farmer-sep">•</span>
-                <span class="farmer-geo">📍 <?= htmlspecialchars($stall['location']) ?></span>
+                <span class="farmer-geo"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= htmlspecialchars($stall['location']) ?></span>
               </div>
             </div>
           </div>
@@ -905,13 +905,13 @@ require_once __DIR__ . '/includes/header.php';
           <!-- Card Footer: Cutoff Time & Interactive CTA Button -->
           <div class="stall-bento-footer">
             <div class="stall-bento-cutoff">
-              <span class="cutoff-icon">⏱</span>
+              <span class="cutoff-icon"><i class="fa-solid fa-stopwatch" aria-hidden="true"></i></span>
               <span class="cutoff-text">Cutoff: <strong><?= htmlspecialchars($stall['cutoff']) ?></strong></span>
             </div>
 
             <div class="stall-bento-cta">
               <span class="cta-label">View Stall</span>
-              <span class="cta-arrow" aria-hidden="true">→</span>
+              <span class="cta-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
             </div>
           </div>
 
@@ -1491,6 +1491,12 @@ require_once __DIR__ . '/includes/header.php';
 [data-theme="light"] .testimonial-card:hover {
   border-color: #22c55e;
   box-shadow: 0 20px 45px -10px rgba(34, 197, 94, 0.18);
+}
+
+[data-theme="light"] .stars-val {
+  color: #92400e;
+  background: #fef3c7;
+  border-color: #f59e0b;
 }
 
 [data-theme="light"] .testimonial-comment {

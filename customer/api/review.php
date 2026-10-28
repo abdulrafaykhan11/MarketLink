@@ -78,7 +78,7 @@ try {
 
     echo json_encode([
         'status' => 'success',
-        'message' => 'Thank you! Your feedback and rating have been submitted successfully. ⭐'
+        'message' => 'Thank you! Your feedback and rating have been submitted successfully.'
     ]);
 
 } catch (Exception $e) {

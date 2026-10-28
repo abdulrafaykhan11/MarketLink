@@ -101,6 +101,7 @@ $cutoffFormatted = date('g:i A', strtotime($cutoffTime));
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/main.css">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/farmer.css">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/responsive.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/ai-assistant.css">
 
   <link rel="icon" type="image/svg+xml" href="<?= BASE_URL ?>/assets/images/logo.svg">
 </head>

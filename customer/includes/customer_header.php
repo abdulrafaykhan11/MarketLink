@@ -63,6 +63,7 @@ $activePage = $activePage ?? 'dashboard';
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/home.css">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/customer.css">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/responsive.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/ai-assistant.css">
 
   <!-- Leaflet CSS for Map integration -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -83,10 +84,10 @@ $activePage = $activePage ?? 'dashboard';
     <header class="customer-topbar">
       <div class="topbar-left">
         <button type="button" class="topbar-mobile-toggle" id="sidebarToggleBtn" aria-label="Toggle navigation menu">
-          ☰
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
         </button>
         <form action="<?= BASE_URL ?>/customer/products.php" method="GET" class="topbar-search-box">
-          <span class="topbar-search-icon">🔍</span>
+          <span class="topbar-search-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
           <input type="text" name="search" class="topbar-search-input" placeholder="Search organic vegetables, fruits, honey, farm dairy..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
         </form>
       </div>
@@ -99,7 +100,7 @@ $activePage = $activePage ?? 'dashboard';
 
         <!-- Notification Bell -->
         <a href="<?= BASE_URL ?>/customer/notifications.php" class="topbar-btn" title="Notifications">
-          🔔
+          <i class="fa-solid fa-bell" aria-hidden="true"></i>
           <?php if ($unreadNotifsCount > 0): ?>
             <span class="topbar-badge"><?= $unreadNotifsCount ?></span>
           <?php endif; ?>
@@ -107,7 +108,7 @@ $activePage = $activePage ?? 'dashboard';
 
         <!-- Cart Quick Access -->
         <a href="<?= BASE_URL ?>/customer/cart.php" class="topbar-btn" title="Pre-Order Basket">
-          🛒
+          <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
           <span class="topbar-badge topbar-cart-badge cart-count-badge" style="<?= $cartItemCount > 0 ? '' : 'display:none;' ?>">
             <?= $cartItemCount ?>
           </span>
@@ -128,7 +129,7 @@ $activePage = $activePage ?? 'dashboard';
 
         <!-- Sign Out Button -->
         <a href="<?= BASE_URL ?>/logout.php" class="topbar-btn" title="Sign Out" style="color:var(--rose-500, #ef4444); border-color:rgba(239,68,68,0.25);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
         </a>
       </div>
     </header>

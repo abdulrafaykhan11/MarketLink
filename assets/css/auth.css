@@ -392,6 +392,14 @@
   transition: color var(--transition-fast);
 }
 
+.input-icon-left i,
+.password-toggle-btn i,
+.feature-icon-box i,
+.role-icon i,
+.checklist-item .icon i {
+  line-height: 1;
+}
+
 .form-input {
   width: 100%;
   height: 48px;
@@ -639,6 +647,18 @@
 .custom-checkbox-label input[type="checkbox"]:checked {
   background-color: var(--primary-600);
   border-color: var(--primary-600);
+}
+
+/* Font Awesome checkmark replaces the former Unicode symbol. */
+.custom-checkbox-label input[type="checkbox"]:checked::before {
+  content: "\f00c" !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+}
+
+.custom-checkbox-label input[type="checkbox"]:checked::before {
+  content: "\f00c" !important;
+  font-family: "Font Awesome 6 Free";
 }
 
 .custom-checkbox-label input[type="checkbox"]:checked::before {

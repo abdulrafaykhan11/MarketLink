@@ -82,7 +82,7 @@ try {
 
         echo json_encode([
             'status' => 'success',
-            'message' => 'Harvest added to pre-order basket! 🥬',
+            'message' => 'Harvest added to pre-order basket!',
             'total_items' => $totalItems
         ]);
         exit;
@@ -369,7 +369,7 @@ try {
 
         echo json_encode([
             'status' => 'success',
-            'message' => 'Your harvest pre-order has been placed successfully! 🌿 Confirmation emails have been sent.',
+            'message' => 'Your harvest pre-order has been placed successfully! Confirmation emails have been sent.',
             'order_numbers' => $orderNumbers,
             'redirect_url' => BASE_URL . '/customer/orders.php'
         ]);

@@ -41,7 +41,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <div class="banner-features">
           <div class="feature-item">
-            <div class="feature-icon-box">🌱</div>
+            <div class="feature-icon-box"><i class="fa-solid fa-seedling" aria-hidden="true"></i></div>
             <div>
               <div class="feature-title">Fresh, Seasonal Produce</div>
               <div class="feature-subtitle">Harvested within 24 hours of market pickup</div>
@@ -49,7 +49,7 @@ require_once __DIR__ . '/includes/header.php';
           </div>
 
           <div class="feature-item">
-            <div class="feature-icon-box">📍</div>
+            <div class="feature-icon-box"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></div>
             <div>
               <div class="feature-title">Convenient Market Pickup Slots</div>
               <div class="feature-subtitle">Choose exact dates and stall locations without long queues</div>
@@ -57,7 +57,7 @@ require_once __DIR__ . '/includes/header.php';
           </div>
 
           <div class="feature-item">
-            <div class="feature-icon-box">🤝</div>
+            <div class="feature-icon-box"><i class="fa-solid fa-handshake" aria-hidden="true"></i></div>
             <div>
               <div class="feature-title">Zero Middlemen</div>
               <div class="feature-subtitle">100% of stall sales go straight to supporting local growers</div>
@@ -77,7 +77,7 @@ require_once __DIR__ . '/includes/header.php';
             <span class="stat-label">Happy Families</span>
           </div>
           <div class="stat-item">
-            <span class="stat-number">4.9 ★</span>
+            <span class="stat-number">4.9 <i class="fa-solid fa-star" aria-label="out of 5"></i></span>
             <span class="stat-label">Produce Rating</span>
           </div>
         </div>
@@ -103,14 +103,14 @@ require_once __DIR__ . '/includes/header.php';
 
           <!-- 1. Interactive Role Selector (Customer vs Farmer) -->
           <div class="role-selector" role="radiogroup" aria-label="Select Account Type">
-            <label class="role-option active" id="role-customer-label">
-              <input type="radio" name="role" value="customer" checked>
-              <span class="role-icon">🛒</span>
+            <label class="role-option active" id="role-customer-label" for="role-customer">
+              <input type="radio" id="role-customer" name="role" value="customer" checked>
+              <span class="role-icon"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></span>
               <span>I'm a Customer</span>
             </label>
-            <label class="role-option" id="role-farmer-label">
-              <input type="radio" name="role" value="farmer">
-              <span class="role-icon">🚜</span>
+            <label class="role-option" id="role-farmer-label" for="role-farmer">
+              <input type="radio" id="role-farmer" name="role" value="farmer">
+              <span class="role-icon"><i class="fa-solid fa-tractor" aria-hidden="true"></i></span>
               <span>I'm a Farmer / Stall</span>
             </label>
           </div>
@@ -122,7 +122,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span>Full Name <span class="required">*</span></span>
               </label>
               <div class="input-container">
-                <span class="input-icon-left">👤</span>
+                <span class="input-icon-left"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
                 <input type="text" id="full_name" name="full_name" class="form-input" placeholder="e.g. Ali Khan" autocomplete="name">
                 <span class="input-feedback-icon"></span>
               </div>
@@ -137,7 +137,7 @@ require_once __DIR__ . '/includes/header.php';
                   <span>Farm / Stall Name <span class="required">*</span></span>
                 </label>
                 <div class="input-container">
-                  <span class="input-icon-left">🏡</span>
+                  <span class="input-icon-left"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
                   <input type="text" id="stall_name" name="stall_name" class="form-input" placeholder="e.g. Green Valley Farm" autocomplete="organization">
                   <span class="input-feedback-icon"></span>
                 </div>
@@ -149,7 +149,7 @@ require_once __DIR__ . '/includes/header.php';
                   <span>Contact Person <span class="required">*</span></span>
                 </label>
                 <div class="input-container">
-                  <span class="input-icon-left">👤</span>
+                  <span class="input-icon-left"><i class="fa-solid fa-user-tie" aria-hidden="true"></i></span>
                   <input type="text" id="contact_person" name="contact_person" class="form-input" placeholder="e.g. Muhammad Asif" autocomplete="name">
                   <span class="input-feedback-icon"></span>
                 </div>
@@ -162,7 +162,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span>Farm / Pickup Address <span class="required">*</span></span>
               </label>
               <div class="input-container">
-                <span class="input-icon-left">📍</span>
+                <span class="input-icon-left"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
                 <input type="text" id="business_address" name="business_address" class="form-input" placeholder="e.g. Plot 14, Agricultural Belt, Farm Market Road">
                 <span class="input-feedback-icon"></span>
               </div>
@@ -177,11 +177,11 @@ require_once __DIR__ . '/includes/header.php';
               <div class="form-label">
                 <label for="username">Username <span class="required">*</span></label>
                 <button type="button" id="btn-trigger-suggestions" class="btn-text-action" title="Generate available username suggestions">
-                  ✨ Suggest
+                  <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Suggest
                 </button>
               </div>
               <div class="input-container">
-                <span class="input-icon-left">@</span>
+                <span class="input-icon-left"><i class="fa-solid fa-at" aria-hidden="true"></i></span>
                 <input type="text" id="username" name="username" class="form-input" placeholder="e.g. alikhan99" autocomplete="username" maxlength="30" required>
                 <span class="input-feedback-icon"></span>
               </div>
@@ -189,7 +189,7 @@ require_once __DIR__ . '/includes/header.php';
 
               <!-- Suggested Usernames Chips Container -->
               <div id="username-suggestions-wrap" class="username-suggestions-container" style="display: none;">
-                <div class="suggestions-label">💡 Suggested available usernames:</div>
+                <div class="suggestions-label"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> Suggested available usernames:</div>
                 <div class="suggestions-chips" id="suggestions-chips-list"></div>
               </div>
             </div>
@@ -200,7 +200,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span>Pakistani Mobile No.</span>
               </label>
               <div class="input-container">
-                <span class="input-icon-left">📞</span>
+                <span class="input-icon-left"><i class="fa-solid fa-phone" aria-hidden="true"></i></span>
                 <input type="tel" id="phone_number" name="phone_number" class="form-input" placeholder="e.g. 03001234567" autocomplete="tel">
                 <span class="input-feedback-icon"></span>
               </div>
@@ -214,7 +214,7 @@ require_once __DIR__ . '/includes/header.php';
               <span>Email Address <span class="required">*</span></span>
             </label>
             <div class="input-container">
-              <span class="input-icon-left">✉</span>
+              <span class="input-icon-left"><i class="fa-solid fa-envelope" aria-hidden="true"></i></span>
               <input type="email" id="email" name="email" class="form-input" placeholder="e.g. ali.khan@example.com" autocomplete="email" required>
               <span class="input-feedback-icon"></span>
             </div>
@@ -227,13 +227,10 @@ require_once __DIR__ . '/includes/header.php';
               <span>Password <span class="required">*</span></span>
             </label>
             <div class="input-container">
-              <span class="input-icon-left">🔒</span>
+              <span class="input-icon-left"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
               <input type="password" id="password" name="password" class="form-input" placeholder="Create a strong password" autocomplete="new-password" required>
               <button type="button" class="password-toggle-btn" data-target="password" aria-label="Toggle password visibility">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
+                <i class="fa-solid fa-eye" aria-hidden="true"></i>
               </button>
             </div>
 
@@ -251,19 +248,19 @@ require_once __DIR__ . '/includes/header.php';
               </div>
               <ul class="meter-checklist">
                 <li class="checklist-item" id="req-length">
-                  <span class="icon">○</span> Minimum 8 characters
+                  <span class="icon"><i class="fa-regular fa-circle" aria-hidden="true"></i></span> Minimum 8 characters
                 </li>
                 <li class="checklist-item" id="req-upper">
-                  <span class="icon">○</span> At least 1 uppercase (A-Z)
+                  <span class="icon"><i class="fa-regular fa-circle" aria-hidden="true"></i></span> At least 1 uppercase (A-Z)
                 </li>
                 <li class="checklist-item" id="req-lower">
-                  <span class="icon">○</span> At least 1 lowercase (a-z)
+                  <span class="icon"><i class="fa-regular fa-circle" aria-hidden="true"></i></span> At least 1 lowercase (a-z)
                 </li>
                 <li class="checklist-item" id="req-number">
-                  <span class="icon">○</span> At least 1 number (0-9)
+                  <span class="icon"><i class="fa-regular fa-circle" aria-hidden="true"></i></span> At least 1 number (0-9)
                 </li>
                 <li class="checklist-item" id="req-special">
-                  <span class="icon">○</span> At least 1 symbol (!@#$%)
+                  <span class="icon"><i class="fa-regular fa-circle" aria-hidden="true"></i></span> At least 1 symbol (!@#$%)
                 </li>
               </ul>
             </div>
@@ -275,13 +272,10 @@ require_once __DIR__ . '/includes/header.php';
               <span>Confirm Password <span class="required">*</span></span>
             </label>
             <div class="input-container">
-              <span class="input-icon-left">🛡</span>
+              <span class="input-icon-left"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
               <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="Re-enter password" autocomplete="new-password" required>
               <button type="button" class="password-toggle-btn" data-target="confirm_password" aria-label="Toggle password visibility">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
+                <i class="fa-solid fa-eye" aria-hidden="true"></i>
               </button>
             </div>
             <div class="validation-hint hint-neutral">Re-type your password to confirm</div>
@@ -304,7 +298,7 @@ require_once __DIR__ . '/includes/header.php';
           <button type="submit" class="btn-primary" id="registerSubmitBtn">
             <span class="spinner"></span>
             <span class="btn-text">Create MarketLink Account</span>
-            <span style="font-size: 1.1rem;">→</span>
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
           </button>
 
         </form>

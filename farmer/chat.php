@@ -8,6 +8,7 @@
 $pageTitle = 'Order Messages & Inquiries';
 $activePage = 'chat';
 require_once __DIR__ . '/includes/farmer_header.php';
+require_once __DIR__ . '/../config/pusher.php';
 
 $initialOrderId = (int)($_GET['order_id'] ?? 0);
 ?>
@@ -78,6 +79,7 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
         </div>
 
         <div style="display:flex; align-items:center; gap:0.65rem;">
+          <button type="button" id="btnRefreshChat" class="farmer-btn-secondary" style="font-size:0.75rem; padding:0.4rem 0.75rem;">Refresh</button>
           <span class="farmer-status-pill" id="threadStatusBadge">Placed</span>
           <a href="#" id="threadOrderLink" class="farmer-btn-secondary" style="font-size:0.75rem; padding:0.4rem 0.75rem; text-decoration:none;">
             View Order Slip
@@ -540,10 +542,13 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
 }
 </style>
 
+<script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
 <script>
 let currentOrderId = <?= $initialOrderId ?>;
 let conversationsData = [];
-let pollInterval = null;
+const pusherConfig = <?= json_encode(getPusherClientConfig(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+let pusher = null;
+let activeChannel = null;
 
 const convListContainer = document.getElementById('convListContainer');
 const convSearchInput = document.getElementById('convSearchInput');
@@ -578,7 +583,7 @@ async function loadConversations() {
       conversationsData = data.conversations;
       renderConversationsList();
 
-      if (currentOrderId > 0) {
+      if (currentOrderId > 0 && !chatActiveThread.dataset.loaded) {
         selectOrderChat(currentOrderId);
       }
     }
@@ -657,13 +662,18 @@ async function selectOrderChat(orderId) {
 
   await loadMessages(orderId);
 
-  // Clear previous polling and start fresh
-  if (pollInterval) clearInterval(pollInterval);
-  pollInterval = setInterval(() => {
-    if (currentOrderId === orderId) {
-      loadMessages(orderId, true);
-    }
-  }, 3500);
+  chatActiveThread.dataset.loaded = 'true';
+  subscribeToOrderChannel(orderId);
+}
+
+function subscribeToOrderChannel(orderId) {
+  if (!pusher) return;
+  if (activeChannel) pusher.unsubscribe(activeChannel.name);
+  activeChannel = pusher.subscribe(`private-order-${orderId}`);
+  activeChannel.bind('new-message', (event) => {
+    if (Number(event.order_id) === Number(currentOrderId)) loadMessages(currentOrderId, true);
+    loadConversations();
+  });
 }
 
 // 3. Load Messages for Order
@@ -847,6 +857,17 @@ if (btnBackMobile) {
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+const btnRefreshChat = document.getElementById('btnRefreshChat');
+if (btnRefreshChat) btnRefreshChat.addEventListener('click', async () => {
+  if (currentOrderId) await loadMessages(currentOrderId, true);
+  await loadConversations();
+});
+
+if (pusherConfig.enabled && window.Pusher) {
+  pusher = new Pusher(pusherConfig.key, { cluster: pusherConfig.cluster,
+    authEndpoint: '<?= BASE_URL ?>/api/chat_service.php?action=pusher_auth' });
 }
 
 // Initialize on page load

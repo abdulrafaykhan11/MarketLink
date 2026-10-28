@@ -81,7 +81,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
 <div class="customer-welcome-banner">
   <div class="banner-content">
     <div class="banner-badge">
-      <span>🌿</span> Farm-Fresh Just A Click Away
+      <span><i class="fa-solid fa-leaf" aria-hidden="true"></i></span> Farm-Fresh Just A Click Away
     </div>
     <h1 class="banner-title">Welcome back, <?= htmlspecialchars($displayName) ?>!</h1>
     <p class="banner-desc">
@@ -89,17 +89,17 @@ $upcomingMarkets = $marketsStmt->fetchAll();
     </p>
     <div class="banner-actions">
       <a href="<?= BASE_URL ?>/customer/products.php" class="banner-btn-primary">
-        <span>🥬</span> Browse Fresh Harvest
+        <span><i class="fa-solid fa-carrot" aria-hidden="true"></i></span> Browse Fresh Harvest
       </a>
       <a href="<?= BASE_URL ?>/customer/markets.php" class="banner-btn-secondary">
-        <span>📍</span> View Market Map
+        <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span> View Market Map
       </a>
       <a href="<?= BASE_URL ?>/customer/orders.php" class="banner-btn-secondary">
-        <span>📦</span> Track Pre-Orders
+        <span><i class="fa-solid fa-box" aria-hidden="true"></i></span> Track Pre-Orders
       </a>
     </div>
   </div>
-  <div class="banner-art">🚜</div>
+  <div class="banner-art"><i class="fa-solid fa-tractor" aria-hidden="true"></i></div>
 </div>
 
 <!-- 4 Key Stats Metrics -->
@@ -107,7 +107,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
   <!-- Active Orders -->
   <div class="stat-card">
     <div class="stat-icon-wrapper stat-icon-green">
-      📦
+      <i class="fa-solid fa-box" aria-hidden="true"></i>
     </div>
     <div>
       <div class="stat-label">Active Pre-Orders</div>
@@ -119,7 +119,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
   <!-- Next Pickup -->
   <div class="stat-card">
     <div class="stat-icon-wrapper stat-icon-blue">
-      🗓️
+      <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
     </div>
     <div>
       <div class="stat-label">Next Scheduled Pickup</div>
@@ -135,7 +135,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
   <!-- Saved Favorites -->
   <div class="stat-card">
     <div class="stat-icon-wrapper stat-icon-amber">
-      ❤️
+      <i class="fa-solid fa-heart" aria-hidden="true"></i>
     </div>
     <div>
       <div class="stat-label">Saved Favorites</div>
@@ -147,7 +147,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
   <!-- Cart Items -->
   <div class="stat-card">
     <div class="stat-icon-wrapper stat-icon-purple">
-      🛒
+      <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
     </div>
     <div>
       <div class="stat-label">Pre-Order Basket</div>
@@ -164,7 +164,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
   <div class="portal-card">
     <div class="portal-card-header">
       <h3 class="portal-card-title">
-        <span>🌱</span> Current Order Pipeline
+        <span><i class="fa-solid fa-seedling" aria-hidden="true"></i></span> Current Order Pipeline
       </h3>
       <?php if ($latestOrder): ?>
         <a href="<?= BASE_URL ?>/customer/orders.php" class="portal-card-link">View All Orders (<?= $totalOrdersCount ?>) ➔</a>
@@ -196,17 +196,17 @@ $upcomingMarkets = $marketsStmt->fetchAll();
       <!-- Visual 4-Step Stepper -->
       <div class="order-stepper">
         <div class="order-step <?= ($currIndex >= 0) ? ($currIndex > 0 ? 'completed' : 'active') : '' ?>">
-          <div class="order-step-bubble"><?= ($currIndex > 0) ? '✔' : '1' ?></div>
+          <div class="order-step-bubble"><?= ($currIndex > 0) ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : '1' ?></div>
           <span class="order-step-title">Order Placed</span>
         </div>
 
         <div class="order-step <?= ($currIndex >= 1) ? ($currIndex > 1 ? 'completed' : 'active') : '' ?>">
-          <div class="order-step-bubble"><?= ($currIndex > 1) ? '✔' : '2' ?></div>
+          <div class="order-step-bubble"><?= ($currIndex > 1) ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : '2' ?></div>
           <span class="order-step-title">Farmer Accepted</span>
         </div>
 
         <div class="order-step <?= ($currIndex >= 2) ? ($currIndex > 2 ? 'completed' : 'active') : '' ?>">
-          <div class="order-step-bubble"><?= ($currIndex > 2) ? '✔' : '3' ?></div>
+          <div class="order-step-bubble"><?= ($currIndex > 2) ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : '3' ?></div>
           <span class="order-step-title">Ready For Pickup</span>
         </div>
 
@@ -251,7 +251,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
 
     <?php else: ?>
       <div style="text-align:center; padding:2.5rem 1rem;">
-        <div style="font-size:3rem; margin-bottom:1rem;">🧺</div>
+        <div style="font-size:3rem; margin-bottom:1rem;"><i class="fa-solid fa-basket-shopping" aria-hidden="true"></i></div>
         <h4 style="font-size:1.15rem; font-weight:700; color:var(--text-primary); margin-bottom:0.5rem;">No Pre-Orders Placed Yet</h4>
         <p style="color:var(--text-muted); font-size:0.875rem; max-width:400px; margin:0 auto 1.5rem;">
           Explore freshly listed organic vegetables, orchard fruits, raw honey, and farm dairy directly from local stalls.
@@ -267,7 +267,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
   <div class="portal-card">
     <div class="portal-card-header">
       <h3 class="portal-card-title">
-        <span>📍</span> Farmers Markets
+        <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span> Farmers Markets
       </h3>
       <a href="<?= BASE_URL ?>/customer/markets.php" class="portal-card-link">Interactive Map ➔</a>
     </div>
@@ -279,11 +279,11 @@ $upcomingMarkets = $marketsStmt->fetchAll();
             <?= htmlspecialchars($m['market_name']) ?>
           </div>
           <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">
-            📍 <?= htmlspecialchars($m['address']) ?>
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= htmlspecialchars($m['address']) ?>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span style="font-size:0.72rem; color:var(--emerald-400); font-weight:700; background:rgba(16,185,129,0.1); padding:0.2rem 0.5rem; border-radius:var(--radius-sm);">
-              🕒 <?= htmlspecialchars($m['operating_days']) ?>
+              <i class="fa-solid fa-clock" aria-hidden="true"></i> <?= htmlspecialchars($m['operating_days']) ?>
             </span>
             <a href="<?= BASE_URL ?>/customer/products.php?market_id=<?= $m['market_id'] ?>" style="font-size:0.75rem; color:var(--sky-400); font-weight:700; text-decoration:none;">
               View Stalls ➔
@@ -301,7 +301,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
   <div class="page-header-row" style="margin-bottom:1.25rem;">
     <div>
       <h2 class="page-heading" style="font-size:1.4rem;">
-        <span>🥬</span> Fresh Harvest Arrivals
+        <span><i class="fa-solid fa-carrot" aria-hidden="true"></i></span> Fresh Harvest Arrivals
       </h2>
       <p class="page-subheading">Picked fresh this week and available for direct pickup reservation</p>
     </div>
@@ -319,7 +319,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
           <button type="button" class="product-fav-btn js-fav-toggle <?= $prod['is_fav'] ? 'is-favorite' : '' ?>" 
                   data-type="product" data-id="<?= $prod['product_id'] ?>" title="Save to Favorites" aria-label="Save to Favorites"
                   onclick="event.stopPropagation();">
-            <?= $prod['is_fav'] ? '❤️' : '🤍' ?>
+            <i class="<?= $prod['is_fav'] ? 'fa-solid' : 'fa-regular' ?> fa-heart" aria-hidden="true"></i>
           </button>
 
           <span class="product-stock-tag">
@@ -335,7 +335,7 @@ $upcomingMarkets = $marketsStmt->fetchAll();
             </a>
           </h4>
           <div class="product-farmer-meta">
-            <span>🏡</span> 
+            <span><i class="fa-solid fa-store" aria-hidden="true"></i></span>
             <a href="<?= BASE_URL ?>/customer/product_detail.php?id=<?= $prod['product_id'] ?>" style="color:inherit; text-decoration:none;">
               <span><?= htmlspecialchars($prod['stall_name']) ?></span>
             </a>

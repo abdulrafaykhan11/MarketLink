@@ -899,13 +899,13 @@ button.btn-sd-ghost:hover {
                alt="<?= htmlspecialchars($stall['contact_person']) ?>"
                onerror="this.onerror=null; this.src='<?= BASE_URL ?>/assets/images/logo.svg';">
         <?php else: ?>
-          🌾
+          <i class="fa-solid fa-wheat-awn" aria-hidden="true"></i>
         <?php endif; ?>
       </div>
 
       <!-- Meta -->
       <div class="sd-hero-meta">
-        <span class="sd-verified">✓ Certified Producer</span>
+        <span class="sd-verified"><i class="fa-solid fa-check" aria-hidden="true"></i> Certified Producer</span>
         <h1 class="sd-title"><?= htmlspecialchars($stall['stall_name']) ?></h1>
         <p class="sd-subtitle">
           Run by <strong><?= htmlspecialchars($stall['contact_person']) ?></strong>
@@ -919,18 +919,18 @@ button.btn-sd-ghost:hover {
         <div class="sd-hero-stats">
           <?php if ($totalReviews > 0): ?>
             <div class="sd-stat">
-              <span class="star">★</span>
+              <span class="star"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
               <strong><?= number_format($avgRating, 1) ?></strong>
               <span>(<?= $totalReviews ?> reviews)</span>
             </div>
             <span class="dot"></span>
           <?php endif; ?>
           <?php if (count($products) > 0): ?>
-            <div class="sd-stat">🌿 <strong><?= count($products) ?></strong> <span>Products</span></div>
+            <div class="sd-stat"><i class="fa-solid fa-leaf" aria-hidden="true"></i> <strong><?= count($products) ?></strong> <span>Products</span></div>
             <span class="dot"></span>
           <?php endif; ?>
           <?php if (!empty($stall['order_cutoff_time'])): ?>
-            <div class="sd-stat">⏱ Cutoff: <strong><?= date('g:i A', strtotime($stall['order_cutoff_time'])) ?></strong></div>
+            <div class="sd-stat"><i class="fa-solid fa-stopwatch" aria-hidden="true"></i> Cutoff: <strong><?= date('g:i A', strtotime($stall['order_cutoff_time'])) ?></strong></div>
           <?php endif; ?>
         </div>
       </div>
@@ -939,11 +939,11 @@ button.btn-sd-ghost:hover {
       <div class="sd-hero-cta">
         <?php if (isLoggedIn() && $_SESSION['role'] === 'customer'): ?>
           <a href="<?= BASE_URL ?>/customer/products.php?farmer=<?= $farmer_id ?>" class="btn-sd-reserve">
-            🛒 Browse & Reserve
+            <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> Browse & Reserve
           </a>
         <?php else: ?>
           <a href="<?= BASE_URL ?>/login.php" class="btn-sd-reserve">
-            🌾 Reserve a Slot →
+            <i class="fa-solid fa-wheat-awn" aria-hidden="true"></i> Reserve a Slot <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
           </a>
         <?php endif; ?>
       </div>
@@ -962,19 +962,19 @@ button.btn-sd-ghost:hover {
 
     <!-- ① MAP ─────────────────────────────────────────────────────────────── -->
     <div class="sd-panel">
-      <h2 class="sd-panel-title"><span class="title-icon">📍</span> Stall Location</h2>
+      <h2 class="sd-panel-title"><span class="title-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span> Stall Location</h2>
       <div id="sd-map"></div>
 
       <div class="sd-map-info">
         <?php if (!empty($stall['address'])): ?>
           <div class="sd-map-item">
-            <span class="sd-map-icon">🏡</span>
+            <span class="sd-map-icon"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
             <div>
               <div class="sd-map-label">Farm Address</div>
               <div class="sd-map-val"><?= htmlspecialchars($stall['address']) ?></div>
               <a href="https://www.google.com/maps/search/?api=1&query=<?= urlencode($stall['address']) ?>"
                  target="_blank" rel="noopener" class="sd-gmaps-link">
-                Open in Maps ↗
+                Open in Maps <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
               </a>
             </div>
           </div>
@@ -982,7 +982,7 @@ button.btn-sd-ghost:hover {
 
         <?php if ($marketInfo): ?>
           <div class="sd-map-item">
-            <span class="sd-map-icon">🏪</span>
+            <span class="sd-map-icon"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
             <div>
               <div class="sd-map-label">Market Stall</div>
               <div class="sd-map-val"><?= htmlspecialchars($marketInfo['market_name']) ?></div>
@@ -994,7 +994,7 @@ button.btn-sd-ghost:hover {
 
           <?php if (!empty($marketInfo['operating_days'])): ?>
             <div class="sd-map-item">
-              <span class="sd-map-icon">📅</span>
+              <span class="sd-map-icon"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i></span>
               <div>
                 <div class="sd-map-label">Market Days</div>
                 <div class="sd-map-val"><?= htmlspecialchars($marketInfo['operating_days']) ?></div>
@@ -1010,19 +1010,19 @@ button.btn-sd-ghost:hover {
 
     <!-- ② PRODUCTS ─────────────────────────────────────────────────────────── -->
     <div class="sd-panel">
-      <h2 class="sd-panel-title"><span class="title-icon">🌿</span> Products at This Stall</h2>
+      <h2 class="sd-panel-title"><span class="title-icon"><i class="fa-solid fa-leaf" aria-hidden="true"></i></span> Products at This Stall</h2>
 
       <?php if (!empty($products)): ?>
         <div class="sd-products-grid">
           <?php foreach ($products as $p):
             $cat = strtolower($p['category_name'] ?? '');
-            $emoji = str_contains($cat,'vegetable') ? '🥦'
-                   : (str_contains($cat,'fruit')    ? '🍎'
-                   : (str_contains($cat,'dairy')    ? '🥛'
-                   : (str_contains($cat,'honey')    ? '🍯'
-                   : (str_contains($cat,'herb')     ? '🌿'
-                   : (str_contains($cat,'grain')    ? '🌾'
-                   : (str_contains($cat,'egg')      ? '🥚' : '🥕'))))));
+            $icon = str_contains($cat,'vegetable') ? '<i class="fa-solid fa-carrot" aria-hidden="true"></i>'
+                  : (str_contains($cat,'fruit')    ? '<i class="fa-solid fa-apple-whole" aria-hidden="true"></i>'
+                  : (str_contains($cat,'dairy')    ? '<i class="fa-solid fa-glass-water" aria-hidden="true"></i>'
+                  : (str_contains($cat,'honey')    ? '<i class="fa-solid fa-jar" aria-hidden="true"></i>'
+                  : (str_contains($cat,'herb')     ? '<i class="fa-solid fa-leaf" aria-hidden="true"></i>'
+                  : (str_contains($cat,'grain')    ? '<i class="fa-solid fa-wheat-awn" aria-hidden="true"></i>'
+                  : (str_contains($cat,'egg')      ? '<i class="fa-solid fa-egg" aria-hidden="true"></i>' : '<i class="fa-solid fa-carrot" aria-hidden="true"></i>'))))));
 
             // Build image path — products stored in uploads/products/
             $imgSrc = '';
@@ -1043,9 +1043,10 @@ button.btn-sd-ghost:hover {
                 <?php if ($imgSrc): ?>
                   <img src="<?= htmlspecialchars($imgSrc) ?>"
                        alt="<?= htmlspecialchars($p['product_name']) ?>"
-                       onerror="this.parentElement.innerHTML='<span style=\'font-size:3rem\'><?= $emoji ?></span>'">
+                       onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                  <span style="display:none; font-size:3rem;"><?= $icon ?></span>
                 <?php else: ?>
-                  <?= $emoji ?>
+                  <?= $icon ?>
                 <?php endif; ?>
                 <span class="sd-prod-cat"><?= htmlspecialchars($p['category_name'] ?? 'Produce') ?></span>
               </div>
@@ -1063,7 +1064,7 @@ button.btn-sd-ghost:hover {
                 <?php endif; ?>
                 <?php if ($p['available_days'] > 0): ?>
                   <div class="sd-prod-avail">
-                    ✓ <?= (int)$p['available_days'] ?> day<?= $p['available_days'] > 1 ? 's' : '' ?>/week
+                    <i class="fa-solid fa-check" aria-hidden="true"></i> <?= (int)$p['available_days'] ?> day<?= $p['available_days'] > 1 ? 's' : '' ?>/week
                   </div>
                 <?php endif; ?>
               </div>
@@ -1072,7 +1073,7 @@ button.btn-sd-ghost:hover {
         </div>
       <?php else: ?>
         <div class="sd-empty-state">
-          <div class="sd-empty-icon">🌱</div>
+          <div class="sd-empty-icon"><i class="fa-solid fa-seedling" aria-hidden="true"></i></div>
           <p class="sd-empty-text">Products haven't been listed yet. Check back soon!</p>
         </div>
       <?php endif; ?>
@@ -1080,7 +1081,7 @@ button.btn-sd-ghost:hover {
 
     <!-- ③ REVIEWS ──────────────────────────────────────────────────────────── -->
     <div class="sd-panel">
-      <h2 class="sd-panel-title"><span class="title-icon">⭐</span> Community Reviews</h2>
+      <h2 class="sd-panel-title"><span class="title-icon"><i class="fa-solid fa-star" aria-hidden="true"></i></span> Community Reviews</h2>
 
       <?php if ($totalReviews > 0): ?>
         <div class="sd-rating-summary">
@@ -1089,7 +1090,7 @@ button.btn-sd-ghost:hover {
             <div class="sd-score-num"><?= number_format($avgRating, 1) ?></div>
             <div class="sd-score-stars">
               <?php for ($s = 1; $s <= 5; $s++): ?>
-                <span class="s" style="color:<?= $s <= round($avgRating) ? '#fbbf24' : 'rgba(255,255,255,.18)' ?>">★</span>
+                <span class="s" style="color:<?= $s <= round($avgRating) ? '#fbbf24' : 'rgba(255,255,255,.18)' ?>"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
               <?php endfor; ?>
             </div>
             <div class="sd-score-total"><?= $totalReviews ?> verified reviews</div>
@@ -1117,9 +1118,9 @@ button.btn-sd-ghost:hover {
                 <div class="sd-rev-avatar">
                   <?php if (!empty($rev['customer_avatar'])): ?>
                     <img src="<?= BASE_URL ?>/uploads/profiles/<?= htmlspecialchars($rev['customer_avatar']) ?>"
-                         alt="" onerror="this.parentElement.innerText='👤'">
+                         alt="" onerror="this.parentElement.innerHTML='<i class=&quot;fa-solid fa-user&quot; aria-hidden=&quot;true&quot;></i>'">
                   <?php else: ?>
-                    👤
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
                   <?php endif; ?>
                 </div>
                 <div>
@@ -1129,7 +1130,7 @@ button.btn-sd-ghost:hover {
               </div>
               <div class="sd-rev-stars">
                 <?php for ($s = 1; $s <= 5; $s++): ?>
-                  <span class="s" style="color:<?= $s <= $rev['rating'] ? '#fbbf24' : 'rgba(255,255,255,.18)' ?>">★</span>
+                  <span class="s" style="color:<?= $s <= $rev['rating'] ? '#fbbf24' : 'rgba(255,255,255,.18)' ?>"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
                 <?php endfor; ?>
               </div>
               <?php if (!empty($rev['review_comment'])): ?>
@@ -1137,7 +1138,7 @@ button.btn-sd-ghost:hover {
               <?php endif; ?>
               <?php if (!empty($rev['farmer_response'])): ?>
                 <div class="sd-rev-reply">
-                  <strong>🌾 Farmer replied:</strong>
+                  <strong><i class="fa-solid fa-wheat-awn" aria-hidden="true"></i> Farmer replied:</strong>
                   <?= htmlspecialchars($rev['farmer_response']) ?>
                 </div>
               <?php endif; ?>
@@ -1147,7 +1148,7 @@ button.btn-sd-ghost:hover {
 
       <?php else: ?>
         <div class="sd-empty-state">
-          <div class="sd-empty-icon">💬</div>
+          <div class="sd-empty-icon"><i class="fa-solid fa-comments" aria-hidden="true"></i></div>
           <p class="sd-empty-text">No verified reviews yet. Be the first to reserve and share your experience!</p>
         </div>
       <?php endif; ?>
@@ -1160,7 +1161,7 @@ button.btn-sd-ghost:hover {
 
     <!-- Reserve CTA -->
     <div class="sd-sb-card sd-reserve-card">
-      <div class="sd-sb-title">🌾 Reserve From This Stall</div>
+      <div class="sd-sb-title"><i class="fa-solid fa-wheat-awn" aria-hidden="true"></i> Reserve From This Stall</div>
       <?php if ($minPriceVal > 0): ?>
         <p class="sd-price-hint">
           Products starting from<br>
@@ -1170,19 +1171,19 @@ button.btn-sd-ghost:hover {
 
       <?php if (isLoggedIn() && $_SESSION['role'] === 'customer'): ?>
         <a href="<?= BASE_URL ?>/customer/products.php?farmer=<?= $farmer_id ?>" class="btn-sd-main">
-          🛒 Browse &amp; Add to Cart
+          <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> Browse &amp; Add to Cart
         </a>
       <?php elseif (isLoggedIn()): ?>
         <a href="<?= BASE_URL ?>/<?= htmlspecialchars($_SESSION['role']) ?>/dashboard.php" class="btn-sd-main">
-          ➔ Go to Dashboard
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Go to Dashboard
         </a>
       <?php else: ?>
-        <a href="<?= BASE_URL ?>/login.php?redirect=<?= urlencode('/MarketLink/stall.php?id=' . $farmer_id) ?>"
+        <a href="<?= BASE_URL ?>/login.php?redirect=<?= urlencode('/stall.php?id=' . $farmer_id) ?>"
            class="btn-sd-main">
-          🔑 Sign In to Reserve
+          <i class="fa-solid fa-key" aria-hidden="true"></i> Sign In to Reserve
         </a>
         <a href="<?= BASE_URL ?>/register.php" class="btn-sd-ghost">
-          ✨ Create Free Account
+          <i class="fa-solid fa-sparkles" aria-hidden="true"></i> Create Free Account
         </a>
       <?php endif; ?>
       <p class="sd-reserve-note">Free cancellation up to 2 hours before cutoff</p>
@@ -1190,7 +1191,7 @@ button.btn-sd-ghost:hover {
 
     <!-- Pickup Slots -->
     <div class="sd-sb-card">
-      <div class="sd-sb-title">⏰ Upcoming Pickup Slots</div>
+      <div class="sd-sb-title"><i class="fa-solid fa-clock" aria-hidden="true"></i> Upcoming Pickup Slots</div>
       <?php if (!empty($pickupSlots)): ?>
         <?php foreach ($pickupSlots as $slot):
           $rem = (int)$slot['remaining'];
@@ -1217,7 +1218,7 @@ button.btn-sd-ghost:hover {
 
     <!-- About the Farmer -->
     <div class="sd-sb-card">
-      <div class="sd-sb-title">👨‍🌾 About the Farmer</div>
+      <div class="sd-sb-title"><i class="fa-solid fa-user-tie" aria-hidden="true"></i> About the Farmer</div>
       <?php if (!empty($stall['description'])): ?>
         <p style="font-size:.875rem;color:var(--text-secondary);line-height:1.65;margin-bottom:1.15rem;">
           <?= nl2br(htmlspecialchars($stall['description'])) ?>
@@ -1226,7 +1227,7 @@ button.btn-sd-ghost:hover {
       <ul class="sd-detail-list">
         <?php if (!empty($stall['username'])): ?>
           <li>
-            <span class="sd-dl-icon">@</span>
+            <span class="sd-dl-icon"><i class="fa-solid fa-at" aria-hidden="true"></i></span>
             <div>
               <div class="sd-dl-label">Username</div>
               <div class="sd-dl-val">@<?= htmlspecialchars($stall['username']) ?></div>
@@ -1235,7 +1236,7 @@ button.btn-sd-ghost:hover {
         <?php endif; ?>
         <?php if (!empty($stall['business_phone'])): ?>
           <li>
-            <span class="sd-dl-icon">📞</span>
+            <span class="sd-dl-icon"><i class="fa-solid fa-phone" aria-hidden="true"></i></span>
             <div>
               <div class="sd-dl-label">Contact Phone</div>
               <div class="sd-dl-val"><?= htmlspecialchars($stall['business_phone']) ?></div>
@@ -1244,7 +1245,7 @@ button.btn-sd-ghost:hover {
         <?php endif; ?>
         <?php if (!empty($stall['business_email'])): ?>
           <li>
-            <span class="sd-dl-icon">✉️</span>
+            <span class="sd-dl-icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></span>
             <div>
               <div class="sd-dl-label">Email</div>
               <div class="sd-dl-val"><?= htmlspecialchars($stall['business_email']) ?></div>
@@ -1253,7 +1254,7 @@ button.btn-sd-ghost:hover {
         <?php endif; ?>
         <?php if (!empty($stall['order_cutoff_time'])): ?>
           <li>
-            <span class="sd-dl-icon">⏰</span>
+            <span class="sd-dl-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
             <div>
               <div class="sd-dl-label">Order Cutoff</div>
               <div class="sd-dl-val"><?= date('g:i A', strtotime($stall['order_cutoff_time'])) ?></div>
@@ -1262,7 +1263,7 @@ button.btn-sd-ghost:hover {
         <?php endif; ?>
         <?php if (!empty($stall['member_since'])): ?>
           <li>
-            <span class="sd-dl-icon">📅</span>
+            <span class="sd-dl-icon"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i></span>
             <div>
               <div class="sd-dl-label">Member Since</div>
               <div class="sd-dl-val"><?= date('F Y', strtotime($stall['member_since'])) ?></div>
@@ -1318,7 +1319,7 @@ button.btn-sd-ghost:hover {
       'box-shadow:0 6px 20px rgba(22,163,74,.55),0 0 0 6px rgba(34,197,94,.2);',
       'display:flex;align-items:center;justify-content:center;',
     '">',
-      '<span style="transform:rotate(45deg);font-size:20px;line-height:1;">🌾</span>',
+      '<span style="transform:rotate(45deg);font-size:20px;line-height:1;"><i class="fa-solid fa-wheat-awn" aria-hidden="true"></i></span>',
     '</div>'
   ].join('');
 
@@ -1336,7 +1337,7 @@ button.btn-sd-ghost:hover {
       '<div style="font-size:.8125rem;color:inherit;opacity:.85;margin-bottom:8px;">' + (ADDR || 'Local Farmers Market') + '</div>',
       '<a href="' + GMAPS + '" target="_blank" rel="noopener"',
         ' style="font-size:.8rem;color:#0284c7;text-decoration:underline;font-weight:700;">',
-        'Open in Google Maps ↗',
+        'Open in Google Maps <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>',
       '</a>',
     '</div>'
   ].join('');

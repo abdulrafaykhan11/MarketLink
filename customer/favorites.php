@@ -47,7 +47,7 @@ $favFarmers = $favFarmStmt->fetchAll();
 <div class="page-header-row">
   <div>
     <h1 class="page-heading">
-      <span>❤️</span> Saved Favorites
+      <span><i class="fa-solid fa-heart" aria-hidden="true"></i></span> Saved Favorites
     </h1>
     <p class="page-subheading">
       Quick access to your preferred local farmers and bookmarked organic harvest
@@ -58,10 +58,10 @@ $favFarmers = $favFarmStmt->fetchAll();
 <!-- Tabs Navigation -->
 <div class="filter-pills-row" style="margin-bottom:2rem;">
   <a href="<?= BASE_URL ?>/customer/favorites.php?tab=products" class="filter-pill <?= ($currentTab === 'products') ? 'active' : '' ?>">
-    🥬 Favorite Produce (<?= count($favProducts) ?>)
+    <i class="fa-solid fa-carrot" aria-hidden="true"></i> Favorite Produce (<?= count($favProducts) ?>)
   </a>
   <a href="<?= BASE_URL ?>/customer/favorites.php?tab=farmers" class="filter-pill <?= ($currentTab === 'farmers') ? 'active' : '' ?>">
-    🏡 Favorite Farmers (<?= count($favFarmers) ?>)
+    <i class="fa-solid fa-store" aria-hidden="true"></i> Favorite Farmers (<?= count($favFarmers) ?>)
   </a>
 </div>
 
@@ -76,7 +76,7 @@ $favFarmers = $favFarmStmt->fetchAll();
             
             <button type="button" class="product-fav-btn js-fav-toggle is-favorite" 
                     data-type="product" data-id="<?= $prod['product_id'] ?>" title="Remove from favorites" aria-label="Remove favorite">
-              ❤️
+              <i class="fa-solid fa-heart" aria-hidden="true"></i>
             </button>
 
             <span class="product-stock-tag">
@@ -88,7 +88,7 @@ $favFarmers = $favFarmStmt->fetchAll();
             <div class="product-category-label"><?= htmlspecialchars($prod['category_name']) ?></div>
             <h4 class="product-card-title"><?= htmlspecialchars($prod['product_name']) ?></h4>
             <div class="product-farmer-meta">
-              <span>🏡</span> <span><?= htmlspecialchars($prod['stall_name']) ?></span>
+              <span><i class="fa-solid fa-store" aria-hidden="true"></i></span> <span><?= htmlspecialchars($prod['stall_name']) ?></span>
             </div>
 
             <div class="product-card-price-row">
@@ -106,7 +106,7 @@ $favFarmers = $favFarmStmt->fetchAll();
     </div>
   <?php else: ?>
     <div class="portal-card" style="text-align:center; padding:4rem 1.5rem;">
-      <div style="font-size:3.5rem; margin-bottom:1rem;">❤️</div>
+      <div style="font-size:3.5rem; margin-bottom:1rem;"><i class="fa-solid fa-heart" aria-hidden="true"></i></div>
       <h3 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;">No Favorite Produce Saved</h3>
       <p style="color:var(--text-muted); font-size:0.95rem; max-width:460px; margin:0 auto 1.5rem;">
         Click the heart icon on any fresh fruit, vegetable, or farm bakery item to bookmark it for quick weekly pre-ordering.
@@ -130,13 +130,13 @@ $favFarmers = $favFarmStmt->fetchAll();
                 <?= htmlspecialchars($farmer['stall_name']) ?>
               </h3>
               <div style="font-size:0.8rem; color:var(--text-muted);">
-                Farmer: <?= htmlspecialchars($farmer['contact_person']) ?> • 📞 <?= htmlspecialchars($farmer['business_phone']) ?>
+                Farmer: <?= htmlspecialchars($farmer['contact_person']) ?> • <i class="fa-solid fa-phone" aria-hidden="true"></i> <?= htmlspecialchars($farmer['business_phone']) ?>
               </div>
             </div>
             
             <button type="button" class="product-fav-btn js-fav-toggle is-favorite" 
                     data-type="farmer" data-id="<?= $farmer['farmer_id'] ?>" style="position:static;" title="Remove from favorites">
-              ❤️
+              <i class="fa-solid fa-heart" aria-hidden="true"></i>
             </button>
           </div>
 
@@ -147,19 +147,19 @@ $favFarmers = $favFarmStmt->fetchAll();
           <div style="background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.8rem;">
             <div><strong>Market:</strong> <?= htmlspecialchars($farmer['market_name'] ?? 'Local Farmers Market') ?></div>
             <div style="margin-top:0.25rem; color:var(--emerald-400); font-weight:600;">
-              🗓️ <?= htmlspecialchars($farmer['operating_days'] ?? 'Weekends') ?> (<?= htmlspecialchars($farmer['operating_hours'] ?? 'Morning') ?>)
+              <i class="fa-solid fa-calendar-days" aria-hidden="true"></i> <?= htmlspecialchars($farmer['operating_days'] ?? 'Weekends') ?> (<?= htmlspecialchars($farmer['operating_hours'] ?? 'Morning') ?>)
             </div>
           </div>
 
           <a href="<?= BASE_URL ?>/customer/products.php?market_id=<?= $farmer['market_id'] ?? 0 ?>" class="btn-primary" style="text-align:center; text-decoration:none; padding:0.6rem; font-size:0.85rem;">
-            <span>🥬</span> View Stall Products
+            <span><i class="fa-solid fa-carrot" aria-hidden="true"></i></span> View Stall Products
           </a>
         </div>
       <?php endforeach; ?>
     </div>
   <?php else: ?>
     <div class="portal-card" style="text-align:center; padding:4rem 1.5rem;">
-      <div style="font-size:3.5rem; margin-bottom:1rem;">🏡</div>
+      <div style="font-size:3.5rem; margin-bottom:1rem;"><i class="fa-solid fa-store" aria-hidden="true"></i></div>
       <h3 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;">No Favorite Farmers Saved</h3>
       <p style="color:var(--text-muted); font-size:0.95rem; max-width:460px; margin:0 auto 1.5rem;">
         Bookmark local family growers to receive direct restock alerts and quick access to their weekly stall listings.

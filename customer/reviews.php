@@ -58,7 +58,7 @@ if ($selectedOrderId > 0) {
 <div class="page-header-row">
   <div>
     <h1 class="page-heading">
-      <span>⭐</span> Reviews & Ratings
+      <span><i class="fa-solid fa-star" aria-hidden="true"></i></span> Reviews & Ratings
     </h1>
     <p class="page-subheading">
       Rate your fresh produce, share feedback with local growers, and read farmer responses
@@ -144,7 +144,7 @@ if ($selectedOrderId > 0) {
       <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
         <a href="<?= BASE_URL ?>/customer/reviews.php" class="btn-secondary" style="text-decoration:none; padding:0.6rem 1.25rem;">Cancel</a>
         <button type="submit" id="btnSubmitReview" class="btn-primary" style="padding:0.6rem 1.75rem; cursor:pointer;">
-          <span>⭐</span> Submit Feedback
+          <span><i class="fa-solid fa-star" aria-hidden="true"></i></span> Submit Feedback
         </button>
       </div>
     </form>
@@ -155,7 +155,7 @@ if ($selectedOrderId > 0) {
 <div class="portal-card" style="margin-bottom:2rem;">
   <div class="portal-card-header">
     <h3 class="portal-card-title">
-      <span>📦</span> Orders Awaiting Feedback
+      <span><i class="fa-solid fa-box" aria-hidden="true"></i></span> Orders Awaiting Feedback
     </h3>
     <span style="font-size:0.8rem; color:var(--text-muted);">Completed pre-orders</span>
   </div>
@@ -178,7 +178,7 @@ if ($selectedOrderId > 0) {
           </div>
 
           <a href="<?= BASE_URL ?>/customer/reviews.php?order_id=<?= $ord['order_id'] ?>" class="btn-primary" style="text-decoration:none; padding:0.45rem 1rem; font-size:0.8rem; display:inline-flex; align-items:center; gap:0.35rem;">
-            <span>⭐</span> Write Review
+            <span><i class="fa-solid fa-star" aria-hidden="true"></i></span> Write Review
           </a>
         </div>
       <?php endforeach; ?>
@@ -194,7 +194,7 @@ if ($selectedOrderId > 0) {
 <div class="portal-card">
   <div class="portal-card-header">
     <h3 class="portal-card-title">
-      <span>💬</span> My Submitted Reviews & Farmer Responses (<?= count($myReviews) ?>)
+      <span><i class="fa-solid fa-comments" aria-hidden="true"></i></span> My Submitted Reviews & Farmer Responses (<?= count($myReviews) ?>)
     </h3>
   </div>
 
@@ -227,7 +227,7 @@ if ($selectedOrderId > 0) {
           <?php if (!empty($rev['farmer_response'])): ?>
             <div style="background:rgba(16,185,129,0.1); border-left:3.5px solid var(--emerald-500); border-radius:var(--radius-md); padding:0.85rem 1rem; margin-top:0.75rem;">
               <div style="font-size:0.75rem; font-weight:700; color:var(--emerald-400); margin-bottom:0.25rem; display:flex; justify-content:space-between;">
-                <span>💬 Grower Reply from <?= htmlspecialchars($rev['stall_name']) ?></span>
+                <span><i class="fa-solid fa-comment" aria-hidden="true"></i> Grower Reply from <?= htmlspecialchars($rev['stall_name']) ?></span>
                 <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">
                   <?= !empty($rev['response_date']) ? date('M d, Y', strtotime($rev['response_date'])) : '' ?>
                 </span>

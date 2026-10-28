@@ -103,7 +103,7 @@ try {
 
         echo json_encode([
             'status' => 'success',
-            'message' => 'All items added to your pre-order basket! 🛒',
+            'message' => 'All items added to your pre-order basket!',
             'redirect_url' => BASE_URL . '/customer/cart.php'
         ]);
         exit;
