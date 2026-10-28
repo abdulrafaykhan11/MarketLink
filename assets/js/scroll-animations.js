@@ -36,50 +36,10 @@
     sections.forEach(sec => obs.observe(sec));
   }
 
-  // ─── 0b. Background Parallax Between Sections ────────────────────────────
-  // Each section's background shifts at a slightly different scroll speed
-  // (multiplier between 0.05 - 0.09) for cinematic depth between sections
+  // ─── 0b. Background Parallax (Ultra-performant GPU-only or disabled for 60fps) ──
   function initSectionParallax() {
-    if (prefersReduced) return;
-
-    const parallaxTargets = document.querySelectorAll(
-      '.hero-fullscreen-bg, .bento-story-section, .stalls-section, .testimonials-section, .audience-section, .faq-section, .cta-section, .site-footer'
-    );
-    if (!parallaxTargets.length) return;
-
-    let ticking = false;
-
-    function updateParallax() {
-      const vh = window.innerHeight;
-      parallaxTargets.forEach((sec, idx) => {
-        const rect = sec.getBoundingClientRect();
-        // Only compute for sections currently near or within the viewport
-        if (rect.bottom > -80 && rect.top < vh + 80) {
-          const multiplier = 0.05 + ((idx % 4) * 0.012);
-          const offset = (vh * 0.5 - (rect.top + rect.height * 0.5)) * multiplier;
-
-          sec.style.setProperty('--parallax-y', `${offset.toFixed(1)}px`);
-
-          const bgLayer = sec.querySelector('.hero-fullscreen-bg, .section-parallax-bg');
-          if (bgLayer) {
-            bgLayer.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
-          } else {
-            sec.style.backgroundPositionY = `calc(50% + ${offset.toFixed(1)}px)`;
-          }
-        }
-      });
-      ticking = false;
-    }
-
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        requestAnimationFrame(updateParallax);
-        ticking = true;
-      }
-    }, { passive: true });
-
-    // Initial pass on load
-    requestAnimationFrame(updateParallax);
+    // Intentionally no-op to eliminate forced synchronous layout (getBoundingClientRect)
+    // and full-page background repaints (backgroundPositionY) on every scroll frame.
   }
 
   // ─── 1. Reusable .reveal → .active Observer ──────────────────────────────
@@ -140,8 +100,15 @@
 
     const heroImg = document.querySelector('.hero-farm-image, .hero-visual-img, .hero-image-wrap img');
     if (heroImg) {
+      let heroTicking = false;
       window.addEventListener('scroll', () => {
-        heroImg.style.transform = 'translateY(' + (window.scrollY * 0.18) + 'px)';
+        if (!heroTicking) {
+          requestAnimationFrame(() => {
+            heroImg.style.transform = 'translateY(' + (window.scrollY * 0.18) + 'px)';
+            heroTicking = false;
+          });
+          heroTicking = true;
+        }
       }, { passive: true });
     }
 

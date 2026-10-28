@@ -837,27 +837,27 @@ a:hover {
 .bento-card.section-reveal,
 .section-reveal.section-reveal-standalone {
   opacity: 0;
-  transform: scale(0.94) translateY(40px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-              clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform, clip-path;
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .bento-card.section-reveal.in-view,
 .section-reveal.section-reveal-standalone.in-view {
   opacity: 1;
-  transform: scale(1) translateY(0);
+  transform: translateY(0);
 }
 
-/* 3. Subtle clip-path reveal on key sections (Hero, Stats, CTA):
-      Animate from clip-path: inset(8% 0 0 0) to clip-path: inset(0 0 0 0) */
+/* 3. High-performance GPU-composited entrance on key sections (Hero, Stats, CTA) */
 .section-reveal.clip-reveal > .section-container,
 .section-reveal.clip-reveal > .footer-container,
 .section-reveal.clip-reveal > .hero-mobile-panel,
 .section-reveal.clip-reveal .section-reveal-container,
 .section-reveal.clip-reveal.section-reveal-unit,
 .bento-card.section-reveal.clip-reveal {
-  clip-path: inset(8% 0 0 0);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .section-reveal.clip-reveal.in-view > .section-container,
@@ -866,17 +866,18 @@ a:hover {
 .section-reveal.clip-reveal.in-view .section-reveal-container,
 .section-reveal.clip-reveal.section-reveal-unit.in-view,
 .bento-card.section-reveal.clip-reveal.in-view {
-  clip-path: inset(0 0 0 0);
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* 5. Subtle background parallax between sections */
+/* 5. Smooth ambient backgrounds without scroll thrashing */
 .hero-fullscreen-bg {
-  will-change: transform;
+  transform: translateZ(0);
 }
 .bento-story-section::before,
 .testimonials-section::before {
-  transform: translate3d(-50%, var(--parallax-y, 0px), 0) !important;
-  will-change: transform;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 /* 6. Coordinated element-level stagger delays after section entrance */

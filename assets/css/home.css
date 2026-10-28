@@ -1039,8 +1039,9 @@
 
 .contrast-card-wrapper {
   background: var(--bg-card);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  contain: layout style;
   border: 1.5px solid var(--border-color);
   border-radius: var(--radius-xl);
   overflow: hidden;
@@ -1420,8 +1421,9 @@
 /* â”€â”€ Universal Bento Card Styling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-card {
   background: rgba(8, 28, 22, 0.78);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  contain: layout style;
   border: 1.5px solid rgba(74, 222, 128, 0.22);
   border-radius: 24px;
   padding: 2.25rem 2rem;
@@ -2007,7 +2009,7 @@
 
 /* â”€â”€ PANEL 4: Efficiency Gap Graph Panel (5 cols) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-efficiency-card {
-  grid-column: span 5;
+  grid-column: span 4;
   background:
     radial-gradient(ellipse at 85% 85%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
     rgba(8, 28, 22, 0.85);
@@ -2153,7 +2155,7 @@
 
 /* â”€â”€ PANEL 5: Live Soil Telemetry & Clusters (3 cols) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-telemetry-card {
-  grid-column: span 3;
+  grid-column: span 4;
   background:
     radial-gradient(ellipse at 50% 15%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
     rgba(8, 28, 22, 0.85);
@@ -3413,8 +3415,10 @@
 .bento-journey-card    { grid-column: span 7; }
 .bento-broken-card     { grid-column: span 5; }
 .bento-metric-card     { grid-column: span 4; }
-.bento-efficiency-card { grid-column: span 5; }
-.bento-telemetry-card  { grid-column: span 3; }
+.bento-efficiency-card {
+  grid-column: span 4; }
+.bento-telemetry-card {
+  grid-column: span 4; }
 
 /* -- Panel Accent Backgrounds ---------------------------------------------- */
 .bento-journey-card {
@@ -5595,4 +5599,131 @@
 [data-theme="light"] .cta-section .btn-secondary,
 [data-theme="light"] .cta-section .btn-secondary:hover {
   color: #ffffff !important;
+}
+
+/* ==========================================================================
+   ENHANCED FONT AWESOME ICON STYLES & ZERO-LAG SCROLL PERFORMANCE
+   ========================================================================== */
+
+/* Bento Step Icons */
+.bento-step-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step-icon-sun .bento-step-icon { color: #34d399; text-shadow: 0 0 12px rgba(52, 211, 153, 0.4); }
+.step-icon-cart .bento-step-icon { color: #38bdf8; text-shadow: 0 0 12px rgba(56, 189, 248, 0.4); }
+.step-icon-hand .bento-step-icon { color: #fbbf24; text-shadow: 0 0 12px rgba(251, 191, 36, 0.4); }
+
+.bento-pill i, .bento-pill-mini i {
+  margin-right: 4px;
+}
+
+/* Broken Chain Reason Icons */
+.broken-reason-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+/* Biological Telemetry Sensor Icons */
+.floating-chip-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.sensor-icon-soil {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: #34d399;
+}
+.sensor-icon-clock {
+  background: rgba(14, 165, 233, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+.sensor-icon-lab {
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(192, 132, 252, 0.35);
+  color: #c084fc;
+}
+.sensor-icon-coin {
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+}
+
+/* Soil Badge Centerpiece Icon */
+.soil-badge-icon {
+  font-size: 1.5rem;
+  color: #34d399;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Floating Produce Icons */
+.hovering-icon-cluster .hover-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #4ade80;
+  font-size: 0.95rem;
+}
+
+/* Marquee Ribbon Font Awesome Icons */
+.mrq-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+  font-size: 0.95rem;
+  color: #34d399;
+  vertical-align: middle;
+}
+.mrq-highlight .mrq-icon { color: #facc15; }
+.mrq-highlight-cyan .mrq-icon { color: #38bdf8; }
+.mrq-highlight-gold .mrq-icon { color: #fbbf24; }
+
+/* Testimonials Quote Icon */
+.testimonial-quote-icon {
+  font-size: 2rem !important;
+  line-height: 1 !important;
+  color: rgba(74, 222, 128, 0.28) !important;
+  margin-bottom: 0.85rem !important;
+  font-style: normal !important;
+}
+.testimonial-quote-icon i {
+  display: block;
+}
+
+/* Ultra Smooth Scrolling Hardware Acceleration */
+.bento-card,
+.testimonial-card,
+.stall-bento-card {
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }

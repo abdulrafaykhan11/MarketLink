@@ -21,12 +21,16 @@ $pdo = getDBConnection();
 $stallsQuery = "SELECT fp.farmer_id, fp.stall_name as name, fp.contact_person as farmer,
                        COALESCE(m.market_name, 'Local Farmers Market') as location,
                        fp.order_cutoff_time,
-                       u.profile_image
+                       u.profile_image,
+                       COALESCE(AVG(fr.rating), 0) as avg_rating,
+                       COUNT(fr.review_id) as total_reviews
                 FROM farmer_profiles fp 
                 JOIN users u ON fp.farmer_id = u.user_id 
                 LEFT JOIN farmer_market_stalls fms ON fp.farmer_id = fms.farmer_id AND fms.status = 'active'
                 LEFT JOIN markets m ON fms.market_id = m.market_id
+                LEFT JOIN farmer_reviews fr ON fp.farmer_id = fr.farmer_id AND fr.is_moderated = 1
                 WHERE fp.approval_status = 'approved'
+                GROUP BY fp.farmer_id, fp.stall_name, fp.contact_person, m.market_name, fp.order_cutoff_time, u.profile_image
                 ORDER BY fp.farmer_id DESC
                 LIMIT 6";
 $dbStalls = [];
@@ -112,7 +116,9 @@ if (!empty($dbStalls)) {
             'farmer' => $dStall['farmer'] ?: 'Verified Producer',
             'profile_image' => $dStall['profile_image'] ?? '',
             'location' => $dStall['location'] ?: 'Physical Market Hub',
-            'rating' => '4.95 ★ (Verified)',
+            'rating' => ((int)($dStall['total_reviews'] ?? 0) > 0 
+                ? number_format((float)($dStall['avg_rating'] ?? 5.0), 1) . ' ★ (' . (int)$dStall['total_reviews'] . ((int)$dStall['total_reviews'] === 1 ? ' review' : ' reviews') . ')'
+                : '5.0 ★ (New Stall)'),
             'tags' => $tags,
             'cutoff' => !empty($dStall['order_cutoff_time']) ? date('h:i A', strtotime($dStall['order_cutoff_time'])) : '06:00 PM',
             'slots' => 'Pickup Slots Available'
@@ -280,7 +286,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <div class="bento-card-header">
           <div class="bento-tag bento-tag-green electric-badge">
-            <span class="bento-tag-icon">⚡</span>
+            <span class="bento-tag-icon"><i class="fa-solid fa-bolt" aria-hidden="true"></i></span>
             <span>Transparent Process</span>
           </div>
           <span class="bento-meta-badge electric-meta-badge">
@@ -302,7 +308,7 @@ require_once __DIR__ . '/includes/header.php';
           <!-- Step 1 -->
           <div class="bento-step-item step-electric step-electric-emerald" style="--step-accent:#34d399; --step-rgb:52,211,153;">
             <div class="bento-step-icon-wrap step-icon-sun">
-              <span class="bento-step-icon">☀️🌱</span>
+              <span class="bento-step-icon"><i class="fa-solid fa-sun" aria-hidden="true"></i></span>
               <span class="bento-step-num">01</span>
               <div class="step-icon-ring"></div>
             </div>
@@ -317,8 +323,8 @@ require_once __DIR__ . '/includes/header.php';
                 Certified local farmers pick crops at first morning light when moisture, crispness, and bio-nutrients are at their biological zenith. Quantities immediately sync live on MarketLink.
               </p>
               <div class="bento-step-footer">
-                <span class="bento-pill pill-emerald">🌿 Harvested &lt; 24h Before Sale</span>
-                <span class="bento-pill-mini">✓ 100% Zero Storage Nitrogen</span>
+                <span class="bento-pill pill-emerald"><i class="fa-solid fa-leaf" aria-hidden="true"></i> Harvested &lt; 24h Before Sale</span>
+                <span class="bento-pill-mini"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> 100% Zero Storage Nitrogen</span>
               </div>
             </div>
           </div>
@@ -331,7 +337,7 @@ require_once __DIR__ . '/includes/header.php';
           <!-- Step 2 -->
           <div class="bento-step-item step-electric step-electric-cyan" style="--step-accent:#38bdf8; --step-rgb:56,189,248;">
             <div class="bento-step-icon-wrap step-icon-cart">
-              <span class="bento-step-icon">🛒</span>
+              <span class="bento-step-icon"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></span>
               <span class="bento-step-slot">#SLOT-04</span>
               <span class="bento-step-num">02</span>
               <div class="step-icon-ring"></div>
@@ -347,8 +353,8 @@ require_once __DIR__ . '/includes/header.php';
                 Explore live stalls from your phone. Reserve your customized seasonal produce basket and lock in a designated morning pickup window at your local community market.
               </p>
               <div class="bento-step-footer">
-                <span class="bento-pill pill-cyan">⏱ Zero Wait Lines • 0% Food Waste</span>
-                <span class="bento-pill-mini">🔒 Guaranteed Allocation</span>
+                <span class="bento-pill pill-cyan"><i class="fa-solid fa-stopwatch" aria-hidden="true"></i> Zero Wait Lines • 0% Food Waste</span>
+                <span class="bento-pill-mini"><i class="fa-solid fa-lock" aria-hidden="true"></i> Guaranteed Allocation</span>
               </div>
             </div>
           </div>
@@ -361,7 +367,7 @@ require_once __DIR__ . '/includes/header.php';
           <!-- Step 3 -->
           <div class="bento-step-item step-electric step-electric-gold" style="--step-accent:#fbbf24; --step-rgb:251,191,36;">
             <div class="bento-step-icon-wrap step-icon-hand">
-              <span class="bento-step-icon">🤝</span>
+              <span class="bento-step-icon"><i class="fa-solid fa-handshake" aria-hidden="true"></i></span>
               <span class="bento-step-slot">STALL-07</span>
               <span class="bento-step-num">03</span>
               <div class="step-icon-ring"></div>
@@ -377,8 +383,8 @@ require_once __DIR__ . '/includes/header.php';
                 Arrive at your chosen slot. Greet the farmer who nurtured your crops, inspect your crisp pre-packed crate, and support true agricultural independence.
               </p>
               <div class="bento-step-footer">
-                <span class="bento-pill pill-gold">💰 100% Direct Support to Farmers</span>
-                <span class="bento-pill-mini">🌱 Zero Middlemen Fee</span>
+                <span class="bento-pill pill-gold"><i class="fa-solid fa-hand-holding-dollar" aria-hidden="true"></i> 100% Direct Support to Farmers</span>
+                <span class="bento-pill-mini"><i class="fa-solid fa-seedling" aria-hidden="true"></i> Zero Middlemen Fee</span>
               </div>
             </div>
           </div>
@@ -392,7 +398,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="bento-card bento-broken-card">
         <div class="bento-card-header">
           <div class="bento-tag bento-tag-red">
-            <span class="bento-tag-icon">⚠️</span>
+            <span class="bento-tag-icon"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
             <span>The Broken Chain</span>
           </div>
           <span class="bento-meta-badge badge-warning">Industrial Reality</span>
@@ -410,7 +416,7 @@ require_once __DIR__ . '/includes/header.php';
           
           <!-- Reason 1 -->
           <div class="broken-reason-item">
-            <div class="broken-reason-icon">❄️</div>
+            <div class="broken-reason-icon"><i class="fa-solid fa-snowflake" aria-hidden="true"></i></div>
             <div class="broken-reason-body">
               <h5 class="broken-reason-title">Compromised Freshness</h5>
               <p class="broken-reason-desc">
@@ -421,7 +427,7 @@ require_once __DIR__ . '/includes/header.php';
 
           <!-- Reason 2 -->
           <div class="broken-reason-item">
-            <div class="broken-reason-icon">📉</div>
+            <div class="broken-reason-icon"><i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i></div>
             <div class="broken-reason-body">
               <h5 class="broken-reason-title">Excessive Middlemen</h5>
               <p class="broken-reason-desc">
@@ -432,7 +438,7 @@ require_once __DIR__ . '/includes/header.php';
 
           <!-- Reason 3 -->
           <div class="broken-reason-item">
-            <div class="broken-reason-icon">🏷️</div>
+            <div class="broken-reason-icon"><i class="fa-solid fa-barcode" aria-hidden="true"></i></div>
             <div class="broken-reason-body">
               <h5 class="broken-reason-title">Vague Traceability</h5>
               <p class="broken-reason-desc">
@@ -443,7 +449,7 @@ require_once __DIR__ . '/includes/header.php';
 
           <!-- Reason 4 -->
           <div class="broken-reason-item">
-            <div class="broken-reason-icon">🚛</div>
+            <div class="broken-reason-icon"><i class="fa-solid fa-truck-ramp-box" aria-hidden="true"></i></div>
             <div class="broken-reason-body">
               <h5 class="broken-reason-title">Hidden Carbon Footprint</h5>
               <p class="broken-reason-desc">
@@ -461,7 +467,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="bento-card bento-metric-card">
         <div class="bento-card-header">
           <div class="bento-tag bento-tag-cyan">
-            <span class="bento-tag-icon">⚡</span>
+            <span class="bento-tag-icon"><i class="fa-solid fa-bolt" aria-hidden="true"></i></span>
             <span>Biological Telemetry</span>
           </div>
           <span class="bento-live-chip">Live Index</span>
@@ -490,7 +496,7 @@ require_once __DIR__ . '/includes/header.php';
           </div>
 
           <div class="antigravity-soil-badge">
-            <div class="soil-badge-icon">☀️🌱</div>
+            <div class="soil-badge-icon"><i class="fa-solid fa-seedling" aria-hidden="true"></i></div>
             <div class="soil-badge-title">Grown in Soil &amp; Sunlight</div>
             <div class="soil-badge-desc">
               Zero cold-storage nitrogen chillers. Zero ethylene shelf-life spray. True photosynthesis harvest.
@@ -499,9 +505,9 @@ require_once __DIR__ . '/includes/header.php';
 
           <!-- Hovering icon cluster -->
           <div class="hovering-icon-cluster">
-            <span class="hover-icon h-1">🥦</span>
-            <span class="hover-icon h-2">🍅</span>
-            <span class="hover-icon h-3">🍓</span>
+            <span class="hover-icon h-1"><i class="fa-solid fa-wheat-awn" aria-hidden="true"></i></span>
+            <span class="hover-icon h-2"><i class="fa-solid fa-apple-whole" aria-hidden="true"></i></span>
+            <span class="hover-icon h-3"><i class="fa-solid fa-carrot" aria-hidden="true"></i></span>
           </div>
 
         </div>
@@ -513,7 +519,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="bento-card bento-efficiency-card section-reveal clip-reveal">
         <div class="bento-card-header">
           <div class="bento-tag bento-tag-gold">
-            <span class="bento-tag-icon">📊</span>
+            <span class="bento-tag-icon"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i></span>
             <span>Efficiency Gap</span>
           </div>
           <span class="bento-meta-badge">Direct vs Supermarket</span>
@@ -615,7 +621,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <div class="bento-card-header">
           <div class="bento-tag bento-tag-cyan bio-sensor-badge">
-            <span class="bento-tag-icon">🧪</span>
+            <span class="bento-tag-icon"><i class="fa-solid fa-flask-vial" aria-hidden="true"></i></span>
             <span>Biological Telemetry</span>
           </div>
           <span class="telemetry-live-radar">
@@ -633,7 +639,7 @@ require_once __DIR__ . '/includes/header.php';
           <!-- Sensor 1: Living Soil pH -->
           <div class="floating-chip float-item-1 bio-sensor-card sensor-loam">
             <div class="bio-sensor-left">
-              <div class="floating-chip-icon sensor-icon-soil">🌱</div>
+              <div class="floating-chip-icon sensor-icon-soil"><i class="fa-solid fa-seedling" aria-hidden="true"></i></div>
             </div>
             <div class="bio-sensor-body">
               <div class="floating-chip-title">Living Soil Metric</div>
@@ -648,7 +654,7 @@ require_once __DIR__ . '/includes/header.php';
           <!-- Sensor 2: Harvest Freshness Clock -->
           <div class="floating-chip float-item-2 bio-sensor-card sensor-freshness">
             <div class="bio-sensor-left">
-              <div class="floating-chip-icon sensor-icon-clock">⏱️</div>
+              <div class="floating-chip-icon sensor-icon-clock"><i class="fa-solid fa-clock" aria-hidden="true"></i></div>
             </div>
             <div class="bio-sensor-body">
               <div class="floating-chip-title">Harvest Age</div>
@@ -663,7 +669,7 @@ require_once __DIR__ . '/includes/header.php';
           <!-- Sensor 3: Chemical Residue Laboratory Certificate -->
           <div class="floating-chip float-item-3 bio-sensor-card sensor-pure">
             <div class="bio-sensor-left">
-              <div class="floating-chip-icon sensor-icon-lab">🛡️</div>
+              <div class="floating-chip-icon sensor-icon-lab"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
             </div>
             <div class="bio-sensor-body">
               <div class="floating-chip-title">Chemical Residue</div>
@@ -678,7 +684,7 @@ require_once __DIR__ . '/includes/header.php';
           <!-- Sensor 4: Direct Payout Ledger -->
           <div class="floating-chip float-item-4 bio-sensor-card sensor-payout">
             <div class="bio-sensor-left">
-              <div class="floating-chip-icon sensor-icon-coin">💰</div>
+              <div class="floating-chip-icon sensor-icon-coin"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></div>
             </div>
             <div class="bio-sensor-body">
               <div class="floating-chip-title">Grower Direct Ledger</div>
@@ -713,25 +719,25 @@ require_once __DIR__ . '/includes/header.php';
   <div class="marquee-track marquee-track-top">
     <div class="marquee-inner marquee-ltr">
       <?php for ($r = 0; $r < 3; $r++): ?>
-        <span class="mrq-item"><span class="mrq-icon">🌱</span> Dawn-Harvested Produce</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-seedling" aria-hidden="true"></i></span> Dawn-Harvested Produce</span>
         <span class="mrq-divider">✦</span>
-        <span class="mrq-item"><span class="mrq-icon">🤝</span> Zero Middlemen, 100% Direct</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-handshake" aria-hidden="true"></i></span> Zero Middlemen, 100% Direct</span>
         <span class="mrq-divider">✦</span>
-        <span class="mrq-item mrq-highlight"><span class="mrq-icon">⚡</span> 99.8% Bio-Nutrient Retention</span>
+        <span class="mrq-item mrq-highlight"><span class="mrq-icon"><i class="fa-solid fa-bolt-lightning" aria-hidden="true"></i></span> 99.8% Bio-Nutrient Retention</span>
         <span class="mrq-divider">✦</span>
-        <span class="mrq-item"><span class="mrq-icon">📍</span> Live Stall Slot Reservations</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span> Live Stall Slot Reservations</span>
         <span class="mrq-divider">✦</span>
-        <span class="mrq-item"><span class="mrq-icon">🧪</span> Zero Chemical Residue Verified</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-flask-vial" aria-hidden="true"></i></span> Zero Chemical Residue Verified</span>
         <span class="mrq-divider">✦</span>
-        <span class="mrq-item mrq-highlight-cyan"><span class="mrq-icon">💰</span> Farmers Earn 100% Direct</span>
+        <span class="mrq-item mrq-highlight-cyan"><span class="mrq-icon"><i class="fa-solid fa-hand-holding-dollar" aria-hidden="true"></i></span> Farmers Earn 100% Direct</span>
         <span class="mrq-divider">✦</span>
-        <span class="mrq-item"><span class="mrq-icon">🌾</span> Certified Local Growers Only</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-wheat-awn" aria-hidden="true"></i></span> Certified Local Growers Only</span>
         <span class="mrq-divider">✦</span>
-        <span class="mrq-item mrq-highlight-gold"><span class="mrq-icon">🏆</span> Lahore's #1 Farm-to-Fork Platform</span>
+        <span class="mrq-item mrq-highlight-gold"><span class="mrq-icon"><i class="fa-solid fa-award" aria-hidden="true"></i></span> Lahore's #1 Farm-to-Fork Platform</span>
         <span class="mrq-divider">✦</span>
-        <span class="mrq-item"><span class="mrq-icon">⏱️</span> Harvest Under 24h Before Pickup</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span> Harvest Under 24h Before Pickup</span>
         <span class="mrq-divider">✦</span>
-        <span class="mrq-item"><span class="mrq-icon">🗺️</span> Geo-Located Community Markets</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i></span> Geo-Located Community Markets</span>
         <span class="mrq-divider">✦</span>
       <?php endfor; ?>
     </div>
@@ -741,25 +747,25 @@ require_once __DIR__ . '/includes/header.php';
   <div class="marquee-track marquee-track-bottom">
     <div class="marquee-inner marquee-rtl">
       <?php for ($r = 0; $r < 3; $r++): ?>
-        <span class="mrq-item mrq-highlight-gold"><span class="mrq-icon">🥦</span> Heirloom Vegetables &amp; Heritage Grains</span>
+        <span class="mrq-item mrq-highlight-gold"><span class="mrq-icon"><i class="fa-solid fa-leaf" aria-hidden="true"></i></span> Heirloom Vegetables &amp; Heritage Grains</span>
         <span class="mrq-divider">◆</span>
-        <span class="mrq-item"><span class="mrq-icon">🍯</span> Raw Unfiltered Honey &amp; Dairy</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-jar" aria-hidden="true"></i></span> Raw Unfiltered Honey &amp; Dairy</span>
         <span class="mrq-divider">◆</span>
-        <span class="mrq-item mrq-highlight"><span class="mrq-icon">🌍</span> Reducing Carbon Footprint 28×</span>
+        <span class="mrq-item mrq-highlight"><span class="mrq-icon"><i class="fa-solid fa-earth-americas" aria-hidden="true"></i></span> Reducing Carbon Footprint 28×</span>
         <span class="mrq-divider">◆</span>
-        <span class="mrq-item"><span class="mrq-icon">📦</span> Pre-Packed Fresh Crates Weekly</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span> Pre-Packed Fresh Crates Weekly</span>
         <span class="mrq-divider">◆</span>
-        <span class="mrq-item mrq-highlight-cyan"><span class="mrq-icon">🔬</span> Soil pH &amp; Purity Authenticated</span>
+        <span class="mrq-item mrq-highlight-cyan"><span class="mrq-icon"><i class="fa-solid fa-microscope" aria-hidden="true"></i></span> Soil pH &amp; Purity Authenticated</span>
         <span class="mrq-divider">◆</span>
-        <span class="mrq-item"><span class="mrq-icon">🌤️</span> Photosynthesis-Grown — No Cold Storage</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-sun" aria-hidden="true"></i></span> Photosynthesis-Grown — No Cold Storage</span>
         <span class="mrq-divider">◆</span>
-        <span class="mrq-item"><span class="mrq-icon">💎</span> Premium Quality at Farm Price</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-gem" aria-hidden="true"></i></span> Premium Quality at Farm Price</span>
         <span class="mrq-divider">◆</span>
-        <span class="mrq-item mrq-highlight"><span class="mrq-icon">🏡</span> Support Your Local Farming Community</span>
+        <span class="mrq-item mrq-highlight"><span class="mrq-icon"><i class="fa-solid fa-house-chimney-window" aria-hidden="true"></i></span> Support Your Local Farming Community</span>
         <span class="mrq-divider">◆</span>
-        <span class="mrq-item"><span class="mrq-icon">🛒</span> Reserve Your Slot in 60 Seconds</span>
+        <span class="mrq-item"><span class="mrq-icon"><i class="fa-solid fa-basket-shopping" aria-hidden="true"></i></span> Reserve Your Slot in 60 Seconds</span>
         <span class="mrq-divider">◆</span>
-        <span class="mrq-item mrq-highlight-gold"><span class="mrq-icon">🌟</span> 4.97 ★ Avg Rating Across All Stalls</span>
+        <span class="mrq-item mrq-highlight-gold"><span class="mrq-icon"><i class="fa-solid fa-star" aria-hidden="true"></i></span> 4.97 ★ Avg Rating Across All Stalls</span>
         <span class="mrq-divider">◆</span>
       <?php endfor; ?>
     </div>
@@ -1058,9 +1064,9 @@ require_once __DIR__ . '/includes/header.php';
 
 .testimonial-card {
   position: relative;
-  background: rgba(14, 42, 34, 0.78);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: rgba(14, 42, 34, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(74, 222, 128, 0.18);
   border-radius: 22px;
   padding: 2.25rem 2rem;
@@ -1558,7 +1564,7 @@ require_once __DIR__ . '/includes/header.php';
     
     <div class="section-header testimonials-header">
       <div class="testimonials-badge-wrap">
-        <span class="section-tag-gold">★ Verified Stall Ratings</span>
+        <span class="section-tag-gold"><i class="fa-solid fa-star" aria-hidden="true"></i> Verified Stall Ratings</span>
         <span class="testimonials-live-badge"><span class="live-dot-gold"></span> Community Trust</span>
       </div>
       <h2 class="section-title">Loved by Local Foodies, Trusted by Producers</h2>
@@ -1586,17 +1592,17 @@ require_once __DIR__ . '/includes/header.php';
           
           <div class="testimonial-top">
             <div class="testimonial-stars" aria-label="<?= $rating ?> out of 5 stars">
-              <span class="stars-gold"><?= str_repeat('★', $rating) ?></span>
+              <span class="stars-gold"><?= str_repeat('<i class="fa-solid fa-star" aria-hidden="true"></i> ', $rating) ?></span>
               <span class="stars-val"><?= number_format($rating, 1) ?></span>
             </div>
             <?php if (!empty($t['is_featured'])): ?>
               <span class="testimonial-featured-tag">
-                <span class="tag-sparkle">✦</span> Top Pick
+                <span class="tag-sparkle"><i class="fa-solid fa-crown" aria-hidden="true"></i></span> Top Pick
               </span>
             <?php endif; ?>
           </div>
 
-          <div class="testimonial-quote-icon" aria-hidden="true">“</div>
+          <div class="testimonial-quote-icon" aria-hidden="true"><i class="fa-solid fa-quote-left"></i></div>
 
           <p class="testimonial-comment">
             "<?= nl2br($comment) ?>"
@@ -1605,7 +1611,7 @@ require_once __DIR__ . '/includes/header.php';
           <?php if (!empty($farmerReply)): ?>
             <div class="testimonial-reply-box">
               <div class="reply-header">
-                <span class="reply-icon">💬</span>
+                <span class="reply-icon"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i></span>
                 <strong>Stall Owner Response:</strong>
               </div>
               <p class="reply-text">"<?= $farmerReply ?>"</p>
@@ -1626,7 +1632,7 @@ require_once __DIR__ . '/includes/header.php';
               <div class="customer-details">
                 <div class="customer-name-row">
                   <span class="customer-name"><?= $custName ?></span>
-                  <span class="verified-buyer-badge" title="Verified Market Buyer">✓</span>
+                  <span class="verified-buyer-badge" title="Verified Market Buyer"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
                 </div>
                 <span class="customer-label">Verified Community Shopper</span>
               </div>
@@ -1635,10 +1641,10 @@ require_once __DIR__ . '/includes/header.php';
             <a href="<?= $stallUrl ?>" class="testimonial-stall-link" title="Visit <?= $stallName ?>">
               <span class="stall-link-label">Direct Farm Producer:</span>
               <div class="stall-link-name">
-                <span>🌾 <?= $stallName ?></span>
-                <span class="stall-link-arrow">→</span>
+                <span><i class="fa-solid fa-store" style="color: #4ade80; margin-right: 6px;" aria-hidden="true"></i><?= $stallName ?></span>
+                <span class="stall-link-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
               </div>
-              <span class="stall-link-market">📍 <?= $marketName ?></span>
+              <span class="stall-link-market"><i class="fa-solid fa-location-dot" style="margin-right: 4px;" aria-hidden="true"></i><?= $marketName ?></span>
             </a>
           </div>
 
@@ -1665,7 +1671,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="trust-stat-divider"></div>
       <div class="trust-stat-cta">
         <a href="<?= BASE_URL ?>/customer/products.php" class="btn-trust-order">
-          Experience Fresh Harvest →
+          Experience Fresh Harvest <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
         </a>
       </div>
     </div>
@@ -1689,13 +1695,13 @@ require_once __DIR__ . '/includes/header.php';
           Bring restaurant-quality ingredients into your home kitchen. From heirloom tomatoes bursting with natural juice to raw unfiltered honey straight from hive to jar.
         </p>
         <ul class="audience-features-list">
-          <li><span class="bullet">✓</span> Real-time harvest notifications every Thursday morning</li>
-          <li><span class="bullet">✓</span> Guaranteed pickup slot with pre-packed, crisp boxes</li>
-          <li><span class="bullet">✓</span> Up to 35% cheaper than organic supermarket grocers</li>
-          <li><span class="bullet">✓</span> Free cancellation up to 2 hours before cutoff</li>
+          <li><span class="bullet"><i class="fa-solid fa-check" aria-hidden="true"></i></span> Real-time harvest notifications every Thursday morning</li>
+          <li><span class="bullet"><i class="fa-solid fa-check" aria-hidden="true"></i></span> Guaranteed pickup slot with pre-packed, crisp boxes</li>
+          <li><span class="bullet"><i class="fa-solid fa-check" aria-hidden="true"></i></span> Up to 35% cheaper than organic supermarket grocers</li>
+          <li><span class="bullet"><i class="fa-solid fa-check" aria-hidden="true"></i></span> Free cancellation up to 2 hours before cutoff</li>
         </ul>
         <a href="<?= BASE_URL ?>/register.php" class="btn-primary" style="width: auto; display: inline-flex; padding: 0 2rem; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);">
-          Join as a Shopper →
+          Join as a Shopper <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
         </a>
       </div>
 
@@ -1707,13 +1713,13 @@ require_once __DIR__ . '/includes/header.php';
           Stop dumping unsold evening produce or suffering price gouging by middlemen commission agents. Take command of your agricultural enterprise with guaranteed orders.
         </p>
         <ul class="audience-features-list">
-          <li><span class="bullet">✓</span> 0% commission drain on direct stall sales</li>
-          <li><span class="bullet">✓</span> Know your exact harvest quota before dawn picking</li>
-          <li><span class="bullet">✓</span> Direct relationship with loyal local neighborhood households</li>
-          <li><span class="bullet">✓</span> Free stall management software &amp; slot planner</li>
+          <li><span class="bullet"><i class="fa-solid fa-check" aria-hidden="true"></i></span> 0% commission drain on direct stall sales</li>
+          <li><span class="bullet"><i class="fa-solid fa-check" aria-hidden="true"></i></span> Know your exact harvest quota before dawn picking</li>
+          <li><span class="bullet"><i class="fa-solid fa-check" aria-hidden="true"></i></span> Direct relationship with loyal local neighborhood households</li>
+          <li><span class="bullet"><i class="fa-solid fa-check" aria-hidden="true"></i></span> Free stall management software &amp; slot planner</li>
         </ul>
         <a href="<?= BASE_URL ?>/register.php" class="btn-primary" style="width: auto; display: inline-flex; padding: 0 2rem; background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);">
-          Register Your Stall →
+          Register Your Stall <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
         </a>
       </div>
     </div>
@@ -1737,7 +1743,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="faq-item active">
         <button type="button" class="faq-question-btn">
           <span>How does pickup slot reservation work?</span>
-          <span class="faq-toggle-icon">+</span>
+          <span class="faq-toggle-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
         </button>
         <div class="faq-answer">
           When you reserve items online, you choose an exact time window (e.g., Saturday 9:00 AM – 10:30 AM) at your nearest market stall. The farmer packs your basket prior to your arrival. When you arrive, simply show your digital pickup slip and collect your fresh goods instantly with zero waiting.
@@ -1747,7 +1753,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="faq-item">
         <button type="button" class="faq-question-btn">
           <span>When do I pay for my harvest basket?</span>
-          <span class="faq-toggle-icon">+</span>
+          <span class="faq-toggle-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
         </button>
         <div class="faq-answer">
           MarketLink allows you to verify your produce in person upon pickup. You can settle directly at the stall via cash, mobile digital wallet (Easypaisa/JazzCash), or online payment depending on the farmer's stall options.
@@ -1757,7 +1763,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="faq-item">
         <button type="button" class="faq-question-btn">
           <span>How are farmers vetted for quality?</span>
-          <span class="faq-toggle-icon">+</span>
+          <span class="faq-toggle-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
         </button>
         <div class="faq-answer">
           Every farmer account is manually reviewed by platform administration before stalls go live. We inspect farm location credentials, verify contact information, and moderate transparent community reviews from verified buyers.
@@ -1767,7 +1773,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="faq-item">
         <button type="button" class="faq-question-btn">
           <span>What if I cannot make it to my pickup slot?</span>
-          <span class="faq-toggle-icon">+</span>
+          <span class="faq-toggle-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
         </button>
         <div class="faq-answer">
           You can easily modify or cancel your order up to 2 hours before the farmer's published order cutoff time directly from your customer dashboard.
@@ -1799,7 +1805,7 @@ require_once __DIR__ . '/includes/header.php';
         </p>
         <div style="display: flex; justify-content: center; gap: 1.25rem; flex-wrap: wrap;">
           <a href="<?= BASE_URL ?>/register.php" class="btn-primary" style="width: auto; padding: 0 2.75rem; height: 54px; font-size: 1.05rem; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);">
-            Create Free Account →
+            Create Free Account <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
           </a>
           <a href="<?= BASE_URL ?>/#local-stalls" class="btn-secondary" style="height: 54px; padding: 0 2.25rem; display: inline-flex; align-items: center; font-size: 1.05rem; background: rgba(255,255,255,0.08); color: #ffffff; border-color: rgba(255,255,255,0.25);">
             Browse Active Stalls

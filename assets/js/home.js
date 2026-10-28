@@ -4,13 +4,18 @@
 
 document.addEventListener('DOMContentLoaded', function () {
   const header = document.getElementById('siteHeader');
-  window.addEventListener('scroll', function () {
-    if (window.scrollY > 30) {
-      if (header) header.classList.add('scrolled');
-    } else {
-      if (header) header.classList.remove('scrolled');
-    }
-  });
+  if (header) {
+    let headerTicking = false;
+    window.addEventListener('scroll', function () {
+      if (!headerTicking) {
+        requestAnimationFrame(() => {
+          header.classList.toggle('scrolled', window.scrollY > 30);
+          headerTicking = false;
+        });
+        headerTicking = true;
+      }
+    }, { passive: true });
+  }
 
   const mobileBtn = document.getElementById('mobileMenuBtn');
   const navMenu = document.getElementById('navMenu');
