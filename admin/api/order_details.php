@@ -48,10 +48,23 @@ try {
     $iStmt->execute([':oid' => $orderId]);
     $items = $iStmt->fetchAll();
 
+    // Fetch order messages audit trail
+    $mStmt = $pdo->prepare("SELECT om.*, 
+                                   u_sender.username as sender_name, u_sender.role as sender_role,
+                                   u_receiver.username as receiver_name, u_receiver.role as receiver_role
+                            FROM order_messages om
+                            JOIN users u_sender ON om.sender_id = u_sender.user_id
+                            JOIN users u_receiver ON om.receiver_id = u_receiver.user_id
+                            WHERE om.order_id = :oid
+                            ORDER BY om.message_id ASC");
+    $mStmt->execute([':oid' => $orderId]);
+    $messages = $mStmt->fetchAll();
+
     echo json_encode([
         'success' => true,
         'order' => $order,
-        'items' => $items
+        'items' => $items,
+        'messages' => $messages
     ]);
 } catch (Exception $e) {
     http_response_code(500);

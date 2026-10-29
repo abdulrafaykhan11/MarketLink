@@ -8,19 +8,21 @@ $pageTitle = 'Pickup Slots & Cut-Off Controls';
 $activePage = 'pickup-slots';
 require_once __DIR__ . '/includes/farmer_header.php';
 
-// 1. Fetch Farmer Stalls
-$stallsQuery = $pdo->prepare("SELECT fms.*, m.market_name, m.city, m.address as market_address 
-                              FROM farmer_market_stalls fms 
-                              JOIN markets m ON fms.market_id = m.market_id 
-                              WHERE fms.farmer_id = :fid
-                              ORDER BY fms.status ASC, fms.assigned_at DESC");
+// 1. Fetch Farmer Stalls (with geo-coords for map)
+$stallsQuery = $pdo->prepare("SELECT fms.*, m.market_name, m.city, m.address as market_address,
+                              m.operating_days, m.operating_hours, m.latitude, m.longitude
+                               FROM farmer_market_stalls fms
+                               JOIN markets m ON fms.market_id = m.market_id
+                               WHERE fms.farmer_id = :fid
+                               ORDER BY fms.status ASC, fms.assigned_at DESC");
 $stallsQuery->execute([':fid' => $farmerId]);
 $stalls = $stallsQuery->fetchAll();
+
 
 $stallIds = array_column($stalls, 'stall_id');
 
 // Fetch all active markets to allow joining multiple markets
-$allMarkets = $pdo->query("SELECT market_id, market_name, city, address, operating_days 
+$allMarkets = $pdo->query("SELECT market_id, market_name, city, address, operating_days, latitude, longitude
                            FROM markets 
                            WHERE status = 'active' 
                            ORDER BY market_name ASC")->fetchAll();
@@ -135,6 +137,118 @@ $totalBooked = array_sum(array_column($slots, 'booked_count'));
       </div>
     </div>
   </div>
+
+  <!-- My Markets Geo Map -->
+<?php if (!empty($stalls)): ?>
+  <div class="farmer-card" style="margin-bottom:2rem;">
+    <div class="farmer-card-header">
+      <div class="farmer-card-title-group">
+        <h3 class="farmer-card-title">
+          <i data-lucide="map" style="width:20px;height:20px;color:var(--sky-400);"></i>
+          <span>My Market Locations</span>
+        </h3>
+        <span class="farmer-card-subtitle">Your registered stall locations on the map — click a pin to see market details</span>
+      </div>
+    </div>
+    <div id="farmerStallsMap" style="height:320px;width:100%;border-radius:0 0 var(--radius-xl) var(--radius-xl);overflow:hidden;"></div>
+  </div>
+
+  <script type="application/json" id="farmerStallsMapData">
+  <?= json_encode(array_values(array_unique(array_map(function($s) {
+      return [
+          'market_id'      => $s['market_id'],
+          'market_name'    => $s['market_name'],
+          'address'        => $s['market_address'] ?? $s['address'] ?? '',
+          'city'           => $s['city'] ?? '',
+          'operating_days' => $s['operating_days'] ?? '',
+          'operating_hours'=> $s['operating_hours'] ?? '',
+          'latitude'       => $s['latitude'],
+          'longitude'      => $s['longitude'],
+          'stall_status'   => $s['status'],
+      ];
+  }, $stalls), SORT_REGULAR))) ?>
+  </script>
+
+  <script>
+  (function() {
+    function initFarmerStallsMap() {
+      const el = document.getElementById('farmerStallsMap');
+      if (!el || typeof L === 'undefined') return;
+
+      const raw = document.getElementById('farmerStallsMapData');
+      if (!raw) return;
+      let locations;
+      try { locations = JSON.parse(raw.textContent); } catch(e) { return; }
+
+      const map = L.map('farmerStallsMap').setView([30.3753, 69.3451], 6);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      const bounds = [];
+      const seen = {};
+      locations.forEach(function(loc) {
+        const lat = parseFloat(loc.latitude);
+        const lng = parseFloat(loc.longitude);
+        if (isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0)) return;
+        const key = loc.market_id;
+        if (seen[key]) return;
+        seen[key] = true;
+
+        bounds.push([lat, lng]);
+
+        const isActive = loc.stall_status === 'active';
+        const pinColor  = isActive ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#6b7280,#4b5563)';
+        const borderCol = isActive ? '#10b981' : '#6b7280';
+        const bgCol     = isActive ? 'rgba(6,95,70,0.92)' : 'rgba(30,41,59,0.92)';
+
+        const labelName = loc.market_name.length > 22
+          ? loc.market_name.substring(0, 20) + '..'
+          : loc.market_name;
+
+        const icon = L.divIcon({
+          className: '',
+          html: '<div style="display:flex;flex-direction:column;align-items:center;">'
+              + '<div style="width:20px;height:20px;background:' + pinColor + ';border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 3px 10px rgba(0,0,0,0.4);"></div>'
+              + '<div style="margin-top:4px;background:' + bgCol + ';border:1.5px solid ' + borderCol + ';color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4);text-align:center;">'
+              +   labelName
+              + '</div></div>',
+          iconSize:    [140, 50],
+          iconAnchor:  [70, 23],
+          popupAnchor: [0, -28]
+        });
+
+        const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+        marker.bindPopup(
+          '<div style="font-family:sans-serif;min-width:200px;">'
+          + '<strong style="font-size:14px;color:#065f46;">' + loc.market_name + '</strong>'
+          + '<div style="font-size:12px;color:#64748b;margin:4px 0;">' + loc.address + (loc.city ? ', ' + loc.city : '') + '</div>'
+          + '<div style="font-size:11px;color:#10b981;font-weight:700;">' + (loc.operating_days || '') + ' (' + (loc.operating_hours || '') + ')</div>'
+          + '<div style="font-size:11px;color:#6366f1;margin-top:4px;">Coords: ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '</div>'
+          + '</div>'
+        );
+      });
+
+      if (bounds.length === 1) { map.setView(bounds[0], 13); }
+      else if (bounds.length > 1) { map.fitBounds(bounds, { padding: [50, 50] }); }
+    }
+
+    // Load Leaflet if not already loaded
+    if (typeof L !== 'undefined') {
+      document.addEventListener('DOMContentLoaded', initFarmerStallsMap);
+    } else {
+      var lnk = document.createElement('link');
+      lnk.rel = 'stylesheet';
+      lnk.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(lnk);
+      var scr = document.createElement('script');
+      scr.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      scr.onload = initFarmerStallsMap;
+      document.head.appendChild(scr);
+    }
+  })();
+  </script>
+<?php endif; ?>
 
   <!-- Multi-Market Stalls Section -->
   <div class="farmer-card" style="margin-bottom: 2rem;">

@@ -240,10 +240,10 @@
         <p><i class="fa-solid fa-hand ai-welcome-icon" aria-hidden="true"></i> Hello! I am your <strong>MarketLink AI Farm Assistant</strong>, powered by Google Gemini with live access to our database.</p>
         <p>Ask me about fresh produce in stock, market locations & timings, farmer stalls, or your orders!</p>
         <div class="ai-suggestions-container" style="margin-top:0.75rem;">
-          <span class="ai-suggestion-chip" data-query="What organic vegetables and fruits are in stock?"><i class="fa-solid fa-carrot" aria-hidden="true"></i> Fresh Harvest in Stock</span>
-          <span class="ai-suggestion-chip" data-query="What markets are open this Saturday and Sunday?"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Weekend Market Timings</span>
-          <span class="ai-suggestion-chip" data-query="How does order pickup and payment work?"><i class="fa-solid fa-box-open" aria-hidden="true"></i> How Pickup Works</span>
-          <span class="ai-suggestion-chip" data-query="Tomato aur dairy products ka kya rate hai?"><i class="fa-solid fa-tags" aria-hidden="true"></i> Check Produce Rates</span>
+          <span class="ai-suggestion-chip" data-query="Tamatar aur fresh sabziyon ka kya rate hai?"><i class="fa-solid fa-carrot" aria-hidden="true"></i> Fresh Harvest Rates</span>
+          <span class="ai-suggestion-chip" data-query="Weekend markets kahan hain aur timings kya hain?"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Market Timings</span>
+          <span class="ai-suggestion-chip" data-query="How does order pickup and payment work?"><i class="fa-solid fa-box-open" aria-hidden="true"></i> Pickup & Payment</span>
+          <span class="ai-suggestion-chip" data-query="Order cancel kaise hoga?"><i class="fa-solid fa-ban" aria-hidden="true"></i> Cancellation Policy</span>
         </div>
       `;
       messagesElem.appendChild(welcome);

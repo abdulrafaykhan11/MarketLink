@@ -172,36 +172,55 @@ if (!empty($itemsByStall)) {
           <?php
             $stallMeta = $items[0];
             $stallSlots = $pickupSlotsByStall[$stallId] ?? [];
-            $defaultPickupDate = !empty($stallSlots) ? $stallSlots[0]['slot_date'] : '';
+            $slotsByDate = [];
+            foreach ($stallSlots as $ps) {
+                $slotsByDate[$ps['slot_date']][] = $ps;
+            }
+            $availableDates = array_keys($slotsByDate);
+            $defaultPickupDate = !empty($availableDates) ? $availableDates[0] : '';
           ?>
-          <div class="pickup-stall-schedule" style="margin-bottom:1.5rem; padding:1rem; border:1px solid var(--border-color); border-radius:var(--radius-md);">
-            <div style="font-size:0.85rem; font-weight:800; color:var(--text-primary); margin-bottom:1rem;">
-              <?= htmlspecialchars($stallMeta['stall_name']) ?> pickup
+          <div class="pickup-stall-schedule" style="margin-bottom:1.5rem; padding:1.25rem; border:1px solid var(--border-color); border-radius:var(--radius-lg); background:var(--bg-surface-elevated);">
+            <div style="font-size:0.95rem; font-weight:800; color:var(--text-primary); margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+              <span><i class="fa-solid fa-store" style="color:var(--emerald-500); margin-right:0.4rem;"></i> <?= htmlspecialchars($stallMeta['stall_name']) ?> Pickup</span>
+              <span style="font-size:0.75rem; font-weight:700; color:var(--emerald-400); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:0.25rem 0.65rem; border-radius:12px;">
+                <i class="fa-solid fa-calendar-check" style="margin-right:0.25rem;"></i> <?= count($availableDates) ?> Available Date<?= count($availableDates) === 1 ? '' : 's' ?>
+              </span>
             </div>
-        <!-- Date Selector -->
-        <div style="margin-bottom:1.25rem;">
-          <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.4rem;">
-            Select Pickup Date *
-          </label>
-          <input type="date" name="pickup_date[<?= (int)$stallId ?>]"
-                 min="<?= date('Y-m-d') ?>" value="<?= htmlspecialchars($defaultPickupDate) ?>"
-                 required class="topbar-search-input checkout-pickup-date" data-stall-id="<?= (int)$stallId ?>" style="border-radius:var(--radius-md);">
-        </div>
 
-        <!-- Time Slot Selector -->
-        <div style="margin-bottom:1.5rem;">
-          <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.4rem;">
-            Farmer Stall Pickup Window *
-          </label>
-          <select name="pickup_slot_id[<?= (int)$stallId ?>]" required class="topbar-search-input checkout-pickup-slot" data-stall-id="<?= (int)$stallId ?>" style="border-radius:var(--radius-md);">
-            <?php foreach ($stallSlots as $ps): ?>
-                <option value="<?= $ps['pickup_slot_id'] ?>" data-slot-date="<?= htmlspecialchars($ps['slot_date']) ?>">
-                  <?= date('D, M d', strtotime($ps['slot_date'])) ?> — <?= date('h:i A', strtotime($ps['start_time'])) ?> to <?= date('h:i A', strtotime($ps['end_time'])) ?>
-                </option>
-            <?php endforeach; ?>
-          </select>
-          <p class="pickup-slot-date-hint" style="margin:0.45rem 0 0; font-size:0.78rem; color:var(--text-muted);" role="status"></p>
-        </div>
+            <?php if (empty($availableDates)): ?>
+              <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius-md); padding:0.85rem; color:#f87171; font-size:0.85rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i> No upcoming pickup windows currently configured by this farmer. Please contact the stall.
+              </div>
+            <?php else: ?>
+              <!-- Date Selector: Only dates with available windows are rendered -->
+              <div style="margin-bottom:1.25rem;">
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.45rem;">
+                  <i class="fa-solid fa-calendar-day" style="color:var(--emerald-500); margin-right:0.3rem;"></i> Select Available Pickup Date *
+                </label>
+                <select name="pickup_date[<?= (int)$stallId ?>]" required class="topbar-search-input checkout-pickup-date" data-stall-id="<?= (int)$stallId ?>" style="border-radius:var(--radius-md); font-weight:700; cursor:pointer;">
+                  <?php foreach ($slotsByDate as $dateStr => $slotsForDate): ?>
+                    <option value="<?= htmlspecialchars($dateStr) ?>" <?= ($dateStr === $defaultPickupDate) ? 'selected' : '' ?>>
+                      <?= date('l, M d, Y', strtotime($dateStr)) ?> &bull; <?= count($slotsForDate) ?> window<?= count($slotsForDate) === 1 ? '' : 's' ?> available
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+
+              <!-- Time Slot Selector -->
+              <div style="margin-bottom:0.5rem;">
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.45rem;">
+                  <i class="fa-solid fa-clock" style="color:var(--emerald-500); margin-right:0.3rem;"></i> Farmer Stall Pickup Window (30-Min Slot) *
+                </label>
+                <select name="pickup_slot_id[<?= (int)$stallId ?>]" required class="topbar-search-input checkout-pickup-slot" data-stall-id="<?= (int)$stallId ?>" style="border-radius:var(--radius-md); font-weight:600; cursor:pointer;">
+                  <?php foreach ($stallSlots as $ps): ?>
+                    <option value="<?= $ps['pickup_slot_id'] ?>" data-slot-date="<?= htmlspecialchars($ps['slot_date']) ?>">
+                      <?= date('h:i A', strtotime($ps['start_time'])) ?> to <?= date('h:i A', strtotime($ps['end_time'])) ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <p class="pickup-slot-date-hint" style="margin:0.45rem 0 0; font-size:0.8rem; color:var(--emerald-400); font-weight:600;" role="status"></p>
+              </div>
+            <?php endif; ?>
           </div>
         <?php endforeach; ?>
 

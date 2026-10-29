@@ -1,4 +1,4 @@
-/**
+﻿/**
  * MARKETLINK - CUSTOMER PORTAL CLIENT JAVASCRIPT
  * Handles real-time cart actions, favorite toggles, order cancellations,
  * AI Chatbot interactions, star ratings, and Leaflet OpenStreetMap integration.
@@ -295,14 +295,13 @@ function initMarketMap() {
 }
 
 function renderLeafletMap(mapElem) {
-  // Center on default coordinate (e.g., Karachi / local market region)
-  const map = L.map(mapElem).setView([24.8700, 67.0400], 12);
+  // Default center: Pakistan
+  const map = L.map(mapElem).setView([30.3753, 69.3451], 6);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // Markers data embedded via JSON script tag
   const dataScript = document.getElementById('marketLocationsData');
   if (!dataScript) return;
 
@@ -317,22 +316,56 @@ function renderLeafletMap(mapElem) {
 
       bounds.push([lat, lng]);
 
-      const marker = L.marker([lat, lng]).addTo(map);
-      marker.bindPopup(`
-        <div style="font-family:sans-serif; min-width:200px;">
-          <h4 style="margin:0 0 5px 0; color:#065f46; font-size:14px; font-weight:700;">${loc.market_name}</h4>
-          <p style="margin:0 0 5px 0; font-size:12px; color:#475569;">📍 ${loc.address}</p>
-          <p style="margin:0 0 8px 0; font-size:11px; color:#059669; font-weight:600;">🕒 ${loc.operating_days} (${loc.operating_hours})</p>
-          <a href="${window.BASE_URL || ''}/customer/products.php?market_id=${loc.market_id}"
-             style="display:inline-block; background:#10b981; color:#fff; text-decoration:none; padding:4px 10px; border-radius:4px; font-size:11px; font-weight:bold;">
-            Browse Stalls & Produce ➔
-          </a>
-        </div>
-      `);
+      // Truncate long market names for the label
+      const labelName = loc.market_name.length > 22
+        ? loc.market_name.substring(0, 20) + '..'
+        : loc.market_name;
+
+      // Custom named pin: green gradient pin + market name label below
+      const icon = L.divIcon({
+        className: '',
+        html: '<div style="display:flex;flex-direction:column;align-items:center;">'
+            + '<div style="width:20px;height:20px;'
+            +   'background:linear-gradient(135deg,#10b981,#059669);'
+            +   'border:3px solid #fff;'
+            +   'border-radius:50% 50% 50% 0;'
+            +   'transform:rotate(-45deg);'
+            +   'box-shadow:0 3px 10px rgba(16,185,129,0.55);">'
+            + '</div>'
+            + '<div style="margin-top:4px;'
+            +   'background:rgba(6,95,70,0.92);'
+            +   'border:1.5px solid #10b981;'
+            +   'color:#fff;font-size:10px;font-weight:700;'
+            +   'padding:2px 7px;border-radius:5px;'
+            +   'white-space:nowrap;'
+            +   'box-shadow:0 2px 8px rgba(0,0,0,0.35);'
+            +   'text-align:center;">'
+            +   labelName
+            + '</div>'
+            + '</div>',
+        iconSize:    [140, 50],
+        iconAnchor:  [70, 23],
+        popupAnchor: [0, -28]
+      });
+
+      const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+      marker.bindPopup(
+        '<div style="font-family:sans-serif;min-width:210px;">'
+        + '<h4 style="margin:0 0 5px 0;color:#065f46;font-size:14px;font-weight:700;">' + loc.market_name + '</h4>'
+        + '<p style="margin:0 0 4px 0;font-size:12px;color:#475569;">' + loc.address + (loc.city ? ', ' + loc.city : '') + '</p>'
+        + '<p style="margin:0 0 8px 0;font-size:11px;color:#059669;font-weight:600;">' + loc.operating_days + ' (' + loc.operating_hours + ')</p>'
+        + '<a href="' + (window.BASE_URL || '') + '/customer/products.php?market_id=' + loc.market_id + '" '
+        +   'style="display:inline-block;background:#10b981;color:#fff;text-decoration:none;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:bold;">'
+        +   'Browse Stalls &amp; Produce &#8594;'
+        + '</a>'
+        + '</div>'
+      );
     });
 
-    if (bounds.length > 0) {
-      map.fitBounds(bounds, { padding: [50, 50] });
+    if (bounds.length === 1) {
+      map.setView(bounds[0], 13);
+    } else if (bounds.length > 1) {
+      map.fitBounds(bounds, { padding: [55, 55] });
     }
   } catch (err) {
     console.error('Error rendering Leaflet map markers', err);

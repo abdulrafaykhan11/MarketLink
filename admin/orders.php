@@ -151,7 +151,7 @@ $allOrdersCount = array_sum($statusCounts);
               </td>
               <td>
                 <div style="font-family:var(--font-heading); font-weight:800; font-size:1.05rem; color:var(--admin-emerald);">
-                  $<?= number_format($o['total_amount'], 2) ?>
+                  Rs. <?= number_format($o['total_amount'], 2) ?>
                 </div>
                 <div style="font-size:0.7rem; color:var(--admin-text-subtle);">Paid at pickup</div>
               </td>
@@ -182,72 +182,181 @@ $allOrdersCount = array_sum($statusCounts);
   </div>
 </div>
 
-<!-- Modal: View Order Items Details -->
+<!-- Modal: View Order Items & Messages Details -->
 <div class="admin-modal-backdrop" id="orderItemsModalBackdrop">
-  <div class="admin-modal-card">
-    <div class="admin-modal-header">
-      <h3 id="orderModalTitle">Pre-Order Details</h3>
+  <div class="admin-modal-card" style="max-width:720px; width:92%;">
+    <div class="admin-modal-header" style="border-bottom:1px solid var(--admin-border, rgba(255,255,255,0.08));">
+      <div>
+        <h3 id="orderModalTitle" style="margin:0 0 4px 0;">Pre-Order Details</h3>
+        <div id="orderModalMeta" style="font-size:0.78rem; color:var(--admin-text-subtle);"></div>
+      </div>
       <button type="button" class="admin-modal-close" onclick="closeOrderModal()">
         <i data-lucide="x"></i>
       </button>
     </div>
-    <div class="admin-modal-body" id="orderItemsContent">
-      <div style="text-align:center; padding:2rem; color:var(--admin-text-subtle);">Loading items...</div>
+
+    <!-- Modal Tabs Navigation -->
+    <div style="display:flex; gap:0.5rem; padding:0.75rem 1.5rem 0; border-bottom:1px solid var(--admin-border, rgba(255,255,255,0.08)); background:var(--admin-surface, #1e293b);">
+      <button type="button" id="tabBtnItems" class="admin-btn-tab active" onclick="switchOrderModalTab('items')" style="background:none; border:none; border-bottom:2px solid var(--admin-accent); padding:0.6rem 1rem; color:var(--admin-accent); font-weight:700; font-size:0.875rem; cursor:pointer;">
+        <span>📦 Produce Items (<span id="tabCountItems">0</span>)</span>
+      </button>
+      <button type="button" id="tabBtnMessages" class="admin-btn-tab" onclick="switchOrderModalTab('messages')" style="background:none; border:none; border-bottom:2px solid transparent; padding:0.6rem 1rem; color:var(--admin-text-subtle); font-weight:700; font-size:0.875rem; cursor:pointer;">
+        <span>💬 Order Messages (<span id="tabCountMessages">0</span>)</span>
+      </button>
     </div>
-    <div class="admin-modal-footer">
+
+    <div class="admin-modal-body" style="padding:1.25rem 1.5rem; max-height:60vh; overflow-y:auto;">
+      <!-- Tab 1: Produce Items -->
+      <div id="orderTabItemsContent">
+        <div style="text-align:center; padding:2rem; color:var(--admin-text-subtle);">Loading items...</div>
+      </div>
+
+      <!-- Tab 2: Order Messages Audit -->
+      <div id="orderTabMessagesContent" style="display:none;">
+        <div style="text-align:center; padding:2rem; color:var(--admin-text-subtle);">Loading messages...</div>
+      </div>
+    </div>
+
+    <div class="admin-modal-footer" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--admin-border, rgba(255,255,255,0.08));">
+      <div id="modalOrderSummaryFooter" style="font-weight:700; font-size:0.95rem; color:var(--admin-emerald);"></div>
       <button type="button" class="admin-btn admin-btn-secondary" onclick="closeOrderModal()">Close</button>
     </div>
   </div>
 </div>
 
 <script>
+let currentLoadedOrderData = null;
+
 async function viewOrderItems(orderId, orderNum) {
-  document.getElementById('orderModalTitle').textContent = `Order Items: ${orderNum}`;
-  document.getElementById('orderItemsContent').innerHTML = '<div style="text-align:center; padding:2rem; color:var(--admin-text-subtle);">Fetching items from database...</div>';
+  document.getElementById('orderModalTitle').textContent = `Order Details: ${orderNum}`;
+  document.getElementById('orderModalMeta').textContent = 'Loading live pre-order and conversation audit...';
+  document.getElementById('orderTabItemsContent').innerHTML = '<div style="text-align:center; padding:2rem; color:var(--admin-text-subtle);">Fetching items from database...</div>';
+  document.getElementById('orderTabMessagesContent').innerHTML = '<div style="text-align:center; padding:2rem; color:var(--admin-text-subtle);">Fetching messages...</div>';
   document.getElementById('orderItemsModalBackdrop').classList.add('open');
+  switchOrderModalTab('items');
 
   try {
     const res = await fetch(`<?= BASE_URL ?>/admin/api/order_details.php?order_id=${orderId}`);
     const data = await res.json();
-    if (data.success && data.items) {
-      let html = `
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Produce Item</th>
-              <th>Unit Price</th>
-              <th>Quantity</th>
-              <th style="text-align:right;">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-      data.items.forEach(it => {
-        html += `
-          <tr>
-            <td>
-              <div style="font-weight:700;">${it.product_name}</div>
-              <div style="font-size:0.75rem; color:var(--admin-text-subtle);">${it.unit || ''}</div>
-            </td>
-            <td>$${parseFloat(it.unit_price).toFixed(2)}</td>
-            <td><strong style="color:var(--admin-accent);">${it.quantity}</strong></td>
-            <td style="text-align:right; font-weight:700; color:var(--admin-emerald);">$${parseFloat(it.subtotal).toFixed(2)}</td>
-          </tr>
+    currentLoadedOrderData = data;
+
+    if (data.success && data.order) {
+      const ord = data.order;
+      document.getElementById('orderModalMeta').textContent = `Customer: ${ord.customer_name} (${ord.customer_phone || ord.customer_email}) • Stall: ${ord.stall_name} (${ord.market_name})`;
+      document.getElementById('tabCountItems').textContent = data.items ? data.items.length : 0;
+      document.getElementById('tabCountMessages').textContent = data.messages ? data.messages.length : 0;
+      document.getElementById('modalOrderSummaryFooter').textContent = `Grand Total: Rs. ${parseFloat(ord.total_amount).toFixed(2)} (Paid on Pickup)`;
+
+      // Render Items
+      if (data.items && data.items.length > 0) {
+        let html = `
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Produce Item</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th style="text-align:right;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
         `;
-      });
-      html += `
-          </tbody>
-        </table>
-        <div style="text-align:right; margin-top:1.25rem; font-size:1.15rem; font-weight:800; color:var(--admin-text-main);">
-          Order Grand Total: <span style="color:var(--admin-emerald);">$${parseFloat(data.order.total_amount).toFixed(2)}</span>
-        </div>
-      `;
-      document.getElementById('orderItemsContent').innerHTML = html;
+        data.items.forEach(it => {
+          html += `
+            <tr>
+              <td>
+                <div style="font-weight:700; color:var(--admin-text-main);">${it.product_name}</div>
+                <div style="font-size:0.75rem; color:var(--admin-text-subtle);">${it.unit || ''}</div>
+              </td>
+              <td>Rs. ${parseFloat(it.unit_price).toFixed(2)}</td>
+              <td><strong style="color:var(--admin-accent);">${it.quantity}</strong></td>
+              <td style="text-align:right; font-weight:700; color:var(--admin-emerald);">Rs. ${parseFloat(it.subtotal).toFixed(2)}</td>
+            </tr>
+          `;
+        });
+        html += `
+            </tbody>
+          </table>
+        `;
+        document.getElementById('orderTabItemsContent').innerHTML = html;
+      } else {
+        document.getElementById('orderTabItemsContent').innerHTML = '<div style="text-align:center; padding:2rem; color:var(--admin-text-subtle);">No items recorded.</div>';
+      }
+
+      // Render Messages Audit
+      if (data.messages && data.messages.length > 0) {
+        let msgHtml = '<div style="display:flex; flex-direction:column; gap:0.75rem; padding:0.5rem 0;">';
+        data.messages.forEach(m => {
+          const isFarmer = (m.sender_role === 'farmer');
+          const bubbleBg = isFarmer ? 'rgba(16, 185, 129, 0.14)' : 'rgba(56, 189, 248, 0.12)';
+          const bubbleBorder = isFarmer ? 'rgba(16, 185, 129, 0.3)' : 'rgba(56, 189, 248, 0.25)';
+          const senderBadge = isFarmer ? '<span style="background:#10b981; color:#fff; font-size:0.65rem; padding:1px 6px; border-radius:10px; font-weight:700; margin-left:6px;">PRODUCER</span>' : '<span style="background:#0284c7; color:#fff; font-size:0.65rem; padding:1px 6px; border-radius:10px; font-weight:700; margin-left:6px;">CUSTOMER</span>';
+
+          let attachHtml = '';
+          if (m.attachment_path) {
+            if (m.attachment_type === 'image') {
+              attachHtml = `<div style="margin-top:6px;"><img src="<?= BASE_URL ?>/${m.attachment_path}" style="max-width:240px; max-height:160px; border-radius:8px; border:1px solid rgba(255,255,255,0.15);" alt="Attachment"></div>`;
+            } else {
+              attachHtml = `<div style="margin-top:6px;"><a href="<?= BASE_URL ?>/${m.attachment_path}" target="_blank" download style="color:var(--admin-accent); font-size:0.8rem; text-decoration:none;">📄 ${m.attachment_name || 'Download Document'}</a></div>`;
+            }
+          }
+
+          msgHtml += `
+            <div style="background:${bubbleBg}; border:1px solid ${bubbleBorder}; border-radius:12px; padding:0.75rem 1rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span style="font-weight:700; font-size:0.85rem; color:var(--admin-text-main);">
+                  ${m.sender_name} ${senderBadge}
+                </span>
+                <span style="font-size:0.7rem; color:var(--admin-text-subtle);">
+                  ${m.created_at}
+                </span>
+              </div>
+              <div style="font-size:0.875rem; color:var(--admin-text-main); line-height:1.5;">
+                ${m.message_text ? m.message_text.replace(/\n/g, '<br>') : ''}
+              </div>
+              ${attachHtml}
+            </div>
+          `;
+        });
+        msgHtml += '</div>';
+        document.getElementById('orderTabMessagesContent').innerHTML = msgHtml;
+      } else {
+        document.getElementById('orderTabMessagesContent').innerHTML = `
+          <div style="text-align:center; padding:3rem 1rem; color:var(--admin-text-subtle);">
+            <div style="font-size:2.5rem; margin-bottom:0.5rem;">💬</div>
+            <h4 style="margin:0 0 4px 0; color:var(--admin-text-main);">No Order Messages Yet</h4>
+            <p style="font-size:0.85rem; margin:0;">Neither the farmer nor the customer has sent a direct message for this order.</p>
+          </div>
+        `;
+      }
     } else {
-      document.getElementById('orderItemsContent').innerHTML = '<div style="text-align:center; padding:2rem; color:var(--admin-rose);">Unable to load order line items.</div>';
+      document.getElementById('orderTabItemsContent').innerHTML = '<div style="text-align:center; padding:2rem; color:var(--admin-rose);">Unable to load order details.</div>';
     }
   } catch (err) {
-    document.getElementById('orderItemsContent').innerHTML = '<div style="text-align:center; padding:2rem; color:var(--admin-rose);">Network error loading order items.</div>';
+    document.getElementById('orderTabItemsContent').innerHTML = '<div style="text-align:center; padding:2rem; color:var(--admin-rose);">Network error loading order items.</div>';
+  }
+}
+
+function switchOrderModalTab(tab) {
+  const itemsContent = document.getElementById('orderTabItemsContent');
+  const msgsContent = document.getElementById('orderTabMessagesContent');
+  const btnItems = document.getElementById('tabBtnItems');
+  const btnMsgs = document.getElementById('tabBtnMessages');
+
+  if (tab === 'items') {
+    itemsContent.style.display = 'block';
+    msgsContent.style.display = 'none';
+    btnItems.style.borderBottomColor = 'var(--admin-accent)';
+    btnItems.style.color = 'var(--admin-accent)';
+    btnMsgs.style.borderBottomColor = 'transparent';
+    btnMsgs.style.color = 'var(--admin-text-subtle)';
+  } else {
+    itemsContent.style.display = 'none';
+    msgsContent.style.display = 'block';
+    btnMsgs.style.borderBottomColor = 'var(--admin-accent)';
+    btnMsgs.style.color = 'var(--admin-accent)';
+    btnItems.style.borderBottomColor = 'transparent';
+    btnItems.style.color = 'var(--admin-text-subtle)';
   }
 }
 

@@ -23,7 +23,7 @@
         <h4 id="chatbotHeading">MarketLink Farm AI</h4>
         <div class="ai-status-badge">
           <span class="ai-status-dot"></span>
-          <span>Gemini 3.8 Flash • Live Database</span>
+          <span>Gemini Flash • Live Database RAG</span>
         </div>
       </div>
     </div>
