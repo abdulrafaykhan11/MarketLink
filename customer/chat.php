@@ -78,10 +78,14 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
         </div>
 
         <div style="display:flex; align-items:center; gap:0.65rem;">
-          <button type="button" id="btnRefreshChat" class="btn-secondary" style="font-size:0.75rem; padding:0.4rem 0.75rem;">Refresh</button>
+          <button type="button" id="btnRefreshChat" class="chat-header-action-btn" title="Refresh messages and active status">
+            <i class="fa-solid fa-arrows-rotate" id="refreshChatIcon" aria-hidden="true"></i>
+            <span>Refresh</span>
+          </button>
           <span class="order-status-badge" id="threadStatusBadge">● Placed</span>
-          <a href="#" id="threadOrderLink" class="btn-secondary" style="font-size:0.75rem; padding:0.4rem 0.75rem; text-decoration:none;">
-            View Order
+          <a href="#" id="threadOrderLink" class="chat-header-action-btn" style="text-decoration:none;" title="View order details">
+            <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+            <span>View Order</span>
           </a>
         </div>
       </div>
@@ -279,6 +283,49 @@ $initialOrderId = (int)($_GET['order_id'] ?? 0);
   align-items: center;
   justify-content: space-between;
   background: var(--bg-surface);
+}
+
+.chat-header-action-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  padding: 0.42rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-heading);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.chat-header-action-btn:hover {
+  background: rgba(34, 197, 94, 0.16);
+  border-color: var(--primary-400, #4ade80);
+  color: var(--primary-400, #4ade80);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+.chat-header-action-btn:active {
+  transform: translateY(0);
+}
+
+[data-theme="light"] .chat-header-action-btn {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .chat-header-action-btn:hover {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.15);
 }
 
 .chat-back-mobile-btn {
@@ -862,8 +909,16 @@ function escapeHtml(str) {
 
 const btnRefreshChat = document.getElementById('btnRefreshChat');
 if (btnRefreshChat) btnRefreshChat.addEventListener('click', async () => {
-  if (currentOrderId) await loadMessages(currentOrderId, true);
-  await loadConversations();
+  const icon = document.getElementById('refreshChatIcon');
+  if (icon) icon.classList.add('fa-spin');
+  try {
+    if (currentOrderId) await loadMessages(currentOrderId, true);
+    await loadConversations();
+  } finally {
+    setTimeout(() => {
+      if (icon) icon.classList.remove('fa-spin');
+    }, 450);
+  }
 });
 
 if (pusherConfig.enabled && window.Pusher) {

@@ -618,8 +618,27 @@ function toggleSlotStatus(slotId, status) {
 // Multi-Market Stall Management Functions
 function openRegisterStallModal() {
   document.getElementById('registerStallModal').classList.add('active');
+  const regMarketSelect = document.getElementById('regMarketId');
+  const regDaysInput = document.getElementById('regOperatingDays');
+  if (regMarketSelect && regDaysInput && regMarketSelect.selectedIndex > 0) {
+    const selectedOpt = regMarketSelect.options[regMarketSelect.selectedIndex];
+    regDaysInput.value = selectedOpt.getAttribute('data-days') || 'Saturday, Sunday';
+  }
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  const regMarketSelect = document.getElementById('regMarketId');
+  const regDaysInput = document.getElementById('regOperatingDays');
+  if (regMarketSelect && regDaysInput) {
+    regMarketSelect.addEventListener('change', function() {
+      const selectedOpt = this.options[this.selectedIndex];
+      if (selectedOpt && selectedOpt.value) {
+        regDaysInput.value = selectedOpt.getAttribute('data-days') || 'Saturday, Sunday';
+      }
+    });
+  }
+});
 
 function closeRegisterStallModal() {
   document.getElementById('registerStallModal').classList.remove('active');
@@ -709,7 +728,7 @@ function toggleStallStatus(stallId, newStatus) {
           <select class="farmer-form-select" id="regMarketId" name="market_id" required>
             <option value="" disabled selected>-- Select a Community Farmers Market --</option>
             <?php foreach ($allMarkets as $m): ?>
-              <option value="<?= $m['market_id'] ?>">
+              <option value="<?= $m['market_id'] ?>" data-days="<?= htmlspecialchars($m['operating_days'] ?: 'Saturday, Sunday') ?>">
                 <?= htmlspecialchars($m['market_name']) ?> (<?= htmlspecialchars($m['city']) ?>) &bull; <?= htmlspecialchars($m['operating_days'] ?: 'Weekend') ?>
               </option>
             <?php endforeach; ?>
@@ -725,10 +744,18 @@ function toggleStallStatus(stallId, newStatus) {
           <input type="text" class="farmer-form-input" id="regStallNumber" name="stall_number_location" placeholder="e.g. Bay 14, East Canopy, Stall B-4" required>
         </div>
 
-        <!-- Operating Days -->
+        <!-- Operating Days (Fixed to Market Schedule) -->
         <div class="farmer-form-group">
-          <label class="farmer-form-label" for="regOperatingDays">Operating / Market Days</label>
-          <input type="text" class="farmer-form-input" id="regOperatingDays" name="operating_days" value="Saturday, Sunday" placeholder="e.g. Saturday, Sunday">
+          <label class="farmer-form-label" for="regOperatingDays">
+            Operating / Market Days <span style="font-size:0.75rem; font-weight:700; color:var(--emerald-400); margin-left:0.35rem;"><i class="fa-solid fa-lock"></i> Fixed to Market Schedule</span>
+          </label>
+          <div style="position:relative;">
+            <input type="text" class="farmer-form-input" id="regOperatingDays" name="operating_days" value="Saturday, Sunday" readonly style="background:var(--bg-secondary); cursor:not-allowed; opacity:0.9; padding-right:2.5rem; font-weight:600; color:var(--text-primary);">
+            <span style="position:absolute; right:0.85rem; top:50%; transform:translateY(-50%); color:var(--emerald-500);"><i class="fa-solid fa-lock"></i></span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--slate-400); margin-top: 0.35rem;">
+            <i class="fa-solid fa-circle-info" style="color:var(--emerald-400);"></i> Operating days are automatically locked to the market's official schedule so customers cannot place reservations on days the market is closed.
+          </div>
         </div>
       </div>
 

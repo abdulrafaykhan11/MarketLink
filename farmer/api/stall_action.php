@@ -35,15 +35,19 @@ try {
             $stallNumber = 'Stall #' . rand(1, 30);
         }
 
-        // Verify market exists
-        $mStmt = $pdo->prepare("SELECT market_name FROM markets WHERE market_id = :mid AND status = 'active' LIMIT 1");
+        // Verify market exists and fetch official operating days
+        $mStmt = $pdo->prepare("SELECT market_name, operating_days FROM markets WHERE market_id = :mid AND status = 'active' LIMIT 1");
         $mStmt->execute([':mid' => $marketId]);
-        $marketName = $mStmt->fetchColumn();
+        $marketData = $mStmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$marketName) {
+        if (!$marketData) {
             echo json_encode(['status' => 'error', 'message' => 'Selected market is not currently active.']);
             exit;
         }
+
+        $marketName = $marketData['market_name'];
+        // Operating days are strictly fixed to the selected market's operating schedule
+        $operatingDays = !empty($marketData['operating_days']) ? trim($marketData['operating_days']) : 'Saturday, Sunday';
 
         // Check if stall record already exists for this farmer in this market
         $checkStmt = $pdo->prepare("SELECT stall_id, status FROM farmer_market_stalls WHERE farmer_id = :fid AND market_id = :mid LIMIT 1");

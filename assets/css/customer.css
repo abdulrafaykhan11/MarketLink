@@ -1462,7 +1462,7 @@ html[data-theme="light"] .sidebar-brand .dashboard-logo-light { display: block !
    Covers: Reorder, Chat, Cancel, Browse, Track, Dashboard nav CTAs
    ========================================================================== */
 
-/* --- Reorder These Items Button --- */
+/* --- Reorder & Universal Secondary Buttons --- */
 .btn-secondary {
   position: relative;
   overflow: hidden;
@@ -1470,6 +1470,36 @@ html[data-theme="light"] .sidebar-brand .dashboard-logo-light { display: block !
   font-weight: 700;
   letter-spacing: 0.2px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--bg-surface-elevated, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+  color: var(--text-primary);
+  border-radius: var(--radius-md, 8px);
+  padding: 0.5rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: var(--primary-400, #4ade80);
+  color: var(--primary-400, #4ade80);
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .btn-secondary {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  background: #f0fdf4;
+  border-color: #22c55e;
+  color: #15803d;
 }
 
 /* Reorder specific glow */

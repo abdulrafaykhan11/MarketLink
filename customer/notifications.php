@@ -104,15 +104,21 @@ function buildNotifLink(array $n): string {
     </p>
   </div>
 
-  <?php if ($unreadNotifsCount > 0): ?>
-    <form method="POST" action="<?= BASE_URL ?>/customer/notifications.php">
-      <button type="submit" name="mark_all_read" value="1"
-              class="btn-secondary"
-              style="padding:0.5rem 1.15rem; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.5rem;">
-        <span><i class="fa-solid fa-check" aria-hidden="true"></i></span> Mark All as Read (<?= $unreadNotifsCount ?>)
-      </button>
-    </form>
-  <?php endif; ?>
+  <div style="display:flex; align-items:center; gap:0.75rem;">
+    <?php if ($unreadNotifsCount > 0): ?>
+      <form method="POST" action="<?= BASE_URL ?>/customer/notifications.php" style="margin:0;">
+        <button type="submit" name="mark_all_read" value="1" class="notif-mark-read-btn" title="Mark all notifications as read">
+          <i class="fa-solid fa-check-double" aria-hidden="true"></i>
+          <span>Mark All as Read (<?= $unreadNotifsCount ?>)</span>
+        </button>
+      </form>
+    <?php else: ?>
+      <span class="notif-all-read-badge">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        <span>All Caught Up</span>
+      </span>
+    <?php endif; ?>
+  </div>
 </div>
 
 <div class="portal-card">
@@ -157,18 +163,8 @@ function buildNotifLink(array $n): string {
           <input type="hidden" name="read_and_go" value="1">
           <input type="hidden" name="notif_id" value="<?= (int)$n['notification_id'] ?>">
           <input type="hidden" name="target_url" value="<?= htmlspecialchars($link) ?>">
-          <button type="submit" style="width:100%; background:none; border:none; padding:0; cursor:pointer; text-align:left;">
-            <div style="background: <?= $isUnread ? 'var(--bg-surface-elevated)' : 'var(--bg-secondary)' ?>;
-                        border: 1px solid <?= $isUnread ? 'var(--emerald-500)' : 'var(--border-subtle)' ?>;
-                        border-radius: var(--radius-lg);
-                        padding: 1.1rem 1.25rem;
-                        display: flex;
-                        gap: 1rem;
-                        align-items: flex-start;
-                        transition: all 0.18s;
-                        position: relative;"
-                 onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.18)'"
-                 onmouseout="this.style.transform=''; this.style.boxShadow=''">
+          <button type="submit" style="width:100%; background:none; border:none; padding:0; cursor:pointer; text-align:left; display:block;">
+            <div class="notif-row-card <?= $isUnread ? 'unread' : 'read' ?>">
 
               <!-- Icon -->
               <div style="width:44px; height:44px; border-radius:var(--radius-md);
@@ -207,14 +203,14 @@ function buildNotifLink(array $n): string {
                 </p>
 
                 <!-- CTA hint -->
-                <div style="font-size:0.72rem; color: <?= $typeColor ?>; font-weight:600; display:flex; align-items:center; gap:0.3rem;">
+                <div class="notif-cta-pill" style="color: <?= $typeColor ?>;">
                   <span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-                  <?= match($type) {
+                  <span><?= match($type) {
                     'order_status'  => 'View order details',
                     'restock_alert' => 'Browse available produce',
                     'announcement'  => 'View market schedule',
                     default         => 'Go to dashboard'
-                  } ?>
+                  } ?></span>
                 </div>
               </div>
 
@@ -239,5 +235,129 @@ function buildNotifLink(array $n): string {
     </div>
   <?php endif; ?>
 </div>
+
+<style>
+/* Premium Notification Buttons & Cards Styling */
+.notif-mark-read-btn {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.16) 0%, rgba(16, 185, 129, 0.08) 100%);
+  border: 1.5px solid rgba(34, 197, 94, 0.45);
+  color: var(--primary-400, #4ade80);
+  padding: 0.55rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-heading);
+  box-shadow: 0 2px 10px rgba(34, 197, 94, 0.15);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notif-mark-read-btn:hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.28) 0%, rgba(16, 185, 129, 0.18) 100%);
+  border-color: #86efac;
+  color: #bbf7d0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(34, 197, 94, 0.28);
+}
+
+.notif-mark-read-btn:active {
+  transform: translateY(0);
+}
+
+[data-theme="light"] .notif-mark-read-btn {
+  background: #ecfdf5;
+  border: 1.5px solid #a7f3d0;
+  color: #047857;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
+}
+
+[data-theme="light"] .notif-mark-read-btn:hover {
+  background: #d1fae5;
+  border-color: #34d399;
+  color: #065f46;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+}
+
+.notif-all-read-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: var(--primary-400, #4ade80);
+}
+
+[data-theme="light"] .notif-all-read-badge {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.notif-row-card {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  gap: 1.15rem;
+  align-items: flex-start;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  text-align: left;
+}
+
+.notif-row-card.unread {
+  background: var(--bg-surface-elevated, rgba(255, 255, 255, 0.05));
+  border: 1.5px solid rgba(34, 197, 94, 0.4);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.notif-row-card.read {
+  background: var(--bg-secondary, rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+}
+
+.notif-row-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border-color: var(--primary-400, #4ade80);
+}
+
+[data-theme="light"] .notif-row-card.unread {
+  background: #ffffff;
+  border: 1.5px solid #86efac;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.08);
+}
+
+[data-theme="light"] .notif-row-card.read {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .notif-row-card:hover {
+  background: #ffffff;
+  border-color: #22c55e;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.notif-cta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+
+.notif-row-card:hover .notif-cta-pill {
+  transform: translateX(3px);
+}
+</style>
 
 <?php require_once __DIR__ . '/includes/customer_footer.php'; ?>

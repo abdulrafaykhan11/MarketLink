@@ -48,34 +48,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['update_profil
     }
 }
 
-// Handle Password Change Form
-if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['change_password'])) {
-    $currentPass = $_POST['current_password'] ?? '';
-    $newPass = $_POST['new_password'] ?? '';
-    $confirmPass = $_POST['confirm_password'] ?? '';
 
-    if (empty($currentPass) || empty($newPass) || empty($confirmPass)) {
-        $errorMsg = "Please fill in all password fields.";
-    } elseif ($newPass !== $confirmPass) {
-        $errorMsg = "New passwords do not match.";
-    } elseif (strlen($newPass) < 6) {
-        $errorMsg = "New password must be at least 6 characters long.";
-    } else {
-        // Verify current password
-        $pCheck = $pdo->prepare("SELECT password_hash FROM users WHERE user_id = :uid");
-        $pCheck->execute([':uid' => $currentUserId]);
-        $hash = $pCheck->fetchColumn();
-
-        if (password_verify($currentPass, $hash)) {
-            $newHash = password_hash($newPass, PASSWORD_BCRYPT);
-            $pUpd = $pdo->prepare("UPDATE users SET password_hash = :hash WHERE user_id = :uid");
-            $pUpd->execute([':hash' => $newHash, ':uid' => $currentUserId]);
-            $successMsg = "Your password has been changed securely.";
-        } else {
-            $errorMsg = "Current password is incorrect.";
-        }
-    }
-}
 
 // Fetch member details
 $stmt = $pdo->prepare("SELECT u.username, u.email, u.phone_number, cp.full_name, cp.default_address, u.created_at as member_since
@@ -206,42 +179,26 @@ $activeOrdersCount = (int)$acStmt->fetchColumn();
       </div>
     </div>
 
-    <!-- Password Change Card -->
+    <!-- Security Info Card -->
     <div class="portal-card">
       <div class="portal-card-header">
         <h3 class="portal-card-title">
-          <span><i class="fa-solid fa-lock" aria-hidden="true"></i></span> Security & Password
+          <span><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span> Account Security
         </h3>
       </div>
-
-      <form method="POST">
-        <input type="hidden" name="change_password" value="1">
-
-        <div style="margin-bottom:1rem;">
-          <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
-            Current Password
-          </label>
-          <input type="password" name="current_password" required class="topbar-search-input" style="border-radius:var(--radius-md);">
+      <div style="font-size:0.875rem; color:var(--text-secondary); line-height:1.6;">
+        <p style="margin:0 0 0.85rem;">
+          Your MarketLink account credentials and customer communications are safely encrypted.
+        </p>
+        <div style="background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.25); border-radius:var(--radius-md); padding:0.85rem 1rem; color:var(--text-primary); font-size:0.8125rem;">
+          <strong style="color:var(--emerald-400); display:block; margin-bottom:0.25rem;">
+            <i class="fa-solid fa-key" aria-hidden="true"></i> Password Recovery
+          </strong>
+          To update or recover your password, you can use the secure 
+          <a href="<?= BASE_URL ?>/forgot_password.php" style="color:var(--primary-400); font-weight:700; text-decoration:underline;">Forgot Password</a> 
+          verification link on the login page.
         </div>
-
-        <div style="margin-bottom:1rem;">
-          <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
-            New Password (Min. 6 chars)
-          </label>
-          <input type="password" name="new_password" required minlength="6" class="topbar-search-input" style="border-radius:var(--radius-md);">
-        </div>
-
-        <div style="margin-bottom:1.25rem;">
-          <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
-            Confirm New Password
-          </label>
-          <input type="password" name="confirm_password" required minlength="6" class="topbar-search-input" style="border-radius:var(--radius-md);">
-        </div>
-
-        <button type="submit" class="btn-secondary" style="width:100%; padding:0.65rem; font-size:0.9rem; cursor:pointer;">
-          Update Password
-        </button>
-      </form>
+      </div>
     </div>
 
   </div>
