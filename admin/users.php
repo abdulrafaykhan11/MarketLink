@@ -169,7 +169,7 @@ $totalUsersCount = array_sum($roleCounts);
                 <?php if ($u['user_id'] !== (int)$_SESSION['user_id']): ?>
                   <div style="display:inline-flex; gap:0.4rem; justify-content:flex-end;">
                     <?php if ($u['status'] === 'active'): ?>
-                      <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" 
+                      <button type="button" class="admin-btn admin-btn-warning admin-btn-sm" 
                               title="Suspend user account"
                               onclick="toggleUserStatus(<?= $u['user_id'] ?>, 'suspend')">
                         <i data-lucide="circle-pause"></i> Suspend

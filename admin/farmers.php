@@ -166,7 +166,7 @@ $allCount = array_sum($counts);
                   <?php endif; ?>
 
                   <?php if ($f['approval_status'] === 'approved'): ?>
-                    <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" 
+                    <button type="button" class="admin-btn admin-btn-warning admin-btn-sm" 
                             title="Suspend Seller Privileges"
                             onclick="updateFarmer(<?= $f['farmer_id'] ?>, 'suspend')">
                       <i data-lucide="circle-pause"></i> Suspend

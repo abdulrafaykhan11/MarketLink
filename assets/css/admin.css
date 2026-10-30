@@ -876,7 +876,6 @@ html[data-theme="light"] .admin-brand .dashboard-logo-light { display: block !im
 .status-pill.rejected,
 .status-pill.cancelled,
 .status-pill.declined,
-.status-pill.suspended,
 .status-pill.inactive {
   background: rgba(239, 68, 68, 0.15);
   color: #f87171;
@@ -885,9 +884,19 @@ html[data-theme="light"] .admin-brand .dashboard-logo-light { display: block !im
 .status-pill.rejected::before,
 .status-pill.cancelled::before,
 .status-pill.declined::before,
-.status-pill.suspended::before,
 .status-pill.inactive::before {
   background: #ef4444;
+}
+
+/* Suspended — amber/orange warning color, distinct from error-red */
+.status-pill.suspended {
+  background: rgba(251, 146, 60, 0.15);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 60, 0.4);
+}
+.status-pill.suspended::before {
+  background: #f97316;
+  box-shadow: 0 0 6px rgba(249, 115, 22, 0.8);
 }
 
 /* --------------------------------------------------------------------------
@@ -972,19 +981,54 @@ html[data-theme="light"] .admin-brand .dashboard-logo-light { display: block !im
 }
 
 .admin-btn-danger {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.12);
   color: #f87171;
-  border-color: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.45);
+  border-width: 1px;
+  border-style: solid;
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.08);
 }
 .admin-btn-danger:hover {
-  background: #ef4444;
+  background: #dc2626;
   color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Orange/amber warning variant for Suspend action — less aggressive than full danger */
+.admin-btn-warning {
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 60, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(251, 146, 60, 0.08);
+}
+.admin-btn-warning:hover {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #ea580c;
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.45);
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .admin-btn-warning {
+  color: #9a3412;
+  background: #fff7ed;
+  border-color: #fdba74;
 }
 
 .admin-btn-sm {
-  padding: 0.35rem 0.75rem;
+  padding: 0.3rem 0.7rem;
   font-size: 0.775rem;
   border-radius: var(--radius-sm);
+  gap: 0.35rem;
+  line-height: 1.4;
+}
+.admin-btn-sm svg,
+.admin-btn-sm [data-lucide] {
+  width: 13px !important;
+  height: 13px !important;
+  flex-shrink: 0;
 }
 
 /* Form Controls */
