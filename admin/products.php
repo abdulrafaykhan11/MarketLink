@@ -106,7 +106,7 @@ $farmersList = $pdo->query("SELECT farmer_id, stall_name FROM farmer_profiles OR
           <th>Unit / Measure</th>
           <th>Template Type</th>
           <th>Listed Date</th>
-          <th style="text-align:right;">Content Moderation</th>
+          <th style="text-align:right; white-space:nowrap;">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -160,11 +160,12 @@ $farmersList = $pdo->query("SELECT farmer_id, stall_name FROM farmer_profiles OR
               <td style="font-size:0.8125rem; color:var(--admin-text-subtle);">
                 <?= date('M d, Y', strtotime($p['created_at'])) ?>
               </td>
-              <td style="text-align:right;">
+              <td style="text-align:right; white-space:nowrap;">
                 <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" 
                         title="Remove product for platform guideline violation"
-                        onclick="moderateProduct(<?= $p['product_id'] ?>, '<?= htmlspecialchars(addslashes($p['product_name'])) ?>')">
-                  <i data-lucide="trash-2"></i> Remove Listing
+                        onclick="moderateProduct(<?= $p['product_id'] ?>, '<?= htmlspecialchars(addslashes($p['product_name'])) ?>')"
+                        style="white-space:nowrap;">
+                  <i data-lucide="trash-2"></i> 
                 </button>
               </td>
             </tr>
