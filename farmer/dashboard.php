@@ -91,23 +91,53 @@ $recentReviews = $reviewsStmt->fetchAll();
 $announceStmt = $pdo->query("SELECT * FROM platform_announcements WHERE target_role IN ('all', 'farmer') AND is_active = 1 ORDER BY announcement_id DESC LIMIT 2");
 $announcements = $announceStmt->fetchAll();
 
-// 7. Generate 7-Day Chart Data for Chart.js
-$chartDates = [];
-$chartRevenue = [];
-$chartOrders = [];
+// 7. Generate Chart Data for Chart.js — 7-Day and 30-Day views
+// Use the latest order date as anchor (so chart shows real data even in dev/staging)
+$anchorStmt = $pdo->prepare("SELECT MAX(DATE(created_at)) FROM orders WHERE farmer_id = :fid");
+$anchorStmt->execute([':fid' => $farmerId]);
+$anchorDate = $anchorStmt->fetchColumn();
+// If no orders at all, fall back to today
+if (!$anchorDate) $anchorDate = date('Y-m-d');
 
+$chart7Dates = []; $chart7Revenue = []; $chart7Orders = [];
+$chart30Dates = []; $chart30Revenue = []; $chart30Orders = [];
+
+// 7-day data (daily) — anchored to last order date
 for ($i = 6; $i >= 0; $i--) {
-    $d = date('Y-m-d', strtotime("-$i days"));
-    $chartDates[] = date('D, M j', strtotime($d));
-    
-    // Revenue on this date
+    $d = date('Y-m-d', strtotime("$anchorDate -$i days"));
+    $chart7Dates[] = date('D, M j', strtotime($d));
     $s = $pdo->prepare("SELECT COALESCE(SUM(total_amount), 0) as rev, COUNT(*) as cnt 
-                        FROM orders WHERE farmer_id = :fid AND DATE(pickup_date) = :d");
+                        FROM orders WHERE farmer_id = :fid AND DATE(created_at) = :d 
+                        AND order_status NOT IN ('declined', 'cancelled')");
     $s->execute([':fid' => $farmerId, ':d' => $d]);
     $res = $s->fetch();
-    $chartRevenue[] = (float)$res['rev'];
-    $chartOrders[] = (int)$res['cnt'];
+    $chart7Revenue[] = round((float)$res['rev'], 2);
+    $chart7Orders[]  = (int)$res['cnt'];
 }
+
+// 30-day data (daily) — anchored to last order date
+for ($i = 29; $i >= 0; $i--) {
+    $d = date('Y-m-d', strtotime("$anchorDate -$i days"));
+    $chart30Dates[] = ($i % 5 === 0 || $i === 0) ? date('M j', strtotime($d)) : '';
+    $s = $pdo->prepare("SELECT COALESCE(SUM(total_amount), 0) as rev, COUNT(*) as cnt 
+                        FROM orders WHERE farmer_id = :fid AND DATE(created_at) = :d
+                        AND order_status NOT IN ('declined', 'cancelled')");
+    $s->execute([':fid' => $farmerId, ':d' => $d]);
+    $res = $s->fetch();
+    $chart30Revenue[] = round((float)$res['rev'], 2);
+    $chart30Orders[]  = (int)$res['cnt'];
+}
+
+// Chart summary stats
+$chart7TotalRev    = array_sum($chart7Revenue);
+$chart7TotalOrders = array_sum($chart7Orders);
+$chart30TotalRev   = array_sum($chart30Revenue);
+$chart30TotalOrders= array_sum($chart30Orders);
+
+// Keep legacy aliases for compatibility
+$chartDates   = $chart7Dates;
+$chartRevenue = $chart7Revenue;
+$chartOrders  = $chart7Orders;
 ?>
 
 <div class="farmer-content">
@@ -274,25 +304,56 @@ for ($i = 6; $i >= 0; $i--) {
 
   <!-- Section: Sales Analytics Chart & Next Upcoming Market Pickup Window -->
   <div class="farmer-grid-2-col">
-    <!-- Chart Card -->
+    <!-- Chart Card — Interactive Pre-Order & Revenue Analytics -->
     <div class="farmer-card farmer-analytics-chart">
-      <div class="farmer-card-header">
+      <div class="farmer-card-header" style="flex-wrap: wrap; gap: 0.75rem;">
         <div class="farmer-card-title-group">
           <h3 class="farmer-card-title">
             <i data-lucide="bar-chart-3" style="width: 20px; height: 20px; color: var(--primary-500);"></i>
             <span>Pre-Order &amp; Sales Velocity</span>
           </h3>
-          <span class="farmer-card-subtitle">Daily harvest demand and revenue trends over the past 7 days</span>
+          <span class="farmer-card-subtitle">Daily harvest demand and revenue — <strong style="color:var(--primary-400);"><?= !empty($chart7Dates) ? date('M j', strtotime($chart7Dates[0])) . ' – ' . date('M j, Y', strtotime(end($chart7Dates))) : '' ?></strong></span>
         </div>
-        <div class="farmer-card-actions">
-          <span class="farmer-btn-pill active" id="chartToggleWeekly">Last 7 Days</span>
+        <!-- Period Toggle Tabs -->
+        <div style="display: flex; gap: 0.4rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.25rem;">
+          <button type="button" id="chartTab7" onclick="switchChartPeriod('7')"
+                  style="padding: 0.3rem 0.85rem; border-radius: calc(var(--radius-md) - 2px); border: none; cursor: pointer; font-size: 0.8125rem; font-weight: 600; transition: all 0.2s; background: var(--primary-500); color: #fff;">
+            7 Days
+          </button>
+          <button type="button" id="chartTab30" onclick="switchChartPeriod('30')"
+                  style="padding: 0.3rem 0.85rem; border-radius: calc(var(--radius-md) - 2px); border: none; cursor: pointer; font-size: 0.8125rem; font-weight: 600; transition: all 0.2s; background: transparent; color: var(--text-secondary);">
+            30 Days
+          </button>
         </div>
       </div>
-      <div style="position: relative; height: 290px; width: 100%;">
+
+      <!-- Chart KPI Summary Row -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.25rem;">
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1rem;">
+          <div style="font-size: 0.7rem; color: var(--slate-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem;">Period Revenue</div>
+          <div style="font-size: 1.05rem; font-weight: 800; color: var(--primary-400); font-family: var(--font-heading);" id="chartStatRev">
+            Rs. <?= number_format($chart7TotalRev, 0) ?>
+          </div>
+        </div>
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1rem;">
+          <div style="font-size: 0.7rem; color: var(--slate-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem;">Total Orders</div>
+          <div style="font-size: 1.05rem; font-weight: 800; color: #38bdf8; font-family: var(--font-heading);" id="chartStatOrders">
+            <?= $chart7TotalOrders ?>
+          </div>
+        </div>
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1rem;">
+          <div style="font-size: 0.7rem; color: var(--slate-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem;">Avg / Order</div>
+          <div style="font-size: 1.05rem; font-weight: 800; color: #a78bfa; font-family: var(--font-heading);" id="chartStatAvg">
+            Rs. <?= $chart7TotalOrders > 0 ? number_format($chart7TotalRev / $chart7TotalOrders, 0) : '0' ?>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div style="position: relative; height: 270px; width: 100%;">
         <canvas id="farmerSalesChart"></canvas>
       </div>
     </div>
-
     <!-- Next Upcoming Market Window & Stall Schedule Card -->
     <div class="farmer-card" style="display: flex; flex-direction: column; justify-content: space-between;">
       <div>
@@ -724,51 +785,107 @@ for ($i = 6; $i >= 0; $i--) {
 <!-- Chart.js Setup Script & Interactive Handlers -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Chart.js Setup for Sales & Pre-Orders Velocity
-  const ctx = document.getElementById('farmerSalesChart');
-  if (ctx) {
+
+  // ── Chart Data from PHP ────────────────────────────────────────────────
+  const chartData = {
+    '7': {
+      labels:  <?= json_encode($chart7Dates) ?>,
+      revenue: <?= json_encode($chart7Revenue) ?>,
+      orders:  <?= json_encode($chart7Orders) ?>,
+      totalRev: <?= json_encode($chart7TotalRev) ?>,
+      totalOrd: <?= json_encode($chart7TotalOrders) ?>
+    },
+    '30': {
+      labels:  <?= json_encode($chart30Dates) ?>,
+      revenue: <?= json_encode($chart30Revenue) ?>,
+      orders:  <?= json_encode($chart30Orders) ?>,
+      totalRev: <?= json_encode($chart30TotalRev) ?>,
+      totalOrd: <?= json_encode($chart30TotalOrders) ?>
+    }
+  };
+
+  // ── Theme-aware colours ────────────────────────────────────────────────
+  function getThemeColors() {
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-    const textColor = isDark ? '#94a3b8' : '#64748b';
-    const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)';
+    return {
+      text:     isDark ? '#94a3b8' : '#475569',
+      grid:     isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)',
+      tooltip:  isDark ? 'rgba(10,20,40,0.97)'   : 'rgba(255,255,255,0.98)',
+      ttTitle:  isDark ? '#f1f5f9' : '#1e293b',
+      ttBody:   isDark ? '#cbd5e1' : '#475569',
+      ttBorder: isDark ? 'rgba(56,189,248,0.35)' : 'rgba(34,197,94,0.35)'
+    };
+  }
 
-    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 260);
-    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.35)');
-    gradient.addColorStop(1, 'rgba(34, 197, 94, 0.0)');
+  // ── Build Chart ────────────────────────────────────────────────────────
+  const ctx = document.getElementById('farmerSalesChart');
+  if (!ctx) return;
 
-    new Chart(ctx, {
-      type: 'line',
+  let currentPeriod = '7';
+  let farmerChart   = null;
+
+  function buildGradients(c2d, h) {
+    const gRev = c2d.createLinearGradient(0, 0, 0, h);
+    gRev.addColorStop(0,   'rgba(34, 197, 94, 0.40)');
+    gRev.addColorStop(0.6, 'rgba(34, 197, 94, 0.12)');
+    gRev.addColorStop(1,   'rgba(34, 197, 94, 0.00)');
+    return { gRev };
+  }
+
+  function createChart(period) {
+    const d   = chartData[period];
+    const tc  = getThemeColors();
+    const c2d = ctx.getContext('2d');
+    const h   = ctx.offsetHeight || 270;
+    const { gRev } = buildGradients(c2d, h);
+
+    const cfg = {
+      type: 'bar',
       data: {
-        labels: <?= json_encode($chartDates) ?>,
-        datasets: [{
-          label: 'Revenue (Rs.)',
-          data: <?= json_encode($chartRevenue) ?>,
-          borderColor: '#22c55e',
-          borderWidth: 3,
-          backgroundColor: gradient,
-          fill: true,
-          tension: 0.38,
-          pointBackgroundColor: '#22c55e',
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 6
-        }, {
-          label: 'Orders Count',
-          data: <?= json_encode($chartOrders) ?>,
-          borderColor: '#38bdf8',
-          borderWidth: 2,
-          borderDash: [5, 5],
-          backgroundColor: 'transparent',
-          fill: false,
-          tension: 0.3,
-          pointBackgroundColor: '#38bdf8',
-          pointRadius: 3,
-          yAxisID: 'yOrders'
-        }]
+        labels: d.labels,
+        datasets: [
+          {
+            // Bar: Revenue
+            type: 'bar',
+            label: 'Revenue (Rs.)',
+            data: d.revenue,
+            backgroundColor: gRev,
+            borderColor: '#22c55e',
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+            hoverBackgroundColor: 'rgba(34,197,94,0.65)',
+            yAxisID: 'yRev',
+            order: 2
+          },
+          {
+            // Line: Orders
+            type: 'line',
+            label: 'Orders',
+            data: d.orders,
+            borderColor: '#38bdf8',
+            borderWidth: 2.5,
+            backgroundColor: 'rgba(56,189,248,0.10)',
+            fill: true,
+            tension: 0.42,
+            pointBackgroundColor: '#38bdf8',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: period === '30' ? 2 : 4,
+            pointHoverRadius: 7,
+            pointHoverBackgroundColor: '#0ea5e9',
+            yAxisID: 'yOrders',
+            order: 1
+          }
+        ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 600,
+          easing: 'easeInOutQuart'
+        },
         interaction: {
           mode: 'index',
           intersect: false
@@ -777,47 +894,125 @@ document.addEventListener('DOMContentLoaded', function() {
           legend: {
             display: true,
             position: 'top',
+            align: 'end',
             labels: {
-              color: textColor,
-              boxWidth: 12,
-              font: { family: 'Inter', size: 12 }
+              color: tc.text,
+              boxWidth: 10,
+              boxHeight: 10,
+              borderRadius: 3,
+              useBorderRadius: true,
+              padding: 16,
+              font: { family: 'Inter, sans-serif', size: 12, weight: '600' }
             }
           },
           tooltip: {
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-            titleColor: '#ffffff',
-            bodyColor: '#cbd5e1',
-            padding: 12,
-            borderRadius: 8,
-            boxPadding: 4
+            enabled: true,
+            mode: 'index',
+            intersect: false,
+            backgroundColor: tc.tooltip,
+            titleColor: tc.ttTitle,
+            bodyColor: tc.ttBody,
+            borderColor: tc.ttBorder,
+            borderWidth: 1,
+            padding: { top: 10, bottom: 10, left: 14, right: 14 },
+            cornerRadius: 10,
+            boxPadding: 5,
+            callbacks: {
+              title: function(items) {
+                return items[0]?.label || '';
+              },
+              label: function(item) {
+                if (item.dataset.label.startsWith('Revenue')) {
+                  return '  Revenue: Rs. ' + Number(item.raw).toLocaleString('en-PK');
+                }
+                return '  Orders: ' + item.raw;
+              },
+              afterBody: function(items) {
+                const rev = items.find(i => i.dataset.label.startsWith('Revenue'))?.raw || 0;
+                const ord = items.find(i => i.dataset.label === 'Orders')?.raw || 0;
+                if (ord > 0) {
+                  return ['', '  Avg/Order: Rs. ' + Math.round(rev / ord).toLocaleString('en-PK')];
+                }
+                return [];
+              }
+            }
           }
         },
         scales: {
           x: {
-            grid: { color: gridColor },
-            ticks: { color: textColor, font: { family: 'Inter', size: 11 } }
-          },
-          y: {
-            grid: { color: gridColor },
+            grid: { color: tc.grid, drawBorder: false },
+            border: { display: false },
             ticks: {
-              color: textColor,
-              font: { family: 'Inter', size: 11 },
-              callback: function(val) { return 'Rs. ' + val; }
+              color: tc.text,
+              font: { family: 'Inter, sans-serif', size: 11 },
+              maxRotation: period === '30' ? 0 : 35,
+              autoSkip: true,
+              maxTicksLimit: period === '30' ? 10 : 7
+            }
+          },
+          yRev: {
+            position: 'left',
+            grid: { color: tc.grid, drawBorder: false },
+            border: { display: false },
+            ticks: {
+              color: '#4ade80',
+              font: { family: 'Inter, sans-serif', size: 11 },
+              callback: function(val) {
+                return val >= 1000 ? 'Rs. ' + (val/1000).toFixed(1) + 'k' : 'Rs. ' + val;
+              }
             }
           },
           yOrders: {
             position: 'right',
-            grid: { drawOnChartArea: false },
+            grid: { drawOnChartArea: false, drawBorder: false },
+            border: { display: false },
             ticks: {
               color: '#38bdf8',
               stepSize: 1,
-              font: { family: 'Inter', size: 11 }
+              font: { family: 'Inter, sans-serif', size: 11 },
+              callback: function(val) { return Number.isInteger(val) ? val : ''; }
             }
           }
         }
       }
-    });
+    };
+
+    if (farmerChart) farmerChart.destroy();
+    farmerChart = new Chart(ctx, cfg);
   }
+
+  // ── Period Switcher ────────────────────────────────────────────────────
+  window.switchChartPeriod = function(period) {
+    currentPeriod = period;
+    const d = chartData[period];
+
+    // Update tabs
+    const t7  = document.getElementById('chartTab7');
+    const t30 = document.getElementById('chartTab30');
+    if (period === '7') {
+      t7.style.background  = 'var(--primary-500)'; t7.style.color  = '#fff';
+      t30.style.background = 'transparent';        t30.style.color = 'var(--text-secondary)';
+    } else {
+      t30.style.background = 'var(--primary-500)'; t30.style.color  = '#fff';
+      t7.style.background  = 'transparent';         t7.style.color  = 'var(--text-secondary)';
+    }
+
+    // Update KPI summary
+    const avg = d.totalOrd > 0 ? Math.round(d.totalRev / d.totalOrd) : 0;
+    document.getElementById('chartStatRev').textContent    = 'Rs. ' + Number(d.totalRev).toLocaleString('en-PK');
+    document.getElementById('chartStatOrders').textContent = d.totalOrd;
+    document.getElementById('chartStatAvg').textContent    = 'Rs. ' + Number(avg).toLocaleString('en-PK');
+
+    createChart(period);
+  };
+
+  // ── Initial render ─────────────────────────────────────────────────────
+  createChart('7');
+
+  // Re-render on theme toggle so colours update
+  const themeObserver = new MutationObserver(() => createChart(currentPeriod));
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
 });
 
 // Modal Logic for Review Reply
