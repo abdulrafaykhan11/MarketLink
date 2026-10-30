@@ -24,7 +24,7 @@ if ($type === 'product') {
             ORDER BY pr.created_at DESC";
 } else {
     $type = 'farmer';
-    $where = ($filter === 'featured') ? "WHERE fr.is_featured = 1" : "";
+    $where = ($filter === 'featured') ? "WHERE fr.is_featured = 1 AND fr.is_moderated = 1" : "";
     $sql = "SELECT fr.review_id, fr.order_id, fr.rating, fr.review_comment, fr.farmer_response,
                    fr.is_moderated, COALESCE(fr.is_featured, 0) as is_featured, fr.created_at,
                    u.username as customer_name,
@@ -40,7 +40,7 @@ $reviews = $pdo->query($sql)->fetchAll();
 
 // Counts
 $farmerRevCount   = (int)$pdo->query("SELECT COUNT(*) FROM farmer_reviews")->fetchColumn();
-$featuredRevCount = (int)$pdo->query("SELECT COUNT(*) FROM farmer_reviews WHERE is_featured = 1")->fetchColumn();
+$featuredRevCount = (int)$pdo->query("SELECT COUNT(*) FROM farmer_reviews WHERE is_featured = 1 AND is_moderated = 1")->fetchColumn();
 $prodRevCount     = (int)$pdo->query("SELECT COUNT(*) FROM product_reviews")->fetchColumn();
 ?>
 
@@ -165,7 +165,7 @@ $prodRevCount     = (int)$pdo->query("SELECT COUNT(*) FROM product_reviews")->fe
                               onclick="toggleFeaturedReview(<?= $r['review_id'] ?>, 0)">
                         <i data-lucide="star-off"></i> Unfeature
                       </button>
-                    <?php else: ?>
+                    <?php elseif (!empty($r['is_moderated'])): ?>
                       <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" 
                               style="color:#f59e0b; border-color:rgba(245,158,11,0.35);"
                               title="Feature as Top Testimonial on Homepage"

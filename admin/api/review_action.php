@@ -40,8 +40,14 @@ $table = ($reviewType === 'product') ? 'product_reviews' : 'farmer_reviews';
 try {
     if ($action === 'toggle_visibility') {
         $status = (int)($_POST['is_moderated'] ?? 1);
-        $stmt = $pdo->prepare("UPDATE {$table} SET is_moderated = :st WHERE review_id = :id");
-        $stmt->execute([':st' => $status, ':id' => $reviewId]);
+        if ($status === 0 && $table === 'farmer_reviews') {
+            // When hiding a review, also remove it from homepage featured testimonials
+            $stmt = $pdo->prepare("UPDATE {$table} SET is_moderated = 0, is_featured = 0 WHERE review_id = :id");
+            $stmt->execute([':id' => $reviewId]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE {$table} SET is_moderated = :st WHERE review_id = :id");
+            $stmt->execute([':st' => $status, ':id' => $reviewId]);
+        }
         echo json_encode([
             'success' => true, 
             'message' => 'Review visibility updated (' . ($status ? 'Visible' : 'Hidden') . ').',
@@ -66,9 +72,21 @@ try {
             $newStatus = $currentStatus ? 0 : 1;
         }
 
-        // Validation: Maximum 6 reviews can be featured
+        // Validation: Cannot feature hidden review and Maximum 6 reviews can be featured
         if ($newStatus === 1) {
-            $currentFeaturedCount = (int)$pdo->query("SELECT COUNT(*) FROM farmer_reviews WHERE is_featured = 1")->fetchColumn();
+            $chk = $pdo->prepare("SELECT is_moderated FROM farmer_reviews WHERE review_id = :id");
+            $chk->execute([':id' => $reviewId]);
+            $isModerated = (int)$chk->fetchColumn();
+            if (!$isModerated) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Cannot feature a hidden review on homepage. Please publish the review first.'
+                ]);
+                exit;
+            }
+
+            $currentFeaturedCount = (int)$pdo->query("SELECT COUNT(*) FROM farmer_reviews WHERE is_featured = 1 AND is_moderated = 1")->fetchColumn();
             if ($currentFeaturedCount >= 6) {
                 http_response_code(400);
                 echo json_encode([

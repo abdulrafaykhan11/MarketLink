@@ -1,14 +1,5 @@
 <?php
-/**
- * MarketLink - Ultra-Luxury Storytelling Homepage
- * Features:
- * - Jaw-dropping storytelling Hero section with authentic farmer centerpiece
- * - Light and Dark theme toggle support
- * - Farm-to-Fork 3-step interactive journey
- * - Supermarket vs MarketLink artistic contrast showcase
- * - Live market stalls & seasonal harvest explorer
- * - Dual-audience onboarding (Customer & Farmer)
- */
+
 
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/auth_guard.php';
@@ -128,7 +119,7 @@ if (!empty($dbStalls)) {
     $showcaseStalls = $fallbackStalls;
 }
 
-// Fetch testimonials for homepage (Admin-controlled: prioritized by is_featured, then top rating)
+// Fetch testimonials for homepage (Admin-controlled: ONLY reviews explicitly featured and published by Admin)
 $testimonialsQuery = "
     SELECT fr.review_id, fr.rating, fr.review_comment, fr.farmer_response, fr.created_at, fr.is_featured,
            u.username as customer_username,
@@ -145,11 +136,12 @@ $testimonialsQuery = "
     JOIN users fu ON fp.farmer_id = fu.user_id
     LEFT JOIN farmer_market_stalls fms ON fp.farmer_id = fms.farmer_id AND fms.status = 'active'
     LEFT JOIN markets m ON fms.market_id = m.market_id
-    WHERE fr.is_moderated = 1
+    WHERE fr.is_featured = 1
+      AND fr.is_moderated = 1
       AND fr.review_comment IS NOT NULL
       AND TRIM(fr.review_comment) != ''
     GROUP BY fr.review_id
-    ORDER BY fr.is_featured DESC, fr.rating DESC, fr.created_at DESC
+    ORDER BY fr.rating DESC, fr.created_at DESC
     LIMIT 6
 ";
 $testimonials = [];
@@ -159,52 +151,61 @@ try {
     $testimonials = [];
 }
 
-// Fallback high-trust testimonials if database is fresh
+// Fallback high-trust testimonials ONLY IF database is completely fresh (zero farmer reviews in system)
 if (empty($testimonials)) {
-    $testimonials = [
-        [
-            'review_id' => 0,
-            'rating' => 5,
-            'review_comment' => "The organic heirloom tomatoes were exceptionally fresh and sweet! Stall was well-organized for fast pickup and produce was crisp.",
-            'farmer_response' => "Thank you so much! Our whole farm team is blessed to grow for you 💚",
-            'customer_name' => "Sara Ahmed",
-            'customer_username' => "sara_ahmed",
-            'customer_image' => "",
-            'farmer_id' => 2,
-            'stall_name' => "Sunrise Organic Orchard",
-            'farmer_name' => "Tariq Mehmood",
-            'market_name' => "Riverside Organic Community Market",
-            'is_featured' => 1
-        ],
-        [
-            'review_id' => 0,
-            'rating' => 5,
-            'review_comment' => "Best mushrooms I've ever had in my life. Sautéed Lion's Mane in butter and fresh thyme tasted like gourmet scallops! Mind-blowing.",
-            'farmer_response' => "JazakAllah for your review! See you next Saturday morning inshAllah! 🌿",
-            'customer_name' => "Ahzam Khan",
-            'customer_username' => "ahzam_k",
-            'customer_image' => "",
-            'farmer_id' => 6,
-            'stall_name' => "Zara's Hydroponic Garden",
-            'farmer_name' => "Hassan Raza",
-            'market_name' => "Johar Town Community Harvest Fair",
-            'is_featured' => 1
-        ],
-        [
-            'review_id' => 0,
-            'rating' => 5,
-            'review_comment' => "The Sidr honey is therapeutic. My entire family uses it now instead of processed sugar. Cannot recommend highly enough!",
-            'farmer_response' => "",
-            'customer_name' => "Saima Rizvi",
-            'customer_username' => "saima_r",
-            'customer_image' => "",
-            'farmer_id' => 14,
-            'stall_name' => "Asif Citrus & Olive Grove",
-            'farmer_name' => "Muhammad Asif",
-            'market_name' => "Model Town Sunrise Farmers Souk",
-            'is_featured' => 1
-        ]
-    ];
+    $hasAnyReviews = false;
+    try {
+        $hasAnyReviews = (bool)$pdo->query("SELECT 1 FROM farmer_reviews LIMIT 1")->fetchColumn();
+    } catch (Exception $e) {
+        $hasAnyReviews = false;
+    }
+
+    if (!$hasAnyReviews) {
+        $testimonials = [
+            [
+                'review_id' => 0,
+                'rating' => 5,
+                'review_comment' => "The organic heirloom tomatoes were exceptionally fresh and sweet! Stall was well-organized for fast pickup and produce was crisp.",
+                'farmer_response' => "Thank you so much! Our whole farm team is blessed to grow for you 💚",
+                'customer_name' => "Sara Ahmed",
+                'customer_username' => "sara_ahmed",
+                'customer_image' => "",
+                'farmer_id' => 2,
+                'stall_name' => "Sunrise Organic Orchard",
+                'farmer_name' => "Tariq Mehmood",
+                'market_name' => "Riverside Organic Community Market",
+                'is_featured' => 1
+            ],
+            [
+                'review_id' => 0,
+                'rating' => 5,
+                'review_comment' => "Best mushrooms I've ever had in my life. Sautéed Lion's Mane in butter and fresh thyme tasted like gourmet scallops! Mind-blowing.",
+                'farmer_response' => "JazakAllah for your review! See you next Saturday morning inshAllah! 🌿",
+                'customer_name' => "Ahzam Khan",
+                'customer_username' => "ahzam_k",
+                'customer_image' => "",
+                'farmer_id' => 6,
+                'stall_name' => "Zara's Hydroponic Garden",
+                'farmer_name' => "Hassan Raza",
+                'market_name' => "Johar Town Community Harvest Fair",
+                'is_featured' => 1
+            ],
+            [
+                'review_id' => 0,
+                'rating' => 5,
+                'review_comment' => "The Sidr honey is therapeutic. My entire family uses it now instead of processed sugar. Cannot recommend highly enough!",
+                'farmer_response' => "",
+                'customer_name' => "Saima Rizvi",
+                'customer_username' => "saima_r",
+                'customer_image' => "",
+                'farmer_id' => 14,
+                'stall_name' => "Asif Citrus & Olive Grove",
+                'farmer_name' => "Muhammad Asif",
+                'market_name' => "Model Town Sunrise Farmers Souk",
+                'is_featured' => 1
+            ]
+        ];
+    }
 }
 
 $pageTitle = 'Direct Farmers Marketplace • Fresh From Soil To Table';
