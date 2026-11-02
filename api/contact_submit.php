@@ -63,8 +63,8 @@ try {
     $pdo = getDBConnection();
     $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
-    $stmt = $pdo->prepare("INSERT INTO contact_messages (name, email, phone, subject, message, status, ip_address, created_at) 
-                           VALUES (:name, :email, :phone, :subject, :message, 'unread', :ip, NOW())");
+    // Submit inquiry using MySQL Stored Procedure: sp_submit_contact_message
+    $stmt = $pdo->prepare("CALL sp_submit_contact_message(:name, :email, :phone, :subject, :message, :ip)");
     $stmt->execute([
         ':name'    => $name,
         ':email'   => $email,
@@ -74,7 +74,9 @@ try {
         ':ip'      => $ip
     ]);
 
-    $inquiryId = (int)$pdo->lastInsertId();
+    $spRow = $stmt->fetch(PDO::FETCH_ASSOC);
+    $inquiryId = (int)($spRow['inquiry_id'] ?? $pdo->lastInsertId());
+    $stmt->closeCursor();
 
     // 1. Send confirmation email to the user
     $userEmailSent = sendContactConfirmationEmail($name, $email, $subject, $message, $inquiryId);

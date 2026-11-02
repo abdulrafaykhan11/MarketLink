@@ -22,8 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if ($inquiryId <= 0 || empty($replyText)) {
             $flashError = 'Reply content cannot be empty.';
         } else {
-            // Fetch inquiry
-            $stmt = $pdo->prepare("SELECT * FROM contact_messages WHERE id = ?");
+            // Fetch inquiry from view
+            $stmt = $pdo->prepare("SELECT * FROM view_admin_contact_inquiries WHERE id = ?");
             $stmt->execute([$inquiryId]);
             $inq = $stmt->fetch();
 
@@ -80,33 +80,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Filter by Status only
+// Filter by Status only (Using MySQL View: view_admin_contact_inquiries)
 $filterStatus = $_GET['status'] ?? 'all';
 
-$sql = "SELECT cm.*, u.username as replied_by_username 
-        FROM contact_messages cm 
-        LEFT JOIN users u ON cm.replied_by = u.user_id 
-        WHERE 1=1";
+$sql = "SELECT * FROM view_admin_contact_inquiries WHERE 1=1";
 $params = [];
 
 if ($filterStatus === 'unread') {
-    $sql .= " AND cm.status = 'unread'";
+    $sql .= " AND status = 'unread'";
 } elseif ($filterStatus === 'replied') {
-    $sql .= " AND cm.status = 'replied'";
+    $sql .= " AND status = 'replied'";
 } elseif ($filterStatus === 'read') {
-    $sql .= " AND cm.status = 'read'";
+    $sql .= " AND status = 'read'";
 }
 
-$sql .= " ORDER BY cm.created_at DESC";
+$sql .= " ORDER BY created_at DESC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $inquiries = $stmt->fetchAll();
 
-// Metrics
-$metricTotal   = (int)$pdo->query("SELECT COUNT(*) FROM contact_messages")->fetchColumn();
-$metricUnread  = (int)$pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'unread'")->fetchColumn();
-$metricReplied = (int)$pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'replied'")->fetchColumn();
+// Metrics fetched through MySQL View
+$metricTotal   = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries")->fetchColumn();
+$metricUnread  = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries WHERE status = 'unread'")->fetchColumn();
+$metricReplied = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries WHERE status = 'replied'")->fetchColumn();
 
 // Check if a specific inquiry ID is opened via query param
 $activeInquiryId = (int)($_GET['id'] ?? 0);
@@ -118,9 +115,9 @@ if ($activeInquiryId > 0) {
             break;
         }
     }
-    // If not in filtered list, query directly
+    // If not in filtered list, query directly from view
     if (!$activeInquiry) {
-        $singleStmt = $pdo->prepare("SELECT cm.*, u.username as replied_by_username FROM contact_messages cm LEFT JOIN users u ON cm.replied_by = u.user_id WHERE cm.id = ?");
+        $singleStmt = $pdo->prepare("SELECT * FROM view_admin_contact_inquiries WHERE id = ?");
         $singleStmt->execute([$activeInquiryId]);
         $activeInquiry = $singleStmt->fetch();
     }

@@ -15,6 +15,9 @@ define('DB_CHARSET', 'utf8mb4');
 define('APP_NAME', 'MarketLink');
 define('BASE_URL', '/Marketlink');
 
+// Timezone configuration (Pakistan Standard Time - PKT / UTC+5)
+date_default_timezone_set('Asia/Karachi');
+
 function getDBConnection(): PDO {
     static $pdo = null;
 
@@ -29,6 +32,7 @@ function getDBConnection(): PDO {
 
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+            $pdo->exec("SET time_zone = '+05:00'");
         } catch (PDOException $e) {
             // Log error internally and show clean error message
             error_log('MarketLink database connection failed.');

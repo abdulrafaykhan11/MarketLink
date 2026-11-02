@@ -7,6 +7,9 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/db.php';
 
+// Guarantee Pakistan Standard Time (PKT / UTC+5) for all email dispatches
+date_default_timezone_set('Asia/Karachi');
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 

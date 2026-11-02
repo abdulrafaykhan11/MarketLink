@@ -28,8 +28,8 @@ try {
     // Unmoderated reviews or flagged content
     $pendingReviewsCount = (int)$pdo->query("SELECT (SELECT COUNT(*) FROM farmer_reviews WHERE is_moderated = 0) + (SELECT COUNT(*) FROM product_reviews WHERE is_moderated = 0)")->fetchColumn();
     
-    // Unread contact form inquiries
-    $unreadInquiriesCount = (int)$pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'unread'")->fetchColumn();
+    // Unread contact form inquiries (fetched from MySQL view)
+    $unreadInquiriesCount = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries WHERE status = 'unread'")->fetchColumn();
 } catch (Exception $e) {
     $pendingFarmersCount = 0;
     $activeOrdersCount = 0;
