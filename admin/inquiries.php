@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                                  WHERE id = :id");
                     $updateStmt->execute([
                         ':reply'    => $replyText,
-                        ':admin_id' => $adminId,
+                        ':admin_id' => ($adminId > 0 ? $adminId : null),
                         ':id'       => $inquiryId
                     ]);
 
@@ -91,7 +91,7 @@ if ($filterStatus === 'unread') {
 } elseif ($filterStatus === 'replied') {
     $sql .= " AND status = 'replied'";
 } elseif ($filterStatus === 'read') {
-    $sql .= " AND status = 'read'";
+    $sql .= " AND (status = 'read' OR status = 'replied')";
 }
 
 $sql .= " ORDER BY created_at DESC";
@@ -103,7 +103,7 @@ $inquiries = $stmt->fetchAll();
 // Metrics fetched through MySQL View
 $metricTotal   = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries")->fetchColumn();
 $metricUnread  = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries WHERE status = 'unread'")->fetchColumn();
-$metricRead    = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries WHERE status = 'read'")->fetchColumn();
+$metricRead    = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries WHERE status IN ('read', 'replied')")->fetchColumn();
 $metricReplied = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries WHERE status = 'replied'")->fetchColumn();
 
 // Check if a specific inquiry ID is opened via query param
@@ -358,7 +358,7 @@ if ($activeInquiryId > 0) {
     </div>
 
     <!-- Admin Reply Form -->
-    <form method="POST" action="">
+    <form method="POST" action="inquiries.php" id="adminReplyForm">
       <input type="hidden" name="action" value="reply_inquiry">
       <input type="hidden" name="inquiry_id" id="replyInquiryId" value="">
 
@@ -383,18 +383,20 @@ if ($activeInquiryId > 0) {
 
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
         <div>
-          <form method="POST" id="modalMarkReadForm" style="display:none; margin:0;">
-            <input type="hidden" name="action" value="mark_read">
-            <input type="hidden" name="inquiry_id" id="modalMarkReadInquiryId" value="">
-            <button type="submit" class="admin-btn admin-btn-sm" style="border-radius:10px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc;">
-              <i data-lucide="check"></i> Mark as Seen
-            </button>
-          </form>
+          <!-- Mark as Seen Button (Triggers external clean form) -->
+          <button type="button" 
+                  id="modalMarkReadBtn" 
+                  class="admin-btn admin-btn-sm" 
+                  onclick="submitModalMarkRead()" 
+                  style="display:none; border-radius:10px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc;">
+            <i data-lucide="check"></i>
+            <span>Mark as Seen</span>
+          </button>
         </div>
 
         <div style="display:flex; gap:0.75rem;">
           <button type="button" class="admin-btn admin-btn-outline" onclick="closeReplyModal()" style="border-radius:10px;">Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-primary" style="border-radius:10px; padding:0.65rem 1.4rem;">
+          <button type="submit" id="btnSubmitReply" class="admin-btn admin-btn-primary" style="border-radius:10px; padding:0.65rem 1.4rem;">
             <i data-lucide="send"></i>
             <span>Send Reply &amp; Email Customer</span>
           </button>
@@ -402,10 +404,38 @@ if ($activeInquiryId > 0) {
       </div>
     </form>
 
+    <!-- Standalone Mark Read Form outside Reply Form to prevent HTML nesting corruption -->
+    <form method="POST" action="inquiries.php" id="modalMarkReadForm" style="display:none;">
+      <input type="hidden" name="action" value="mark_read">
+      <input type="hidden" name="inquiry_id" id="modalMarkReadInquiryId" value="">
+    </form>
+
   </div>
 </div>
 
 <script>
+function submitModalMarkRead() {
+  const inqId = document.getElementById('replyInquiryId').value;
+  if (!inqId) return;
+  document.getElementById('modalMarkReadInquiryId').value = inqId;
+  document.getElementById('modalMarkReadForm').submit();
+}
+
+document.getElementById('adminReplyForm').addEventListener('submit', function (e) {
+  const txt = document.getElementById('adminReplyInput').value.trim();
+  if (!txt) {
+    e.preventDefault();
+    alert('Please enter your reply message before sending.');
+    return;
+  }
+  const btn = document.getElementById('btnSubmitReply');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span style="display:inline-flex; align-items:center; gap:0.5rem;"><i data-lucide="loader-2" class="animate-spin" style="width:16px; height:16px;"></i> Sending Email...</span>';
+    if (window.lucide) lucide.createIcons();
+  }
+});
+
 function openReplyModal(inq) {
   const modal = document.getElementById('replyModal');
   const ticketCode = 'INQ-' + String(inq.id).padStart(5, '0');
@@ -422,6 +452,7 @@ function openReplyModal(inq) {
   document.getElementById('modalReceivedDate').textContent = inq.created_at;
   document.getElementById('modalOriginalMessage').textContent = inq.message;
   document.getElementById('replyInquiryId').value = inq.id;
+  document.getElementById('adminReplyInput').value = '';
 
   const existingBox = document.getElementById('existingReplyBox');
   if (inq.admin_reply) {
@@ -433,14 +464,12 @@ function openReplyModal(inq) {
   }
 
   // Toggle modal Mark as Seen button if inquiry is unread
-  const markReadForm = document.getElementById('modalMarkReadForm');
-  const markReadIdInput = document.getElementById('modalMarkReadInquiryId');
-  if (markReadForm && markReadIdInput) {
+  const markReadBtn = document.getElementById('modalMarkReadBtn');
+  if (markReadBtn) {
     if (inq.status === 'unread') {
-      markReadForm.style.display = 'block';
-      markReadIdInput.value = inq.id;
+      markReadBtn.style.display = 'inline-flex';
     } else {
-      markReadForm.style.display = 'none';
+      markReadBtn.style.display = 'none';
     }
   }
 

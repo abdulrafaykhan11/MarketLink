@@ -275,8 +275,8 @@ require_once __DIR__ . '/includes/header.php';
             <h2 class="contact-form-heading">Track Inquiry Status</h2>
             <p class="contact-form-sub">Check live review progress, administrator replies, and status updates for your submitted inquiry.</p>
 
-            <form class="contact-form" id="trackInquiryForm" onsubmit="handleTrackInquiry(event)">
-              <div class="cf-field">
+            <form class="contact-form" id="trackInquiryForm" novalidate onsubmit="handleTrackInquiry(event)">
+              <div class="cf-field" id="field-track-ticket">
                 <label class="cf-label" for="trackTicketInput">
                   Ticket Number <span class="cf-required">*</span>
                 </label>
@@ -289,14 +289,17 @@ require_once __DIR__ . '/includes/header.php';
                     class="cf-input"
                     placeholder="e.g. INQ-00012 or 12"
                     required
+                    autocomplete="off"
                     style="text-transform:uppercase; font-weight:700; letter-spacing:0.04em;"
                   >
+                  <span class="cf-status-icon" id="status-track-ticket"></span>
                 </div>
+                <div class="cf-feedback" id="feedback-track-ticket"></div>
               </div>
 
-              <div class="cf-field">
+              <div class="cf-field" id="field-track-email">
                 <label class="cf-label" for="trackEmailInput">
-                  Your Email Address <span style="font-weight:400; color:var(--text-muted);">(Optional Verification)</span>
+                  Your Email Address <span style="font-weight:400; color:var(--text-muted);">(Optional Security Match)</span>
                 </label>
                 <div class="cf-input-wrap">
                   <span class="cf-icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></span>
@@ -306,8 +309,11 @@ require_once __DIR__ . '/includes/header.php';
                     name="email"
                     class="cf-input"
                     placeholder="you@example.com"
+                    autocomplete="email"
                   >
+                  <span class="cf-status-icon" id="status-track-email"></span>
                 </div>
+                <div class="cf-feedback" id="feedback-track-email"></div>
               </div>
 
               <button type="submit" class="cf-submit-btn" id="trackSubmitBtn">

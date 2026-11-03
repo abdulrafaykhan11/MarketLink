@@ -246,18 +246,112 @@
     if (tab === 'send') {
       btnSend.classList.add('active');
       btnTrack.classList.remove('active');
+      btnSend.setAttribute('aria-selected', 'true');
+      btnTrack.setAttribute('aria-selected', 'false');
       panelSend.style.display = 'block';
       panelTrack.style.display = 'none';
     } else {
       btnTrack.classList.add('active');
       btnSend.classList.remove('active');
+      btnTrack.setAttribute('aria-selected', 'true');
+      btnSend.setAttribute('aria-selected', 'false');
       panelSend.style.display = 'none';
       panelTrack.style.display = 'block';
 
       const tInput = document.getElementById('trackTicketInput');
-      if (tInput && !tInput.value) tInput.focus();
+      if (tInput && !tInput.value) {
+        setTimeout(function() { tInput.focus(); }, 60);
+      }
     }
   };
+
+  // -----------------------------------------------------------------------
+  // Track Form Live Validation
+  // -----------------------------------------------------------------------
+  const trackFields = {
+    trackTicketInput: {
+      wrapperId: 'field-track-ticket',
+      feedbackId: 'feedback-track-ticket',
+      validate(val) {
+        const raw = val.trim().toUpperCase().replace(/^#/, '');
+        if (!raw) {
+          return { ok: false, msg: 'Please enter your ticket number (e.g. INQ-00012 or 12).' };
+        }
+        if (/^INQ-\d+$/.test(raw)) {
+          return { ok: true, msg: '✓ Looks great! Valid ticket format.' };
+        }
+        if (/^\d+$/.test(raw)) {
+          return { ok: true, msg: '✓ Valid numeric ticket code (will match INQ-' + raw.padStart(5, '0') + ').' };
+        }
+        return { ok: false, msg: 'Ticket format should be like INQ-00012 or digits (e.g. 15).' };
+      }
+    },
+    trackEmailInput: {
+      wrapperId: 'field-track-email',
+      feedbackId: 'feedback-track-email',
+      validate(val) {
+        const raw = val.trim();
+        if (!raw) {
+          return { ok: true, msg: '✓ Optional: Leave blank or enter email used in your inquiry.' };
+        }
+        if (!EMAIL_REGEX.test(raw)) {
+          return { ok: false, msg: 'Please enter a valid email format (e.g. you@example.com).' };
+        }
+        return { ok: true, msg: '✓ Email format valid for security match.' };
+      }
+    }
+  };
+
+  function applyTrackState(inputId, res) {
+    const def = trackFields[inputId];
+    if (!def) return;
+    const wrap = document.getElementById(def.wrapperId);
+    const feed = document.getElementById(def.feedbackId);
+    if (!wrap) return;
+
+    wrap.classList.remove('is-valid', 'is-invalid');
+    if (res === null) {
+      if (feed) feed.textContent = '';
+      return;
+    }
+    wrap.classList.add(res.ok ? 'is-valid' : 'is-invalid');
+    if (feed) feed.textContent = res.msg;
+  }
+
+  // Attach live event listeners to track fields
+  const trackTicketEl = document.getElementById('trackTicketInput');
+  const trackEmailEl  = document.getElementById('trackEmailInput');
+
+  if (trackTicketEl) {
+    trackTicketEl.addEventListener('input', function () {
+      // Auto uppercase as typed
+      const pos = this.selectionStart;
+      this.value = this.value.toUpperCase();
+      this.setSelectionRange(pos, pos);
+
+      const res = trackFields.trackTicketInput.validate(this.value);
+      applyTrackState('trackTicketInput', res);
+    });
+
+    trackTicketEl.addEventListener('blur', function () {
+      if (!this.value.trim()) return;
+      const res = trackFields.trackTicketInput.validate(this.value);
+      applyTrackState('trackTicketInput', res);
+    });
+  }
+
+  if (trackEmailEl) {
+    trackEmailEl.addEventListener('input', function () {
+      const res = trackFields.trackEmailInput.validate(this.value);
+      applyTrackState('trackEmailInput', res);
+    });
+
+    trackEmailEl.addEventListener('blur', function () {
+      if (!this.value.trim()) return;
+      const res = trackFields.trackEmailInput.validate(this.value);
+      applyTrackState('trackEmailInput', res);
+    });
+  }
 
   // -----------------------------------------------------------------------
   // Track Inquiry Handler
@@ -272,7 +366,23 @@
     const errorBox    = document.getElementById('trackErrorBox');
     const resultBox   = document.getElementById('trackResultBox');
 
-    if (!ticketInput || !ticketInput.value.trim()) return;
+    if (!ticketInput) return;
+
+    // Run live validations
+    const ticketRes = trackFields.trackTicketInput.validate(ticketInput.value);
+    applyTrackState('trackTicketInput', ticketRes);
+
+    let emailRes = { ok: true };
+    if (emailInput && emailInput.value.trim()) {
+      emailRes = trackFields.trackEmailInput.validate(emailInput.value);
+      applyTrackState('trackEmailInput', emailRes);
+    }
+
+    if (!ticketRes.ok || !emailRes.ok) {
+      if (!ticketRes.ok) ticketInput.focus();
+      else if (emailInput) emailInput.focus();
+      return;
+    }
 
     const ticket = ticketInput.value.trim();
     const email  = emailInput ? emailInput.value.trim() : '';
