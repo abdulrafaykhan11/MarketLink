@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    MarketLink - Contact Page Styles with Live Validation States
    ========================================================================== */
 
@@ -379,4 +379,220 @@
   .cf-field-footer {
     gap: 0.5rem;
   }
+}
+
+/* ==========================================================================
+   Contact Mode Tab Switcher (Send Message vs Track Ticket/Inquiry)
+   ========================================================================== */
+.contact-tab-nav {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(10, 25, 35, 0.75);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  padding: 0.35rem;
+  border-radius: 14px;
+  margin-bottom: 2rem;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.contact-tab-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.8rem 1.15rem;
+  min-height: 44px;
+  font-family: var(--font-body, inherit);
+  font-size: 0.90rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  user-select: none;
+}
+
+.contact-tab-btn i {
+  font-size: 1rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.contact-tab-btn:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.contact-tab-btn:hover i {
+  transform: translateY(-1px);
+}
+
+.contact-tab-btn.active {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 45%, #0284c7 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+  font-weight: 700 !important;
+}
+
+.contact-tab-btn.active i {
+  color: #ffffff !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+
+/* Light Theme Overrides for Segmented Tabs */
+[data-theme="light"] .contact-tab-nav {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="light"] .contact-tab-btn {
+  color: #475569 !important;
+  font-weight: 600;
+}
+
+[data-theme="light"] .contact-tab-btn:hover {
+  color: #0f172a !important;
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .contact-tab-btn.active {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #16a34a 0%, #059669 45%, #0284c7 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.32), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .contact-tab-btn.active i {
+  color: #ffffff !important;
+}
+
+/* Mobile responsive tabs */
+@media (max-width: 580px) {
+  .contact-tab-nav {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .contact-tab-btn {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.86rem;
+  }
+}
+
+/* Track Inquiry Panel Styles */
+.track-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 1.5rem 0 2rem;
+  padding: 0 1rem;
+}
+
+.track-stepper::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 2rem;
+  right: 2rem;
+  height: 3px;
+  background: var(--border-color, rgba(255, 255, 255, 0.1));
+  z-index: 1;
+}
+
+.track-step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.track-step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-card, #1e293b);
+  border: 2px solid var(--border-color, #64748b);
+  color: var(--text-muted, #94a3b8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.track-step.completed .track-step-circle {
+  background: var(--primary-500, #22c55e);
+  border-color: var(--primary-500, #22c55e);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+}
+
+.track-step.active .track-step-circle {
+  background: var(--sky-500, #0ea5e9);
+  border-color: var(--sky-500, #0ea5e9);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
+}
+
+.track-step-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  max-width: 90px;
+  line-height: 1.3;
+}
+
+.track-step.completed .track-step-label,
+.track-step.active .track-step-label {
+  color: var(--text-primary);
+}
+
+/* Light Mode Overrides for Tracking Result Elements */
+[data-theme="light"] #trackResultBox {
+  background: #ffffff !important;
+  border: 1.5px solid #c7e8d4 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] #resStatusDescBox {
+  background: #f8fafc !important;
+  color: #334155 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] #resOriginalMessage {
+  background: #f8fafc !important;
+  color: #1e293b !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .track-step-circle {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #64748b !important;
+}
+
+[data-theme="light"] .track-stepper::before {
+  background: #cbd5e1 !important;
+}
+
+[data-theme="light"] #resAdminReplyCard {
+  background: rgba(22, 163, 74, 0.08) !important;
+  border-color: rgba(22, 163, 74, 0.3) !important;
 }

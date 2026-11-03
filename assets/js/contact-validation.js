@@ -192,9 +192,22 @@
           if (submitBtn) submitBtn.style.display = 'none';
           if (successEl) {
             successEl.style.display = 'flex';
-            const sub = successEl.querySelector('div div');
-            if (sub) {
-              sub.innerHTML = `Your inquiry <strong>#${result.ticket_number}</strong> was logged and sent to platform administration. A confirmation email has been dispatched to <strong>${payload.email}</strong>.`;
+            const detailEl = document.getElementById('contactSuccessDetail');
+            if (detailEl) {
+              detailEl.innerHTML = `Your inquiry <strong>#${result.ticket_number}</strong> was recorded in our system. A confirmation email has been dispatched to <strong>${payload.email}</strong>.<br><span style="display:block; margin-top:0.35rem; font-size:0.82rem; color:var(--text-secondary);">You can track administrator review status and replies using the <strong>Check Application / Ticket</strong> tab.</span>`;
+            }
+
+            const trackBtn = document.getElementById('btnTrackSubmittedTicket');
+            if (trackBtn) {
+              trackBtn.style.display = 'inline-block';
+              trackBtn.onclick = function() {
+                window.switchContactTab('track');
+                const tInput = document.getElementById('trackTicketInput');
+                if (tInput) tInput.value = result.ticket_number;
+                const eInput = document.getElementById('trackEmailInput');
+                if (eInput) eInput.value = payload.email;
+                window.handleTrackInquiry(new Event('submit'));
+              };
             }
           }
           form.reset();
@@ -218,5 +231,136 @@
       }
     });
   }
+
+  // -----------------------------------------------------------------------
+  // Mode Tab Switcher: Send Message vs Track Inquiry
+  // -----------------------------------------------------------------------
+  window.switchContactTab = function (tab) {
+    const btnSend   = document.getElementById('tabBtnSend');
+    const btnTrack  = document.getElementById('tabBtnTrack');
+    const panelSend = document.getElementById('panelSendInquiry');
+    const panelTrack= document.getElementById('panelTrackInquiry');
+
+    if (!btnSend || !btnTrack || !panelSend || !panelTrack) return;
+
+    if (tab === 'send') {
+      btnSend.classList.add('active');
+      btnTrack.classList.remove('active');
+      panelSend.style.display = 'block';
+      panelTrack.style.display = 'none';
+    } else {
+      btnTrack.classList.add('active');
+      btnSend.classList.remove('active');
+      panelSend.style.display = 'none';
+      panelTrack.style.display = 'block';
+
+      const tInput = document.getElementById('trackTicketInput');
+      if (tInput && !tInput.value) tInput.focus();
+    }
+  };
+
+  // -----------------------------------------------------------------------
+  // Track Inquiry Handler
+  // -----------------------------------------------------------------------
+  window.handleTrackInquiry = async function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    const ticketInput = document.getElementById('trackTicketInput');
+    const emailInput  = document.getElementById('trackEmailInput');
+    const submitBtn   = document.getElementById('trackSubmitBtn');
+    const loadingEl   = document.getElementById('trackLoading');
+    const errorBox    = document.getElementById('trackErrorBox');
+    const resultBox   = document.getElementById('trackResultBox');
+
+    if (!ticketInput || !ticketInput.value.trim()) return;
+
+    const ticket = ticketInput.value.trim();
+    const email  = emailInput ? emailInput.value.trim() : '';
+
+    if (errorBox)  errorBox.style.display  = 'none';
+    if (resultBox) resultBox.style.display = 'none';
+    if (loadingEl) loadingEl.style.display = 'block';
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const endpoint = (window.BASE_URL ? window.BASE_URL : '') + '/api/contact_status.php';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ ticket: ticket, email: email })
+      });
+
+      const res = await response.json();
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (submitBtn) submitBtn.disabled = false;
+
+      if (!res.success) {
+        if (errorBox) {
+          errorBox.textContent = '⚠️ ' + (res.error || 'Inquiry not found.');
+          errorBox.style.display = 'block';
+        }
+        return;
+      }
+
+      // Populate Result Card
+      const inq = res.data;
+      if (resultBox) {
+        document.getElementById('resTicketNumber').textContent = '#' + inq.ticket_number;
+        document.getElementById('resSubject').textContent = inq.subject;
+        document.getElementById('resCreatedAt').textContent = inq.created_at_human;
+        document.getElementById('resOriginalMessage').textContent = inq.message;
+        document.getElementById('resStatusDescBox').textContent = inq.status_desc;
+
+        // Status Badge
+        const badgeEl = document.getElementById('resStatusBadge');
+        if (badgeEl) {
+          if (inq.status === 'replied') {
+            badgeEl.innerHTML = '<span style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.85rem; border-radius:999px; font-size:0.8rem; font-weight:700; background:rgba(34,197,94,0.15); color:#22c55e; border:1.5px solid rgba(34,197,94,0.3);">✓ Replied &amp; Resolved</span>';
+          } else if (inq.status === 'read') {
+            badgeEl.innerHTML = '<span style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.85rem; border-radius:999px; font-size:0.8rem; font-weight:700; background:rgba(14,165,233,0.15); color:#38bdf8; border:1.5px solid rgba(56,189,248,0.3);">● Seen &amp; Under Review</span>';
+          } else {
+            badgeEl.innerHTML = '<span style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.85rem; border-radius:999px; font-size:0.8rem; font-weight:700; background:rgba(251,191,36,0.15); color:#fbbf24; border:1.5px solid rgba(251,191,36,0.3);">⏳ Received &amp; In Queue</span>';
+          }
+        }
+
+        // Stepper updates
+        const s1 = document.getElementById('step1');
+        const s2 = document.getElementById('step2');
+        const s3 = document.getElementById('step3');
+        if (s1 && s2 && s3) {
+          s1.className = 'track-step completed';
+          s2.className = 'track-step' + (inq.status_step >= 2 ? (inq.status_step > 2 ? ' completed' : ' active') : '');
+          s3.className = 'track-step' + (inq.status_step === 3 ? ' completed' : '');
+        }
+
+        // Admin Reply Box
+        const replyCard = document.getElementById('resAdminReplyCard');
+        if (replyCard) {
+          if (inq.admin_reply) {
+            replyCard.style.display = 'block';
+            document.getElementById('resAdminReplyText').textContent = inq.admin_reply;
+            document.getElementById('resRepliedAt').textContent = inq.replied_at_human ? inq.replied_at_human : '';
+            document.getElementById('resRepliedBy').textContent = inq.replied_by || 'MarketLink Admin Team';
+          } else {
+            replyCard.style.display = 'none';
+          }
+        }
+
+        resultBox.style.display = 'block';
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+    } catch (err) {
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (submitBtn) submitBtn.disabled = false;
+      if (errorBox) {
+        errorBox.textContent = '⚠️ Network error while fetching status. Please try again.';
+        errorBox.style.display = 'block';
+      }
+    }
+  };
 
 })();

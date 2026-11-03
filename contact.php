@@ -9,7 +9,7 @@ $pageTitle = 'Contact Us • Get in Touch with MarketLink';
 require_once __DIR__ . '/includes/header.php';
 ?>
 <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/about.css">
-<link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/contact.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/contact.css?v=<?= filemtime(__DIR__ . '/assets/css/contact.css') ?>">
 <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 
 <?php require_once __DIR__ . '/includes/navbar.php'; ?>
@@ -77,13 +77,72 @@ require_once __DIR__ . '/includes/header.php';
         </div>
       </div>
 
-      <!-- Right: Contact Form with Live Validation -->
+      <!-- Right: Contact Form with Live Validation & Inquiry Tracking -->
       <div class="contact-form-col">
         <div class="contact-form-card">
-          <h2 class="contact-form-heading">Send Us a Message</h2>
-          <p class="contact-form-sub">Fill in the form below and we will get back to you shortly.</p>
 
-          <form class="contact-form" id="contactForm" novalidate>
+          <!-- 2-Feature Mode Switcher Tabs -->
+          <div class="contact-tab-nav" role="tablist">
+            <button type="button" id="tabBtnSend" class="contact-tab-btn active" role="tab" aria-selected="true" onclick="switchContactTab('send')">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+              <span>Send a Message</span>
+            </button>
+            <button type="button" id="tabBtnTrack" class="contact-tab-btn" role="tab" aria-selected="false" onclick="switchContactTab('track')">
+              <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+              <span>Check Application / Ticket</span>
+            </button>
+          </div>
+
+          <script>
+            function switchContactTab(tab) {
+              try {
+                var btnSend   = document.getElementById('tabBtnSend');
+                var btnTrack  = document.getElementById('tabBtnTrack');
+                var panelSend = document.getElementById('panelSendInquiry');
+                var panelTrack= document.getElementById('panelTrackInquiry');
+
+                if (!btnSend || !btnTrack || !panelSend || !panelTrack) return;
+
+                if (tab === 'send') {
+                  btnSend.classList.add('active');
+                  btnTrack.classList.remove('active');
+                  btnSend.setAttribute('aria-selected', 'true');
+                  btnTrack.setAttribute('aria-selected', 'false');
+                  panelSend.style.display = 'block';
+                  panelTrack.style.display = 'none';
+                } else {
+                  btnTrack.classList.add('active');
+                  btnSend.classList.remove('active');
+                  btnTrack.setAttribute('aria-selected', 'true');
+                  btnSend.setAttribute('aria-selected', 'false');
+                  panelSend.style.display = 'none';
+                  panelTrack.style.display = 'block';
+
+                  var tInput = document.getElementById('trackTicketInput');
+                  if (tInput && !tInput.value) {
+                    setTimeout(function () { tInput.focus(); }, 50);
+                  }
+                }
+              } catch (e) {
+                console.error("Tab switch error:", e);
+              }
+            }
+            window.switchContactTab = switchContactTab;
+
+            document.addEventListener('DOMContentLoaded', function () {
+              var btnSend  = document.getElementById('tabBtnSend');
+              var btnTrack = document.getElementById('tabBtnTrack');
+              if (btnSend)  btnSend.addEventListener('click', function(e) { e.preventDefault(); switchContactTab('send'); });
+              if (btnTrack) btnTrack.addEventListener('click', function(e) { e.preventDefault(); switchContactTab('track'); });
+            });
+          </script>
+
+          <!-- PANEL 1: Send Message Form -->
+          <div id="panelSendInquiry">
+            <h2 class="contact-form-heading">Send Us a Message</h2>
+            <p class="contact-form-sub">Fill in the form below and our team will get back to you shortly.</p>
+
+            <form class="contact-form" id="contactForm" novalidate>
 
             <!-- Full Name -->
             <div class="cf-field" id="field-name">
@@ -200,11 +259,142 @@ require_once __DIR__ . '/includes/header.php';
               <span><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
               <div>
                 <strong>Message Sent!</strong>
-                <div>We will get back to you within 24 hours.</div>
+                <div id="contactSuccessDetail">We will get back to you within 24 hours.</div>
+                <button type="button" id="btnTrackSubmittedTicket" class="cf-btn-text" style="background:none; border:none; color:var(--primary-400); font-weight:700; text-decoration:underline; cursor:pointer; padding:0; margin-top:0.4rem; display:none;">
+                  Track This Ticket Now &rarr;
+                </button>
               </div>
             </div>
 
           </form>
+          </div>
+          <!-- END PANEL 1 -->
+
+          <!-- PANEL 2: Track Inquiry / Ticket Application Status -->
+          <div id="panelTrackInquiry" style="display:none;">
+            <h2 class="contact-form-heading">Track Inquiry Status</h2>
+            <p class="contact-form-sub">Check live review progress, administrator replies, and status updates for your submitted inquiry.</p>
+
+            <form class="contact-form" id="trackInquiryForm" onsubmit="handleTrackInquiry(event)">
+              <div class="cf-field">
+                <label class="cf-label" for="trackTicketInput">
+                  Ticket Number <span class="cf-required">*</span>
+                </label>
+                <div class="cf-input-wrap">
+                  <span class="cf-icon"><i class="fa-solid fa-hashtag" aria-hidden="true"></i></span>
+                  <input
+                    type="text"
+                    id="trackTicketInput"
+                    name="ticket"
+                    class="cf-input"
+                    placeholder="e.g. INQ-00012 or 12"
+                    required
+                    style="text-transform:uppercase; font-weight:700; letter-spacing:0.04em;"
+                  >
+                </div>
+              </div>
+
+              <div class="cf-field">
+                <label class="cf-label" for="trackEmailInput">
+                  Your Email Address <span style="font-weight:400; color:var(--text-muted);">(Optional Verification)</span>
+                </label>
+                <div class="cf-input-wrap">
+                  <span class="cf-icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></span>
+                  <input
+                    type="email"
+                    id="trackEmailInput"
+                    name="email"
+                    class="cf-input"
+                    placeholder="you@example.com"
+                  >
+                </div>
+              </div>
+
+              <button type="submit" class="cf-submit-btn" id="trackSubmitBtn">
+                <span class="cf-btn-text">Check Application Status</span>
+                <span class="cf-btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+              </button>
+            </form>
+
+            <!-- Loading Spinner -->
+            <div id="trackLoading" style="display:none; text-align:center; padding:2rem 1rem; color:var(--text-secondary);">
+              <i class="fa-solid fa-spinner fa-spin" style="font-size:1.8rem; color:var(--primary-400); margin-bottom:0.6rem; display:block;"></i>
+              <span>Locating your inquiry in database...</span>
+            </div>
+
+            <!-- Error Notification -->
+            <div id="trackErrorBox" style="display:none; background:rgba(239,68,68,0.12); border:1px solid #ef4444; color:#f87171; padding:1rem 1.25rem; border-radius:var(--radius-md); margin-top:1.25rem; font-size:0.88rem;"></div>
+
+            <!-- Result Box -->
+            <div id="trackResultBox" style="display:none; margin-top:1.75rem; background:var(--bg-surface-elevated, rgba(255,255,255,0.03)); border:1.5px solid var(--border-color); border-radius:var(--radius-lg); padding:1.5rem;">
+              
+              <!-- Result Header -->
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; border-bottom:1px solid var(--border-color); padding-bottom:1rem;">
+                <div>
+                  <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Inquiry Ticket</span>
+                  <h3 id="resTicketNumber" style="font-family:monospace; font-size:1.25rem; font-weight:800; color:var(--primary-400); margin:0.15rem 0 0 0;">#INQ-00000</h3>
+                </div>
+                <div id="resStatusBadge">
+                  <!-- Dynamic status badge -->
+                </div>
+              </div>
+
+              <!-- 3-Step Live Progress Indicator -->
+              <div class="track-stepper" id="resStepper">
+                <div class="track-step" id="step1">
+                  <div class="track-step-circle">1</div>
+                  <span class="track-step-label">Received</span>
+                </div>
+                <div class="track-step" id="step2">
+                  <div class="track-step-circle">2</div>
+                  <span class="track-step-label">Seen by Admin</span>
+                </div>
+                <div class="track-step" id="step3">
+                  <div class="track-step-circle">3</div>
+                  <span class="track-step-label">Replied</span>
+                </div>
+              </div>
+
+              <!-- Status Summary Note -->
+              <div id="resStatusDescBox" style="background:rgba(255,255,255,0.04); border-radius:var(--radius-md); padding:0.85rem 1rem; margin-bottom:1.25rem; font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
+              </div>
+
+              <!-- Details Grid -->
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.25rem; font-size:0.85rem;">
+                <div>
+                  <span style="color:var(--text-muted); display:block; font-size:0.75rem; text-transform:uppercase; font-weight:700;">Subject</span>
+                  <strong id="resSubject" style="color:var(--text-primary);"></strong>
+                </div>
+                <div>
+                  <span style="color:var(--text-muted); display:block; font-size:0.75rem; text-transform:uppercase; font-weight:700;">Submitted Time</span>
+                  <span id="resCreatedAt" style="color:var(--text-primary); font-weight:600;"></span>
+                </div>
+              </div>
+
+              <!-- User's Original Message Preview -->
+              <div style="margin-bottom:1.25rem;">
+                <span style="color:var(--text-muted); display:block; font-size:0.75rem; text-transform:uppercase; font-weight:700; margin-bottom:0.35rem;">Your Message</span>
+                <div id="resOriginalMessage" style="background:var(--bg-surface, rgba(0,0,0,0.2)); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:0.85rem 1rem; color:var(--text-secondary); font-size:0.88rem; line-height:1.55; white-space:pre-wrap;"></div>
+              </div>
+
+              <!-- Official Admin Reply Card (If Available) -->
+              <div id="resAdminReplyCard" style="display:none; background:rgba(34,197,94,0.08); border:1.5px solid rgba(34,197,94,0.35); border-radius:var(--radius-md); padding:1.25rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.5rem;">
+                  <span style="font-size:0.82rem; font-weight:800; color:var(--primary-400); display:flex; align-items:center; gap:0.4rem;">
+                    <i class="fa-solid fa-reply-all"></i> Official Response from Administration
+                  </span>
+                  <span id="resRepliedAt" style="font-size:0.75rem; color:var(--text-muted);"></span>
+                </div>
+                <div id="resAdminReplyText" style="color:var(--text-primary); font-size:0.92rem; line-height:1.65; white-space:pre-wrap; margin-bottom:0.75rem;"></div>
+                <div style="font-size:0.78rem; color:var(--primary-400); font-weight:600;">
+                  <i class="fa-solid fa-shield-check"></i> Dispatched by <span id="resRepliedBy">MarketLink Admin Team</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+          <!-- END PANEL 2 -->
         </div>
       </div>
 
@@ -241,5 +431,5 @@ require_once __DIR__ . '/includes/header.php';
 
 <?php require_once __DIR__ . '/includes/site_footer.php'; ?>
 
-<script src="<?= BASE_URL ?>/assets/js/contact-validation.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/contact-validation.js?v=<?= filemtime(__DIR__ . '/assets/js/contact-validation.js') ?>"></script>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

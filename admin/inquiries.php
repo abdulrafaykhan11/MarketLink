@@ -103,6 +103,7 @@ $inquiries = $stmt->fetchAll();
 // Metrics fetched through MySQL View
 $metricTotal   = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries")->fetchColumn();
 $metricUnread  = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries WHERE status = 'unread'")->fetchColumn();
+$metricRead    = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries WHERE status = 'read'")->fetchColumn();
 $metricReplied = (int)$pdo->query("SELECT COUNT(*) FROM view_admin_contact_inquiries WHERE status = 'replied'")->fetchColumn();
 
 // Check if a specific inquiry ID is opened via query param
@@ -149,15 +150,20 @@ if ($activeInquiryId > 0) {
 <?php endif; ?>
 
 <!-- Metric Counter Cards -->
-<div class="admin-metrics-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:2rem;">
+<div class="admin-metrics-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1.25rem; margin-bottom:2rem;">
   <div class="admin-card" style="padding:1.4rem 1.6rem; border-radius:16px;">
     <div style="font-size:0.82rem; font-weight:700; color:var(--admin-text-subtle, #94a3b8); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">Total Messages</div>
     <div style="font-size:2rem; font-weight:800; color:var(--admin-text-main);"><?= $metricTotal ?></div>
   </div>
 
   <div class="admin-card" style="padding:1.4rem 1.6rem; border-radius:16px; border-left:4px solid #ef4444;">
-    <div style="font-size:0.82rem; font-weight:700; color:#f87171; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">Unread / Needs Reply</div>
+    <div style="font-size:0.82rem; font-weight:700; color:#f87171; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">Unread / New</div>
     <div style="font-size:2rem; font-weight:800; color:#fca5a5;"><?= $metricUnread ?></div>
+  </div>
+
+  <div class="admin-card" style="padding:1.4rem 1.6rem; border-radius:16px; border-left:4px solid #38bdf8;">
+    <div style="font-size:0.82rem; font-weight:700; color:#38bdf8; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">Seen / Read</div>
+    <div style="font-size:2rem; font-weight:800; color:#7dd3fc;"><?= $metricRead ?></div>
   </div>
 
   <div class="admin-card" style="padding:1.4rem 1.6rem; border-radius:16px; border-left:4px solid #10b981;">
@@ -174,16 +180,16 @@ if ($activeInquiryId > 0) {
       All (<?= $metricTotal ?>)
     </a>
     <a href="?status=unread" 
-       class="admin-btn <?= $filterStatus === 'unread' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem;">
+       class="admin-btn <?= $filterStatus === 'unread' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem; border-color:<?= $filterStatus === 'unread' ? 'transparent' : 'rgba(239,68,68,0.4)' ?>; color:<?= $filterStatus === 'unread' ? '#fff' : '#f87171' ?>;">
       Unread (<?= $metricUnread ?>)
     </a>
-    <a href="?status=replied" 
-       class="admin-btn <?= $filterStatus === 'replied' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem;">
-      Replied (<?= $metricReplied ?>)
-    </a>
     <a href="?status=read" 
-       class="admin-btn <?= $filterStatus === 'read' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem;">
-      Read
+       class="admin-btn <?= $filterStatus === 'read' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem; border-color:<?= $filterStatus === 'read' ? 'transparent' : 'rgba(56,189,248,0.4)' ?>; color:<?= $filterStatus === 'read' ? '#fff' : '#38bdf8' ?>;">
+      Seen / Read (<?= $metricRead ?>)
+    </a>
+    <a href="?status=replied" 
+       class="admin-btn <?= $filterStatus === 'replied' ? 'admin-btn-primary' : 'admin-btn-outline' ?>" style="border-radius:999px; padding:0.45rem 1.1rem; font-size:0.85rem; border-color:<?= $filterStatus === 'replied' ? 'transparent' : 'rgba(52,211,153,0.4)' ?>; color:<?= $filterStatus === 'replied' ? '#fff' : '#34d399' ?>;">
+      Replied (<?= $metricReplied ?>)
     </a>
   </div>
 </div>
@@ -262,6 +268,20 @@ if ($activeInquiryId > 0) {
                 <?php endif; ?>
               </td>
               <td style="text-align:right; white-space:nowrap;">
+                <?php if ($isUnread): ?>
+                  <form method="POST" style="display:inline-block; margin-right:0.35rem;">
+                    <input type="hidden" name="action" value="mark_read">
+                    <input type="hidden" name="inquiry_id" value="<?= $row['id'] ?>">
+                    <button type="submit" 
+                            class="admin-btn admin-btn-sm" 
+                            style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); border-radius:8px;" 
+                            title="Mark inquiry as Seen / Read (Moves out of Unread)">
+                      <i data-lucide="check"></i>
+                      <span>Mark Seen</span>
+                    </button>
+                  </form>
+                <?php endif; ?>
+
                 <button type="button" 
                         class="admin-btn admin-btn-sm admin-btn-primary" 
                         onclick="openReplyModal(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)"
@@ -361,12 +381,24 @@ if ($activeInquiryId > 0) {
         <span>Clicking <strong>Send Reply &amp; Email</strong> will instantly dispatch an official branded notification email to the customer's mailbox.</span>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
-        <button type="button" class="admin-btn admin-btn-outline" onclick="closeReplyModal()" style="border-radius:10px;">Cancel</button>
-        <button type="submit" class="admin-btn admin-btn-primary" style="border-radius:10px; padding:0.65rem 1.4rem;">
-          <i data-lucide="send"></i>
-          <span>Send Reply &amp; Email Customer</span>
-        </button>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+        <div>
+          <form method="POST" id="modalMarkReadForm" style="display:none; margin:0;">
+            <input type="hidden" name="action" value="mark_read">
+            <input type="hidden" name="inquiry_id" id="modalMarkReadInquiryId" value="">
+            <button type="submit" class="admin-btn admin-btn-sm" style="border-radius:10px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc;">
+              <i data-lucide="check"></i> Mark as Seen
+            </button>
+          </form>
+        </div>
+
+        <div style="display:flex; gap:0.75rem;">
+          <button type="button" class="admin-btn admin-btn-outline" onclick="closeReplyModal()" style="border-radius:10px;">Cancel</button>
+          <button type="submit" class="admin-btn admin-btn-primary" style="border-radius:10px; padding:0.65rem 1.4rem;">
+            <i data-lucide="send"></i>
+            <span>Send Reply &amp; Email Customer</span>
+          </button>
+        </div>
       </div>
     </form>
 
@@ -398,6 +430,18 @@ function openReplyModal(inq) {
     document.getElementById('existingReplyTime').textContent = inq.replied_at ? ('Replied: ' + inq.replied_at) : '';
   } else {
     existingBox.style.display = 'none';
+  }
+
+  // Toggle modal Mark as Seen button if inquiry is unread
+  const markReadForm = document.getElementById('modalMarkReadForm');
+  const markReadIdInput = document.getElementById('modalMarkReadInquiryId');
+  if (markReadForm && markReadIdInput) {
+    if (inq.status === 'unread') {
+      markReadForm.style.display = 'block';
+      markReadIdInput.value = inq.id;
+    } else {
+      markReadForm.style.display = 'none';
+    }
   }
 
   modal.style.display = 'flex';
