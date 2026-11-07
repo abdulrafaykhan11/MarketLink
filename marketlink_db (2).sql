@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 27, 2026 at 08:33 AM
+-- Generation Time: Nov 03, 2026 at 09:14 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,36 @@ SET time_zone = "+00:00";
 --
 -- Database: `marketlink_db`
 --
+
+DELIMITER $$
+--
+-- Procedures
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_submit_contact_message` (IN `p_name` VARCHAR(100), IN `p_email` VARCHAR(120), IN `p_phone` VARCHAR(30), IN `p_subject` VARCHAR(150), IN `p_message` TEXT, IN `p_ip` VARCHAR(45))   BEGIN
+        INSERT INTO contact_messages (
+            name,
+            email,
+            phone,
+            subject,
+            message,
+            status,
+            ip_address,
+            created_at
+        ) VALUES (
+            p_name,
+            p_email,
+            p_phone,
+            p_subject,
+            p_message,
+            'unread',
+            p_ip,
+            NOW()
+        );
+
+        SELECT LAST_INSERT_ID() AS inquiry_id;
+    END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -64,13 +94,6 @@ CREATE TABLE `cart_items` (
   `added_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `cart_items`
---
-
-INSERT INTO `cart_items` (`cart_item_id`, `customer_id`, `product_id`, `stall_id`, `quantity`, `added_at`) VALUES
-(14, 8, 11, 5, 1, '2026-09-25 16:59:15');
-
 -- --------------------------------------------------------
 
 --
@@ -100,11 +123,15 @@ CREATE TABLE `contact_messages` (
 INSERT INTO `contact_messages` (`id`, `name`, `email`, `phone`, `subject`, `message`, `admin_reply`, `replied_at`, `replied_by`, `status`, `ip_address`, `created_at`, `updated_at`) VALUES
 (1, 'Ahmed Raza', 'ahmed.test@example.com', '0300-9876543', 'Farmer Registration Help', 'Hello Admin, I have a 10-acre organic fruit orchard near Model Town and want to set up a certified stall. Could you guide me on the physical market stall allocation process?', NULL, NULL, NULL, 'unread', '127.0.0.1', '2026-09-24 22:38:13', '2026-09-24 22:38:13'),
 (2, 'Ahzam', 'abdulrafayaptech32@gmail.com', '0318-2489041', 'Order / Pickup Issue', 'i havent recieved my order', 'ok', '2026-09-24 22:44:27', 4, 'replied', '::1', '2026-09-24 22:43:32', '2026-09-24 22:44:27'),
-(3, 'Fatima Chaudhry', 'fatima.chaudhry@hotmail.com', '0321-4445556', 'Farmer Registration Help', 'Assalam o Alaikum, I am a small mango orchard owner from Rahim Yar Khan. I have 5 acres of certified organic land and want to join MarketLink as a producer. What documents do I need and how long does approval take?', NULL, NULL, NULL, 'unread', '::1', '2026-09-24 23:06:48', '2026-09-24 23:06:48'),
+(3, 'Fatima Chaudhry', 'fatima.chaudhry@hotmail.com', '0321-4445556', 'Farmer Registration Help', 'Assalam o Alaikum, I am a small mango orchard owner from Rahim Yar Khan. I have 5 acres of certified organic land and want to join MarketLink as a producer. What documents do I need and how long does approval take?', NULL, NULL, NULL, 'read', '::1', '2026-09-24 23:06:48', '2026-11-03 20:54:56'),
 (4, 'Hamid Awan', 'hamid.awan@live.com', '0311-0001112', 'Order / Pickup Issue', 'My order #ML-2026-05023 shows \"completed\" but I never actually received my items. I arrived at 9 AM sharp but the stall was empty. Can you please investigate and arrange a refund or replacement?', NULL, NULL, NULL, 'unread', '::1', '2026-09-24 23:06:48', '2026-09-24 23:06:48'),
 (5, 'Nabila Javed', 'nabila.javed@gmail.com', '0300-3334445', 'General Question', 'Is there any option for home delivery? I am elderly and cannot visit markets easily. I would happily pay extra for a delivery fee if MarketLink can partner with a courier service.', NULL, NULL, NULL, 'unread', '::1', '2026-09-24 23:06:48', '2026-09-24 23:06:48'),
 (6, 'Danish Ali', 'danish.ali@live.com', '0311-6667778', 'Feedback & Suggestions', 'Brilliant platform MashaAllah! One suggestion: please add a \"bundle/basket\" ordering feature where I can select products from multiple farmers and have them in one transaction. Would make shopping so much easier!', NULL, NULL, NULL, 'unread', '::1', '2026-09-24 23:06:48', '2026-09-24 23:06:48'),
-(7, 'Saima Rizvi', 'saima.rizvi@yahoo.com', '0307-7778889', 'Partnership / Media', 'Hi, I am a food journalist for Dawn.com and would like to write a feature article about MarketLink and its impact on small-scale farmers. Could you arrange interviews with 2-3 farmers for next week?', NULL, NULL, NULL, 'unread', '::1', '2026-09-24 23:06:48', '2026-09-24 23:06:48');
+(7, 'Saima Rizvi', 'saima.rizvi@yahoo.com', '0307-7778889', 'Partnership / Media', 'Hi, I am a food journalist for Dawn.com and would like to write a feature article about MarketLink and its impact on small-scale farmers. Could you arrange interviews with 2-3 farmers for next week?', NULL, NULL, NULL, 'unread', '::1', '2026-09-24 23:06:48', '2026-09-24 23:06:48'),
+(9, 'Abdul Rafay Khan', 'abdulrafayaptech32@gmail.com', '0318-2489041', 'General Question', 'can i get my order before the pickup date?', 'ok we will solve it', '2026-11-03 21:10:28', 4, 'replied', '::1', '2026-10-30 16:18:25', '2026-11-03 21:10:28'),
+(13, 'Abdul Rafay Khan', 'abdulrafaykhanaptech@gmail.com', '0318-2489041', 'General Question', 'when will i get my order', 'ok we will try to solve', '2026-11-02 21:36:48', 4, 'replied', '::1', '2026-11-02 21:28:14', '2026-11-02 21:36:48'),
+(15, 'Abdul Rafay Khan', 'abdulrafayaptech32@gmail.com', '0318-2489041', 'Farmer Registration Help', 'farmer is not responding to my message', 'NQ-00015', '2026-11-03 21:09:08', 4, 'replied', '::1', '2026-11-03 20:58:25', '2026-11-03 21:09:08'),
+(16, 'ahzam', 'muhammadahzam1344@gmail.com', '0301-2547696', 'Order / Pickup Issue', 'I dont get my order yet', NULL, NULL, NULL, 'unread', '::1', '2026-11-03 21:12:03', '2026-11-03 21:12:03');
 
 -- --------------------------------------------------------
 
@@ -147,7 +174,8 @@ INSERT INTO `customer_profiles` (`customer_id`, `full_name`, `default_address`, 
 (34, 'Hamid Awan', 'F-10 Markaz, Islamabad', 33.70540000, 73.03980000, '2026-09-24 23:06:46'),
 (35, 'Nabila Javed', 'E-11, Islamabad', 33.72510000, 73.01140000, '2026-09-24 23:06:46'),
 (36, 'Tariq Mehmood', 'G-11/1, Islamabad', 33.69120000, 73.02140000, '2026-09-24 23:06:47'),
-(37, 'Abdul Rafay Khan', 'NORTH KARACHI', NULL, NULL, '2026-09-25 15:53:35');
+(37, 'Abdul Rafay Khan', 'NORTH KARACHI', NULL, NULL, '2026-09-25 15:53:35'),
+(38, 'Abdul Rafay Khan', 'NORTH KARACHI', NULL, NULL, '2026-10-30 16:05:39');
 
 -- --------------------------------------------------------
 
@@ -201,7 +229,8 @@ INSERT INTO `farmer_market_stalls` (`stall_id`, `farmer_id`, `market_id`, `stall
 (29, 21, 9, 'Stall #43', 'Sunday', 'active', '2026-09-24 23:06:47'),
 (30, 9, 10, 'Stall # 3', 'Saturday, Sunday', 'active', '2026-09-25 16:35:30'),
 (31, 9, 13, 'Stall 5', 'Saturday, Sunday', 'active', '2026-09-25 16:46:42'),
-(32, 18, 13, 'Stall 5', 'Thursday', 'active', '2026-09-27 10:46:22');
+(32, 18, 13, 'Stall 5', 'Thursday', 'active', '2026-09-27 10:46:22'),
+(33, 39, 13, 'Stall 5', 'Wednesday,Thursday,Friday', 'active', '2026-10-30 16:09:17');
 
 -- --------------------------------------------------------
 
@@ -243,8 +272,9 @@ INSERT INTO `farmer_profiles` (`farmer_id`, `stall_name`, `contact_person`, `bus
 (17, 'Ayesha\'s Artisan Jar Kitchen', 'Ayesha Mirza', '0334-9991122', 'ayesha@jarstore.pk', 'Hand-packed seasonal achaar, fermented kanji, mango murabba, date syrup, chili-lime relish and organic apple cider vinegar batches.', 'Gulberg II, Main Market, Lahore', 31.51290000, 74.34830000, '17:00:00', 'approved', '2026-09-24 23:06:45', '2026-09-24 23:06:45'),
 (18, 'Junaid Pure Vegetable Plots', 'Junaid Anwar', '0302-3334455', 'junaid@freshveg.pk', 'Seasonal spinach, methi, bathua, radish, turnips, bitter gourd, tinda, and arvi cultivated by a 3rd generation farming family.', 'Sheikhupura Ferozewala Rd, Lahore', 31.71670000, 74.00000000, '18:00:00', 'approved', '2026-09-24 23:06:45', '2026-09-27 10:48:51'),
 (19, 'Samira Free-Range Poultry Farm', 'Samira Malik', '0316-8889900', 'samira@farmpoultrys.pk', 'Desi murgi raised on natural grains, organic eggs from free-roaming hens, and fresh farm-slaughtered poultry on pre-order.', 'Sundar Industrial Estate, Lahore', 31.39060000, 74.25310000, '14:00:00', 'approved', '2026-09-24 23:06:46', '2026-09-24 23:06:46'),
-(20, 'Hassan\'s Mushroom Cultivation', 'Hassan Nawaz', '0303-2223344', 'hassan@mycelium.pk', 'Oyster, Shiitake, Portobello and Lion\'s Mane mushrooms cultivated on organic wheat-straw substrate, harvested same morning as market day.', 'Raiwind Industrial Park, Lahore', 31.40760000, 74.34220000, '17:00:00', 'approved', '2026-09-24 23:06:46', '2026-09-25 12:24:59'),
-(21, 'Imran\'s Superfood Seed Studio', 'Imran Butt', '0307-5556677', 'imran@superseeds.pk', 'Chia, flax, hemp seeds, moringa powder, dried mulberries, raw cacao nibs and Himalayan pink salt direct from source farmers across Pakistan.', 'Valencia Housing, Lahore', 31.43700000, 74.26200000, '18:00:00', 'approved', '2026-09-24 23:06:46', '2026-09-27 11:00:30');
+(20, 'Hassan\'s Mushroom Cultivation', 'Hassan Nawaz', '0303-2223344', 'hassan@mycelium.pk', 'Oyster, Shiitake, Portobello and Lion\'s Mane mushrooms cultivated on organic wheat-straw substrate, harvested same morning as market day.', 'Raiwind Industrial Park, Lahore', 31.40760000, 74.34220000, '17:00:00', 'approved', '2026-09-24 23:06:46', '2026-10-30 15:59:33'),
+(21, 'Imran\'s Superfood Seed Studio', 'Imran Butt', '0307-5556677', 'imran@superseeds.pk', 'Chia, flax, hemp seeds, moringa powder, dried mulberries, raw cacao nibs and Himalayan pink salt direct from source farmers across Pakistan.', 'Valencia Housing, Lahore', 31.43700000, 74.26200000, '18:00:00', 'approved', '2026-09-24 23:06:46', '2026-09-27 11:00:30'),
+(39, 'Ahmed Vegetable Store', 'Ahmed', '03400099988', 'ahmed12@gmail.com', NULL, 'north karachi sector 11A', 0.00000000, 0.00000000, '18:00:00', 'rejected', '2026-10-30 16:07:19', '2026-11-02 21:52:04');
 
 -- --------------------------------------------------------
 
@@ -271,21 +301,21 @@ CREATE TABLE `farmer_reviews` (
 --
 
 INSERT INTO `farmer_reviews` (`review_id`, `order_id`, `customer_id`, `farmer_id`, `rating`, `review_comment`, `farmer_response`, `response_date`, `is_moderated`, `is_featured`, `created_at`) VALUES
-(1, 1, 1, 2, 5, 'The organic heirloom tomatoes were exceptionally fresh and sweet! Stall was well-organized for fast pickup.', 'Thank you Sara! Looking forward to seeing you again this weekend.', '2026-09-22 19:58:36', 1, 1, '2026-09-22 19:58:36'),
+(1, 1, 1, 2, 5, 'The organic heirloom tomatoes were exceptionally fresh and sweet! Stall was well-organized for fast pickup.', 'Thank you Sara! Looking forward to seeing you again this weekend.', '2026-09-22 19:58:36', 1, 0, '2026-09-22 19:58:36'),
 (2, 4, 8, 9, 4, 'the location was not given properly', 'we will solve it', '2026-09-24 11:08:04', 1, 0, '2026-09-24 11:07:20'),
 (3, 11, 27, 6, 5, 'The mushroom varieties were incredible. Shiitake fried in butter was restaurant-quality at home. Hassan ji is super knowledgeable about cultivation methods.', 'JazakAllah Khair for your kind words! It truly motivates us to keep farming with love and dedication. See you at the market next week inshAllah! 🌿', '2026-09-24 23:06:48', 1, 1, '2026-09-24 23:06:48'),
 (4, 12, 22, 2, 3, 'Decent produce but the stall ran out of basil before I could collect my order. Understandable on busy days. Will try to arrive earlier next time.', 'We are truly blessed to have customers like you who appreciate authentic organic produce. Your feedback keeps us going through early mornings and long days! 🌱', '2026-09-24 23:06:48', 1, 0, '2026-09-24 23:06:48'),
 (6, 24, 35, 18, 5, 'Microgreens were absolutely stunning — 40× nutrients sounds like marketing speak but you can literally TASTE the difference. Incredible!', 'JazakAllah for your wonderful review! This motivates us through every 4 AM market morning. See you next Saturday inshAllah! 🌿', '2026-09-24 23:08:11', 1, 1, '2026-09-24 23:08:11'),
 (7, 25, 33, 14, 5, 'The Sidr honey is therapeutic. My entire family uses it now instead of processed sugar. Cannot recommend highly enough!', NULL, NULL, 1, 0, '2026-09-24 23:08:11'),
-(8, 28, 24, 21, 5, 'I\'ve converted my entire family to MarketLink after this experience. The taste difference from supermarket produce is genuinely shocking.', 'JazakAllah for your wonderful review! This motivates us through every 4 AM market morning. See you next Saturday inshAllah! 🌿', '2026-09-24 23:08:11', 1, 1, '2026-09-24 23:08:11'),
-(9, 29, 30, 2, 5, 'Best mushrooms I\'ve ever had in my life. Sautéed Lion\'s Mane in butter and fresh thyme — it tasted like scallops! Mind-blowing.', NULL, NULL, 1, 0, '2026-09-24 23:08:11'),
+(8, 28, 24, 21, 5, 'I\'ve converted my entire family to MarketLink after this experience. The taste difference from supermarket produce is genuinely shocking.', 'JazakAllah for your wonderful review! This motivates us through every 4 AM market morning. See you next Saturday inshAllah! 🌿', '2026-09-24 23:08:11', 1, 0, '2026-09-24 23:08:11'),
+(9, 29, 30, 2, 5, 'Best mushrooms I\'ve ever had in my life. Sautéed Lion\'s Mane in butter and fresh thyme — it tasted like scallops! Mind-blowing.', NULL, NULL, 1, 1, '2026-09-24 23:08:11'),
 (10, 30, 24, 2, 4, 'Very professional and genuine farmer. Communication was prompt and the order was accurately packed. Will definitely reorder.', NULL, NULL, 1, 0, '2026-09-24 23:08:11'),
 (11, 31, 8, 20, 5, 'The dairy products are exceptional — paneer was soft, white and absolutely fragrant. Biryani turned out restaurant-quality. Highly recommend!', NULL, NULL, 1, 0, '2026-09-24 23:08:11'),
 (12, 34, 36, 10, 4, 'Very professional and genuine farmer. Communication was prompt and the order was accurately packed. Will definitely reorder.', 'Thank you so much! Your kind words are shared with the whole farm team. We\'re blessed to have customers who truly appreciate honest farming 💚', '2026-09-24 23:08:11', 1, 0, '2026-09-24 23:08:11'),
 (13, 35, 3, 14, 3, 'Product quality was good but arrived 15 minutes late to their pickup window. The farmer was apologetic so I\'ll give them another chance.', NULL, NULL, 1, 0, '2026-09-24 23:08:11'),
 (14, 37, 26, 19, 3, 'Product quality was good but arrived 15 minutes late to their pickup window. The farmer was apologetic so I\'ll give them another chance.', NULL, NULL, 1, 0, '2026-09-24 23:08:11'),
 (15, 40, 27, 21, 5, 'The dairy products are exceptional — paneer was soft, white and absolutely fragrant. Biryani turned out restaurant-quality. Highly recommend!', 'JazakAllah for your wonderful review! This motivates us through every 4 AM market morning. See you next Saturday inshAllah! 🌿', '2026-09-24 23:08:11', 1, 0, '2026-09-24 23:08:11'),
-(16, 41, 23, 14, 5, 'The Sidr honey is therapeutic. My entire family uses it now instead of processed sugar. Cannot recommend highly enough!', 'Thank you so much! Your kind words are shared with the whole farm team. We\'re blessed to have customers who truly appreciate honest farming 💚', '2026-09-24 23:08:11', 1, 0, '2026-09-24 23:08:11'),
+(16, 41, 23, 14, 5, 'The Sidr honey is therapeutic. My entire family uses it now instead of processed sugar. Cannot recommend highly enough!', 'Thank you so much! Your kind words are shared with the whole farm team. We\'re blessed to have customers who truly appreciate honest farming 💚', '2026-09-24 23:08:11', 1, 1, '2026-09-24 23:08:11'),
 (17, 44, 23, 21, 5, 'Extraordinary quality! The produce was so fresh it still had morning dew. A true craftsman of organic farming.', 'Thank you so much! Your kind words are shared with the whole farm team. We\'re blessed to have customers who truly appreciate honest farming 💚', '2026-09-24 23:08:11', 1, 0, '2026-09-24 23:08:11'),
 (18, 45, 5, 13, 5, 'Best mushrooms I\'ve ever had in my life. Sautéed Lion\'s Mane in butter and fresh thyme — it tasted like scallops! Mind-blowing.', 'JazakAllah for your wonderful review! This motivates us through every 4 AM market morning. See you next Saturday inshAllah! 🌿', '2026-09-24 23:08:11', 1, 1, '2026-09-24 23:08:11'),
 (19, 46, 34, 11, 5, 'The Sidr honey is therapeutic. My entire family uses it now instead of processed sugar. Cannot recommend highly enough!', NULL, NULL, 1, 0, '2026-09-24 23:08:11'),
@@ -299,7 +329,10 @@ INSERT INTO `farmer_reviews` (`review_id`, `order_id`, `customer_id`, `farmer_id
 (27, 68, 27, 17, 5, 'Every single item matched the listing photo perfectly. This is the gold standard for how a farmers market should operate.', 'Alhamdulillah! So happy you enjoyed. Please bring friends — together we grow a stronger local food community! 🌱', '2026-09-24 23:08:11', 1, 0, '2026-09-24 23:08:11'),
 (28, 70, 30, 13, 5, 'Best mushrooms I\'ve ever had in my life. Sautéed Lion\'s Mane in butter and fresh thyme — it tasted like scallops! Mind-blowing.', 'JazakAllah for your wonderful review! This motivates us through every 4 AM market morning. See you next Saturday inshAllah! 🌿', '2026-09-24 23:08:11', 1, 0, '2026-09-24 23:08:11'),
 (29, 72, 31, 14, 5, 'Extraordinary quality! The produce was so fresh it still had morning dew. A true craftsman of organic farming.', 'MashaAllah, your review made our day! We put heart and soul into every harvest. Come visit us at the market anytime 🌸', '2026-09-24 23:08:11', 1, 0, '2026-09-24 23:08:11'),
-(30, 105, 37, 18, 5, 'everthing was fine', 'thanks sir', '2026-09-27 10:55:17', 1, 0, '2026-09-27 10:53:56');
+(30, 105, 37, 18, 5, 'everthing was fine', 'thanks sir', '2026-09-27 10:55:17', 1, 0, '2026-09-27 10:53:56'),
+(31, 103, 37, 21, 5, 'staff was cooperative', 'thank you so much', '2026-10-30 15:56:06', 1, 0, '2026-10-30 15:54:03'),
+(32, 101, 37, 21, 5, 'good', 'thanks sir', '2026-11-02 21:50:39', 1, 0, '2026-11-02 21:47:47'),
+(33, 108, 37, 21, 5, 'good', 'ok', '2026-11-03 20:51:37', 1, 0, '2026-11-03 20:49:29');
 
 -- --------------------------------------------------------
 
@@ -347,7 +380,8 @@ INSERT INTO `favorite_farmers` (`favorite_id`, `customer_id`, `farmer_id`, `crea
 (26, 24, 2, '2026-09-24 23:06:48'),
 (27, 25, 14, '2026-09-24 23:06:48'),
 (28, 26, 12, '2026-09-24 23:06:48'),
-(29, 26, 21, '2026-09-24 23:06:48');
+(29, 26, 21, '2026-09-24 23:06:48'),
+(30, 37, 21, '2026-10-30 16:21:13');
 
 -- --------------------------------------------------------
 
@@ -400,7 +434,8 @@ INSERT INTO `favorite_products` (`favorite_id`, `customer_id`, `product_id`, `cr
 (33, 26, 17, '2026-09-24 23:06:48'),
 (34, 26, 58, '2026-09-24 23:06:48'),
 (35, 26, 55, '2026-09-24 23:06:48'),
-(37, 37, 64, '2026-09-27 10:28:42');
+(37, 37, 64, '2026-09-27 10:28:42'),
+(38, 38, 64, '2026-10-31 10:03:28');
 
 -- --------------------------------------------------------
 
@@ -650,10 +685,10 @@ INSERT INTO `notifications` (`notification_id`, `user_id`, `title`, `message`, `
 (184, 18, 'New Message from Abdul Rafay Khan', 'Order #ML-721BD11E: hi', 'system', 0, '2026-09-27 10:42:03'),
 (185, 18, 'New Message from Abdul Rafay Khan', 'Order #ML-721BD11E: quickly shipped my order', 'system', 0, '2026-09-27 10:42:12'),
 (186, 18, 'New Message from Abdul Rafay Khan', 'Order #ML-721BD11E: Sent a photo', 'system', 0, '2026-09-27 10:42:23'),
-(187, 37, 'Order Accepted! 🥕', 'Your pre-order #ML-721BD11E has been accepted by Junaid Pure Vegetable Plots. It will be packed fresh for market pickup.', 'order_status', 0, '2026-09-27 10:44:38'),
-(188, 37, 'Ready for Pickup! 🥬', 'Your pre-order #ML-721BD11E is sorted and ready for collection at Junaid Pure Vegetable Plots. See you soon!', 'order_status', 0, '2026-09-27 10:45:17'),
-(189, 37, 'Order Completed! 🎉', 'Your pre-order #ML-721BD11E with Junaid Pure Vegetable Plots has been fulfilled. Thank you for supporting local growers!', 'order_status', 0, '2026-09-27 10:52:43'),
-(190, 37, 'Response to your review from Junaid Pure Vegetable Plots 💬', 'Farmer Junaid Pure Vegetable Plots has responded to your feedback: \"thanks sir\"', 'system', 0, '2026-09-27 10:55:17'),
+(187, 37, 'Order Accepted! 🥕', 'Your pre-order #ML-721BD11E has been accepted by Junaid Pure Vegetable Plots. It will be packed fresh for market pickup.', 'order_status', 1, '2026-09-27 10:44:38'),
+(188, 37, 'Ready for Pickup! 🥬', 'Your pre-order #ML-721BD11E is sorted and ready for collection at Junaid Pure Vegetable Plots. See you soon!', 'order_status', 1, '2026-09-27 10:45:17'),
+(189, 37, 'Order Completed! 🎉', 'Your pre-order #ML-721BD11E with Junaid Pure Vegetable Plots has been fulfilled. Thank you for supporting local growers!', 'order_status', 1, '2026-09-27 10:52:43'),
+(190, 37, 'Response to your review from Junaid Pure Vegetable Plots 💬', 'Farmer Junaid Pure Vegetable Plots has responded to your feedback: \"thanks sir\"', 'system', 1, '2026-09-27 10:55:17'),
 (191, 21, 'Account Notice: Stall Suspended', 'Your farmer stall has been temporarily suspended by platform administration. Reason: seems like a fraud', 'system', 0, '2026-09-27 10:58:45'),
 (192, 21, '🎉 Farmer Stall Approved!', 'Congratulations! Your farm profile has been officially verified and approved. You can now post weekly inventories, assign stalls, and start receiving pre-orders.', 'system', 0, '2026-09-27 11:00:30'),
 (193, 2, '📢 SCAM ALERT', 'we dont share any otp to you all th otps that you are recieving are fake', 'announcement', 0, '2026-09-27 11:03:14'),
@@ -671,8 +706,149 @@ INSERT INTO `notifications` (`notification_id`, `user_id`, `title`, `message`, `
 (205, 19, '📢 SCAM ALERT', 'we dont share any otp to you all th otps that you are recieving are fake', 'announcement', 0, '2026-09-27 11:03:14'),
 (206, 20, '📢 SCAM ALERT', 'we dont share any otp to you all th otps that you are recieving are fake', 'announcement', 0, '2026-09-27 11:03:14'),
 (207, 21, '📢 SCAM ALERT', 'we dont share any otp to you all th otps that you are recieving are fake', 'announcement', 0, '2026-09-27 11:03:14'),
-(208, 37, 'Pre-Order #ML-796A1AB7 Placed Successfully', 'Your harvest pre-order of Rs. 210.00 has been submitted to the farmer for pickup on 2026-09-27. Payment is settled upon pickup.', 'order_status', 0, '2026-09-27 11:28:23'),
-(209, 37, 'Pre-Order #ML-54183599 Placed Successfully', 'Your harvest pre-order of Rs. 357.00 has been submitted to the farmer for pickup on 2026-09-27. Payment is settled upon pickup.', 'order_status', 0, '2026-09-27 11:28:23');
+(208, 37, 'Pre-Order #ML-796A1AB7 Placed Successfully', 'Your harvest pre-order of Rs. 210.00 has been submitted to the farmer for pickup on 2026-09-27. Payment is settled upon pickup.', 'order_status', 1, '2026-09-27 11:28:23'),
+(209, 37, 'Pre-Order #ML-54183599 Placed Successfully', 'Your harvest pre-order of Rs. 357.00 has been submitted to the farmer for pickup on 2026-09-27. Payment is settled upon pickup.', 'order_status', 1, '2026-09-27 11:28:23'),
+(210, 22, 'Order Accepted! 🥕', 'Your pre-order #ML-0CEA6434 has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 0, '2026-10-30 14:52:10'),
+(211, 22, 'Ready for Pickup! 🥬', 'Your pre-order #ML-0CEA6434 is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 0, '2026-10-30 14:52:16'),
+(212, 22, 'Ready for Pickup! 🥬', 'Your pre-order #ML-2F848FF0 is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 0, '2026-10-30 14:52:20'),
+(213, 22, 'Ready for Pickup! 🥬', 'Your pre-order #ML-0CEA6434 is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 0, '2026-10-30 14:52:25'),
+(214, 37, 'Order Accepted! 🥕', 'Your pre-order #ML-4FDB1836 has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 1, '2026-10-30 14:52:29'),
+(215, 22, 'Order Completed! 🎉', 'Your pre-order #ML-2F848FF0 with Imran\'s Superfood Seed Studio has been fulfilled. Thank you for supporting local growers!', 'order_status', 0, '2026-10-30 14:52:33'),
+(216, 22, 'Order Completed! 🎉', 'Your pre-order #ML-0CEA6434 with Imran\'s Superfood Seed Studio has been fulfilled. Thank you for supporting local growers!', 'order_status', 0, '2026-10-30 14:52:37'),
+(217, 37, 'Ready for Pickup! 🥬', 'Your pre-order #ML-4FDB1836 is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 1, '2026-10-30 14:54:16'),
+(218, 4, 'Order Accepted! 🥕', 'Your pre-order #ML-87CECE98 has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 0, '2026-10-30 14:54:20'),
+(219, 37, 'Order Accepted! 🥕', 'Your pre-order #ML-54183599 has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 1, '2026-10-30 14:54:24'),
+(220, 37, 'Order Accepted! 🥕', 'Your pre-order #ML-A0038835 has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 1, '2026-10-30 14:54:28'),
+(221, 37, 'Order Accepted! 🥕', 'Your pre-order #ML-54183599 has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 1, '2026-10-30 14:54:33'),
+(222, 37, 'Ready for Pickup! 🥬', 'Your pre-order #ML-4FDB1836 is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 1, '2026-10-30 14:54:37'),
+(223, 4, 'Ready for Pickup! 🥬', 'Your pre-order #ML-87CECE98 is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 0, '2026-10-30 14:54:41'),
+(224, 37, 'Ready for Pickup! 🥬', 'Your pre-order #ML-54183599 is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 1, '2026-10-30 14:54:44'),
+(225, 37, 'Ready for Pickup! 🥬', 'Your pre-order #ML-A0038835 is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 1, '2026-10-30 14:54:49'),
+(226, 37, 'Order Completed! 🎉', 'Your pre-order #ML-4FDB1836 with Imran\'s Superfood Seed Studio has been fulfilled. Thank you for supporting local growers!', 'order_status', 1, '2026-10-30 14:54:53'),
+(227, 4, 'Order Completed! 🎉', 'Your pre-order #ML-87CECE98 with Imran\'s Superfood Seed Studio has been fulfilled. Thank you for supporting local growers!', 'order_status', 0, '2026-10-30 14:55:04'),
+(228, 37, 'Order Completed! 🎉', 'Your pre-order #ML-54183599 with Imran\'s Superfood Seed Studio has been fulfilled. Thank you for supporting local growers!', 'order_status', 1, '2026-10-30 14:55:09'),
+(229, 37, 'Order Completed! 🎉', 'Your pre-order #ML-A0038835 with Imran\'s Superfood Seed Studio has been fulfilled. Thank you for supporting local growers!', 'order_status', 1, '2026-10-30 14:55:17'),
+(230, 24, 'Order Accepted! 🥕', 'Your pre-order #ML-2026-05062 has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 0, '2026-10-30 14:56:58'),
+(231, 8, 'Order Accepted! 🥕', 'Your pre-order #ML-1EB5CE0F has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 0, '2026-10-30 14:57:02'),
+(232, 32, 'Ready for Pickup! 🥬', 'Your pre-order #ML-2026-05094 is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 0, '2026-10-30 14:57:06'),
+(233, 24, 'Ready for Pickup! 🥬', 'Your pre-order #ML-2026-05062 is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 0, '2026-10-30 14:57:12'),
+(234, 32, 'Order Completed! 🎉', 'Your pre-order #ML-2026-05094 with Imran\'s Superfood Seed Studio has been fulfilled. Thank you for supporting local growers!', 'order_status', 0, '2026-10-30 14:57:16'),
+(235, 24, 'Order Completed! 🎉', 'Your pre-order #ML-2026-05062 with Imran\'s Superfood Seed Studio has been fulfilled. Thank you for supporting local growers!', 'order_status', 0, '2026-10-30 14:57:25'),
+(236, 8, 'Ready for Pickup! 🥬', 'Your pre-order #ML-1EB5CE0F is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 0, '2026-10-30 14:57:30'),
+(237, 8, 'Order Completed! 🎉', 'Your pre-order #ML-1EB5CE0F with Imran\'s Superfood Seed Studio has been fulfilled. Thank you for supporting local growers!', 'order_status', 0, '2026-10-30 14:57:35'),
+(238, 37, 'Pre-Order #ML-4E0F873E Placed Successfully', 'Your harvest pre-order of Rs. 420.00 has been submitted to the farmer for pickup on 2026-11-06. Payment is settled upon pickup.', 'order_status', 1, '2026-10-30 15:51:48'),
+(239, 37, 'Pre-Order #ML-4E0F873E Updated', 'Your item quantities and pickup reservation have been updated successfully.', 'order_status', 1, '2026-10-30 15:52:44'),
+(240, 21, 'Pre-Order #ML-4E0F873E Updated', 'The customer updated item quantities or their pickup reservation before confirmation.', 'order_status', 0, '2026-10-30 15:52:44'),
+(241, 21, 'New Message from Abdul Rafay Khan', 'Order #ML-4E0F873E: can you send me the order at my house', 'system', 0, '2026-10-30 15:53:18'),
+(242, 37, 'Response to your review from Imran\'s Superfood Seed Studio 💬', 'Farmer Imran\'s Superfood Seed Studio has responded to your feedback: \"thank you so much\"', 'system', 1, '2026-10-30 15:56:06'),
+(243, 37, 'Order Accepted! 🥕', 'Your pre-order #ML-4E0F873E has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 1, '2026-10-30 15:56:22'),
+(244, 37, 'New Message from Imran\'s Superfood Seed Studio', 'Order #ML-4E0F873E: no sir sorry', 'system', 1, '2026-10-30 15:56:39'),
+(245, 20, 'Account Notice: Stall Suspended', 'Your farmer stall has been temporarily suspended by platform administration. Reason: security violation', 'system', 0, '2026-10-30 15:59:28'),
+(246, 20, '🎉 Farmer Stall Approved!', 'Congratulations! Your farm profile has been officially verified and approved. You can now post weekly inventories, assign stalls, and start receiving pre-orders.', 'system', 0, '2026-10-30 15:59:33'),
+(247, 21, 'Product Listing Removed', 'Your listing \'Moringa Leaf Powder\' was removed by platform administration for: Violates platform product quality guidelines', 'system', 0, '2026-10-30 16:00:26'),
+(248, 4, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(249, 2, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(250, 6, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(251, 9, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(252, 10, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(253, 11, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(254, 12, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(255, 13, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(256, 14, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(257, 15, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(258, 16, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(259, 17, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(260, 18, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(261, 19, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(262, 20, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(263, 21, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(264, 1, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(265, 3, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(266, 5, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(267, 7, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(268, 8, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(269, 22, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(270, 23, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(271, 24, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(272, 25, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(273, 26, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(274, 27, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(275, 28, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(276, 29, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(277, 30, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(278, 31, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(279, 32, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(280, 33, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(281, 34, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(282, 35, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(283, 36, '📢 Makret', 'Market will be closed today', 'announcement', 0, '2026-10-30 16:03:32'),
+(284, 37, '📢 Makret', 'Market will be closed today', 'announcement', 1, '2026-10-30 16:03:32'),
+(285, 37, 'Pre-Order #ML-4FEB7940 Placed Successfully', 'Your harvest pre-order of Rs. 210.00 has been submitted to the farmer for pickup on 2026-11-06. Payment is settled upon pickup.', 'order_status', 1, '2026-10-30 16:21:57'),
+(286, 21, 'New Message from Abdul Rafay Khan', 'Order #ML-4FEB7940: can i get my order before time', 'system', 0, '2026-10-30 16:22:36'),
+(287, 37, 'New Message from Imran\'s Superfood Seed Studio', 'Order #ML-4FEB7940: no', 'system', 0, '2026-10-30 16:24:25'),
+(288, 37, 'Pre-Order #ML-1456EBD7 Placed Successfully', 'Your harvest pre-order of Rs. 420.00 has been submitted to the farmer for pickup on 2026-11-06. Payment is settled upon pickup.', 'order_status', 0, '2026-10-30 16:38:00'),
+(289, 21, 'New Message from Abdul Rafay Khan', 'Order #ML-1456EBD7: hi', 'system', 0, '2026-10-30 16:38:23'),
+(290, 37, 'New Message from Imran\'s Superfood Seed Studio', 'Order #ML-1456EBD7: hi', 'system', 0, '2026-10-30 16:39:33'),
+(291, 37, 'Pre-Order #ML-B69450E4 Placed Successfully', 'Your harvest pre-order of Rs. 210.00 has been submitted to the farmer for pickup on 2026-11-06. Payment is settled upon pickup.', 'order_status', 0, '2026-10-31 09:49:09'),
+(292, 37, 'Order #ML-B69450E4 Cancelled', 'Your pre-order has been cancelled. Reason: Schedule conflict on market day', 'order_status', 0, '2026-10-31 09:49:45'),
+(293, 21, 'New Message from Abdul Rafay Khan', 'Order #ML-1456EBD7: hi', 'system', 0, '2026-10-31 09:49:57'),
+(294, 37, 'New Message from Imran\'s Superfood Seed Studio', 'Order #ML-1456EBD7: hi', 'system', 0, '2026-10-31 09:52:09'),
+(295, 38, 'Pre-Order #ML-7040FA49 Placed Successfully', 'Your harvest pre-order of Rs. 420.00 has been submitted to the farmer for pickup on 2026-11-06. Payment is settled upon pickup.', 'order_status', 0, '2026-10-31 10:02:49'),
+(296, 21, 'New Message from Abdul Rafay Khan', 'Order #ML-7040FA49: hi', 'system', 0, '2026-10-31 10:03:15'),
+(297, 37, 'Order Accepted! 🥕', 'Your pre-order #ML-1456EBD7 has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 0, '2026-10-31 10:04:48'),
+(298, 38, 'New Message from Imran\'s Superfood Seed Studio', 'Order #ML-7040FA49: hi', 'system', 0, '2026-10-31 10:05:05'),
+(299, 37, 'Pre-Order #ML-40C93D0C Placed Successfully', 'Your harvest pre-order of Rs. 210.00 has been submitted to the farmer for pickup on 2026-11-06. Payment is settled upon pickup.', 'order_status', 0, '2026-11-02 21:45:48'),
+(300, 21, 'New Message from Abdul Rafay Khan', 'Order #ML-40C93D0C: hi', 'system', 0, '2026-11-02 21:47:25'),
+(301, 21, 'New Message from Abdul Rafay Khan', 'Order #ML-40C93D0C: Sent a photo', 'system', 0, '2026-11-02 21:47:33'),
+(302, 37, 'Order Accepted! 🥕', 'Your pre-order #ML-40C93D0C has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 0, '2026-11-02 21:48:53'),
+(303, 37, 'Response to your review from Imran\'s Superfood Seed Studio 💬', 'Farmer Imran\'s Superfood Seed Studio has responded to your feedback: \"thanks sir\"', 'system', 0, '2026-11-02 21:50:39'),
+(304, 39, 'Farmer Profile Update', 'Your farmer stall registration could not be approved at this time. Reason: seems like a bot', 'system', 0, '2026-11-02 21:52:04');
+INSERT INTO `notifications` (`notification_id`, `user_id`, `title`, `message`, `notification_type`, `is_read`, `created_at`) VALUES
+(305, 37, 'Pre-Order #ML-1FBFF3DD Placed Successfully', 'Your harvest pre-order of Rs. 210.00 has been submitted to the farmer for pickup on 2026-11-07. Payment is settled upon pickup.', 'order_status', 1, '2026-11-03 20:47:05'),
+(306, 37, 'Order Accepted! 🥕', 'Your pre-order #ML-1FBFF3DD has been accepted by Imran\'s Superfood Seed Studio. It will be packed fresh for market pickup.', 'order_status', 0, '2026-11-03 20:50:16'),
+(307, 37, 'Response to your review from Imran\'s Superfood Seed Studio 💬', 'Farmer Imran\'s Superfood Seed Studio has responded to your feedback: \"ok\"', 'system', 0, '2026-11-03 20:51:37'),
+(308, 37, 'Ready for Pickup! 🥬', 'Your pre-order #ML-40C93D0C is sorted and ready for collection at Imran\'s Superfood Seed Studio. See you soon!', 'order_status', 0, '2026-11-03 20:51:46'),
+(309, 37, 'Order Completed! 🎉', 'Your pre-order #ML-40C93D0C with Imran\'s Superfood Seed Studio has been fulfilled. Thank you for supporting local growers!', 'order_status', 0, '2026-11-03 20:51:56'),
+(310, 21, 'Product Listing Removed', 'Your listing \'Dried Mulberries (Toot)\' was removed by platform administration for: Violates platform product quality guidelines', 'system', 0, '2026-11-03 20:53:35'),
+(311, 4, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(312, 2, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(313, 6, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(314, 9, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(315, 10, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(316, 11, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(317, 12, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(318, 13, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(319, 14, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(320, 15, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(321, 16, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(322, 17, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(323, 18, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(324, 19, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(325, 20, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(326, 21, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(327, 39, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(328, 1, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(329, 3, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(330, 5, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(331, 7, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(332, 8, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(333, 22, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(334, 23, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(335, 24, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(336, 25, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(337, 26, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(338, 27, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(339, 28, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(340, 29, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(341, 30, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(342, 31, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(343, 32, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(344, 33, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(345, 34, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(346, 35, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(347, 36, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15'),
+(348, 37, '📢 Market', 'Market will remain closed today', 'announcement', 1, '2026-11-03 20:56:15'),
+(349, 38, '📢 Market', 'Market will remain closed today', 'announcement', 0, '2026-11-03 20:56:15');
 
 -- --------------------------------------------------------
 
@@ -762,7 +938,7 @@ INSERT INTO `orders` (`order_id`, `order_number`, `customer_id`, `farmer_id`, `m
 (59, 'ML-2026-05059', 26, 10, 10, 6, 222, 2046.00, 'declined', '2026-06-28', 'Farmer unable to fulfill — insufficient stock after harvest', '2026-06-27 20:08:11', '2026-09-24 23:08:11'),
 (60, 'ML-2026-05060', 23, 18, 5, 23, 573, 651.00, 'accepted', '2026-08-31', NULL, '2026-08-29 20:08:11', '2026-09-24 23:08:11'),
 (61, 'ML-2026-05061', 23, 19, 4, 24, 584, 3708.00, 'completed', '2026-09-13', NULL, '2026-09-12 20:08:11', '2026-09-24 23:08:11'),
-(62, 'ML-2026-05062', 24, 21, 9, 29, 686, 155.00, 'placed', '2026-09-22', NULL, '2026-09-21 20:08:11', '2026-09-24 23:08:11'),
+(62, 'ML-2026-05062', 24, 21, 9, 29, 686, 155.00, 'completed', '2026-09-22', NULL, '2026-09-21 20:08:11', '2026-10-30 14:57:25'),
 (63, 'ML-2026-05063', 34, 18, 5, 23, 576, 219.00, 'accepted', '2026-09-08', NULL, '2026-09-05 20:08:11', '2026-09-24 23:08:11'),
 (64, 'ML-2026-05064', 27, 13, 4, 12, 347, 598.00, 'completed', '2026-08-05', NULL, '2026-08-02 20:08:11', '2026-09-24 23:08:11'),
 (65, 'ML-2026-05065', 28, 20, 11, 27, 659, 3610.00, 'ready_for_pickup', '2026-08-08', NULL, '2026-08-06 20:08:11', '2026-09-24 23:08:11'),
@@ -794,21 +970,28 @@ INSERT INTO `orders` (`order_id`, `order_number`, `customer_id`, `farmer_id`, `m
 (91, 'ML-2026-05091', 1, 10, 6, 7, 257, 660.00, 'accepted', '2026-07-15', NULL, '2026-07-13 20:08:11', '2026-09-24 23:08:11'),
 (92, 'ML-2026-05092', 31, 6, 3, 4, 195, 450.00, 'placed', '2026-08-20', NULL, '2026-08-19 20:08:11', '2026-09-24 23:08:11'),
 (93, 'ML-2026-05093', 35, 11, 8, 8, 278, 825.00, 'declined', '2026-09-16', 'Stall closure due to weather conditions', '2026-09-14 20:08:11', '2026-09-24 23:08:11'),
-(94, 'ML-2026-05094', 32, 21, 9, 29, 689, 2401.00, 'accepted', '2026-09-06', NULL, '2026-09-05 20:08:11', '2026-09-24 23:08:11'),
+(94, 'ML-2026-05094', 32, 21, 9, 29, 689, 2401.00, 'completed', '2026-09-06', NULL, '2026-09-05 20:08:11', '2026-10-30 14:57:16'),
 (95, 'ML-2026-05095', 1, 13, 12, 13, 371, 510.00, 'accepted', '2026-08-15', NULL, '2026-08-14 20:08:11', '2026-09-24 23:08:11'),
 (96, 'ML-CAED0B4C', 8, 21, 9, 29, 682, 732.00, 'cancelled', '2026-09-26', 'Schedule conflict on market day', '2026-09-25 11:59:39', '2026-09-25 12:00:12'),
 (97, 'ML-72166E3C', 8, 20, 11, 27, 642, 280.00, 'placed', '2026-09-26', NULL, '2026-09-25 12:57:45', '2026-09-25 12:57:45'),
-(98, 'ML-1EB5CE0F', 8, 21, 9, 29, 701, 522.00, 'placed', '2026-10-02', NULL, '2026-09-25 12:59:48', '2026-09-25 13:00:58'),
-(99, 'ML-2F848FF0', 22, 21, 9, 29, 693, 223.00, 'accepted', '2026-10-10', NULL, '2026-09-25 13:03:29', '2026-09-25 13:04:45'),
-(100, 'ML-0CEA6434', 22, 21, 9, 29, 682, 420.00, 'placed', '2026-09-26', NULL, '2026-09-25 13:09:02', '2026-09-25 13:09:02'),
-(101, 'ML-4FDB1836', 37, 21, 9, 29, 684, 420.00, 'placed', '2026-09-26', NULL, '2026-09-25 16:04:01', '2026-09-25 16:04:01'),
-(102, 'ML-87CECE98', 4, 21, 9, 29, 682, 155.00, 'placed', '2026-09-26', NULL, '2026-09-26 12:02:58', '2026-09-26 12:02:58'),
-(103, 'ML-A0038835', 37, 21, 9, 29, 251, 210.00, 'placed', '2026-09-30', NULL, '2026-09-27 10:38:46', '2026-09-27 10:38:46'),
+(98, 'ML-1EB5CE0F', 8, 21, 9, 29, 701, 522.00, 'completed', '2026-10-02', NULL, '2026-09-25 12:59:48', '2026-10-30 14:57:35'),
+(99, 'ML-2F848FF0', 22, 21, 9, 29, 693, 223.00, 'completed', '2026-10-10', NULL, '2026-09-25 13:03:29', '2026-10-30 14:52:33'),
+(100, 'ML-0CEA6434', 22, 21, 9, 29, 682, 420.00, 'completed', '2026-09-26', NULL, '2026-09-25 13:09:02', '2026-10-30 14:52:37'),
+(101, 'ML-4FDB1836', 37, 21, 9, 29, 684, 420.00, 'completed', '2026-09-26', NULL, '2026-09-25 16:04:01', '2026-10-30 14:54:53'),
+(102, 'ML-87CECE98', 4, 21, 9, 29, 682, 155.00, 'completed', '2026-09-26', NULL, '2026-09-26 12:02:58', '2026-10-30 14:55:04'),
+(103, 'ML-A0038835', 37, 21, 9, 29, 251, 210.00, 'completed', '2026-09-30', NULL, '2026-09-27 10:38:46', '2026-10-30 14:55:17'),
 (104, 'ML-248E0273', 37, 19, 12, 25, 251, 137.00, 'placed', '2026-09-30', NULL, '2026-09-27 10:38:46', '2026-09-27 10:38:46'),
 (105, 'ML-721BD11E', 37, 18, 5, 23, 251, 396.00, 'completed', '2026-09-30', NULL, '2026-09-27 10:38:46', '2026-09-27 10:52:43'),
 (106, 'ML-DE621115', 37, 10, 6, 7, 251, 576.00, 'placed', '2026-10-10', NULL, '2026-09-27 10:38:46', '2026-09-27 10:40:06'),
 (107, 'ML-796A1AB7', 37, 19, 12, 25, 606, 210.00, 'placed', '2026-09-27', NULL, '2026-09-27 11:28:23', '2026-09-27 11:28:23'),
-(108, 'ML-54183599', 37, 21, 9, 29, 686, 357.00, 'placed', '2026-09-27', NULL, '2026-09-27 11:28:23', '2026-09-27 11:28:23');
+(108, 'ML-54183599', 37, 21, 9, 29, 686, 357.00, 'completed', '2026-09-27', NULL, '2026-09-27 11:28:23', '2026-10-30 14:55:09'),
+(109, 'ML-4E0F873E', 37, 21, 9, 29, 709, 630.00, 'accepted', '2026-11-06', NULL, '2026-10-30 15:51:48', '2026-10-30 15:56:22'),
+(110, 'ML-4FEB7940', 37, 21, 9, 29, 709, 210.00, 'placed', '2026-11-06', NULL, '2026-10-30 16:21:57', '2026-10-30 16:21:57'),
+(111, 'ML-1456EBD7', 37, 21, 9, 29, 709, 420.00, 'accepted', '2026-11-06', NULL, '2026-10-30 16:38:00', '2026-10-31 10:04:48'),
+(112, 'ML-B69450E4', 37, 21, 9, 29, 709, 210.00, 'cancelled', '2026-11-06', 'Schedule conflict on market day', '2026-10-31 09:49:09', '2026-10-31 09:49:45'),
+(113, 'ML-7040FA49', 38, 21, 9, 29, 709, 420.00, 'placed', '2026-11-06', NULL, '2026-10-31 10:02:49', '2026-10-31 10:02:49'),
+(114, 'ML-40C93D0C', 37, 21, 9, 29, 709, 210.00, 'completed', '2026-11-06', NULL, '2026-11-02 21:45:48', '2026-11-03 20:51:56'),
+(115, 'ML-1FBFF3DD', 37, 21, 9, 29, 714, 210.00, 'accepted', '2026-11-07', NULL, '2026-11-03 20:47:05', '2026-11-03 20:50:16');
 
 -- --------------------------------------------------------
 
@@ -1057,7 +1240,14 @@ INSERT INTO `order_items` (`order_item_id`, `order_id`, `product_id`, `quantity`
 (225, 105, 51, 1, 396.00, 396.00),
 (226, 106, 16, 4, 144.00, 576.00),
 (227, 107, 54, 1, 210.00, 210.00),
-(228, 108, 64, 1, 357.00, 357.00);
+(228, 108, 64, 1, 357.00, 357.00),
+(229, 109, 63, 3, 210.00, 630.00),
+(230, 110, 63, 1, 210.00, 210.00),
+(231, 111, 63, 2, 210.00, 420.00),
+(232, 112, 63, 1, 210.00, 210.00),
+(233, 113, 63, 2, 210.00, 420.00),
+(234, 114, 63, 1, 210.00, 210.00),
+(235, 115, 63, 1, 210.00, 210.00);
 
 -- --------------------------------------------------------
 
@@ -1248,7 +1438,19 @@ INSERT INTO `order_messages` (`message_id`, `order_id`, `sender_id`, `receiver_i
 (162, 102, 4, 21, 'hi', NULL, NULL, 'none', 0, 0, '2026-09-26 12:04:50'),
 (163, 105, 37, 18, 'hi', NULL, NULL, 'none', 0, 1, '2026-09-27 10:42:03'),
 (164, 105, 37, 18, 'quickly shipped my order', NULL, NULL, 'none', 0, 1, '2026-09-27 10:42:12'),
-(165, 105, 37, 18, NULL, 'uploads/chat/chat_105_1790487743_a0794334.jpg', 'Gemini_Generated_Image_teeof4teeof4teeo.jpg', 'image', 3009976, 1, '2026-09-27 10:42:23');
+(165, 105, 37, 18, NULL, 'uploads/chat/chat_105_1790487743_a0794334.jpg', 'Gemini_Generated_Image_teeof4teeof4teeo.jpg', 'image', 3009976, 1, '2026-09-27 10:42:23'),
+(166, 109, 37, 21, 'can you send me the order at my house', NULL, NULL, 'none', 0, 1, '2026-10-30 15:53:18'),
+(167, 109, 21, 37, 'no sir sorry', NULL, NULL, 'none', 0, 0, '2026-10-30 15:56:39'),
+(168, 110, 37, 21, 'can i get my order before time', NULL, NULL, 'none', 0, 1, '2026-10-30 16:22:36'),
+(169, 110, 21, 37, 'no', NULL, NULL, 'none', 0, 0, '2026-10-30 16:24:25'),
+(170, 111, 37, 21, 'hi', NULL, NULL, 'none', 0, 1, '2026-10-30 16:38:23'),
+(171, 111, 21, 37, 'hi', NULL, NULL, 'none', 0, 1, '2026-10-30 16:39:33'),
+(172, 111, 37, 21, 'hi', NULL, NULL, 'none', 0, 1, '2026-10-31 09:49:57'),
+(173, 111, 21, 37, 'hi', NULL, NULL, 'none', 0, 0, '2026-10-31 09:52:09'),
+(174, 113, 38, 21, 'hi', NULL, NULL, 'none', 0, 1, '2026-10-31 10:03:15'),
+(175, 113, 21, 38, 'hi', NULL, NULL, 'none', 0, 0, '2026-10-31 10:05:05'),
+(176, 114, 37, 21, 'hi', NULL, NULL, 'none', 0, 1, '2026-11-02 21:47:25'),
+(177, 114, 37, 21, NULL, 'uploads/chat/chat_114_1793638053_975abd27.png', 'python_certificate.png', 'image', 184491, 1, '2026-11-02 21:47:33');
 
 -- --------------------------------------------------------
 
@@ -1978,7 +2180,15 @@ INSERT INTO `pickup_slots` (`pickup_slot_id`, `stall_id`, `slot_date`, `start_ti
 (703, 30, '2026-09-26', '08:00:00', '10:30:00', 15, 'available', '2026-09-25 16:36:13'),
 (704, 30, '2026-09-26', '08:00:00', '10:30:00', 15, 'available', '2026-09-25 16:36:22'),
 (705, 31, '2026-09-26', '08:00:00', '10:30:00', 15, 'available', '2026-09-25 16:49:58'),
-(706, 32, '2026-10-01', '08:00:00', '10:30:00', 15, 'available', '2026-09-27 10:46:45');
+(706, 32, '2026-10-01', '08:00:00', '10:30:00', 15, 'available', '2026-09-27 10:46:45'),
+(707, 28, '2026-11-04', '08:00:00', '10:30:00', 15, 'available', '2026-10-30 15:49:30'),
+(708, 28, '2026-11-05', '08:00:00', '10:30:00', 15, 'available', '2026-10-30 15:49:40'),
+(709, 29, '2026-11-06', '08:00:00', '10:30:00', 15, 'available', '2026-10-30 15:49:51'),
+(710, 28, '2026-11-05', '08:00:00', '10:30:00', 15, 'available', '2026-10-30 15:56:59'),
+(711, 33, '2026-11-04', '08:00:00', '10:30:00', 15, 'available', '2026-10-30 16:09:34'),
+(712, 33, '2026-11-04', '08:00:00', '10:30:00', 15, 'available', '2026-10-30 16:09:43'),
+(713, 28, '2026-11-07', '08:00:00', '10:30:00', 15, 'available', '2026-11-02 21:50:07'),
+(714, 29, '2026-11-07', '08:00:00', '10:30:00', 15, 'available', '2026-11-02 21:50:15');
 
 -- --------------------------------------------------------
 
@@ -2008,7 +2218,9 @@ INSERT INTO `platform_announcements` (`announcement_id`, `admin_id`, `title`, `c
 (5, 4, 'MarketLink Hits 1000 Pickup Orders Milestone! 🎊', 'Alhamdulillah! Our community has collectively purchased over 1,000 pre-orders worth of fresh local produce this season. Thank you farmers and families for making this possible!', 'all', 1, '2026-09-24 23:06:48'),
 (6, 4, 'Stall Photography Day — Get Professional Product Photos FREE 📸', 'Our team will visit registered stalls over the next two weekends to take high-quality product and stall photos. Sign up through your farmer dashboard to book your slot.', 'farmer', 1, '2026-09-24 23:06:48'),
 (7, 4, 'How to Store Your MarketLink Produce for Maximum Freshness 💡', 'Guide: Store leafy greens wrapped in damp newspaper. Keep citrus at room temp. Mushrooms in paper bags only — never plastic. Honey is shelf-stable indefinitely. Full guide on our blog.', 'customer', 1, '2026-09-24 23:06:48'),
-(8, 4, 'SCAM ALERT', 'we dont share any otp to you all th otps that you are recieving are fake', 'farmer', 1, '2026-09-27 11:03:14');
+(8, 4, 'SCAM ALERT', 'we dont share any otp to you all th otps that you are recieving are fake', 'farmer', 1, '2026-09-27 11:03:14'),
+(9, 4, 'Makret', 'Market will be closed today', 'all', 1, '2026-10-30 16:03:32'),
+(10, 4, 'Market', 'Market will remain closed today', 'all', 1, '2026-11-03 20:56:15');
 
 -- --------------------------------------------------------
 
@@ -2093,10 +2305,10 @@ INSERT INTO `products` (`product_id`, `farmer_id`, `category_id`, `product_name`
 (58, 20, 13, 'Lion\'s Mane Whole', 'Single Lion\'s Mane cluster 150-250g. Brain-boosting hericenones and erinacines content. Tastes like crab meat when sautéed in butter.', 'per piece', 1, 'assets/images/products/catalog/mushrooms.jpg', '2026-09-24 23:06:47', '2026-09-25 14:12:39'),
 (59, 20, 13, 'Dried Mushroom Mix (Assorted)', 'Sun-dehydrated Portobello, Shiitake and Oyster blend. Rehydrates in 20 min, intensified umami. 8× shelf-stable concentrate.', 'per 100g', 1, 'assets/images/products/catalog/mushrooms.jpg', '2026-09-24 23:06:47', '2026-09-25 14:12:39'),
 (60, 21, 14, 'Chia Seeds Pouch', 'Certified organic white chia seeds from Cholistan farms. Complete plant protein with omega-3 ALA. Shelf stable 24 months.', 'per 250g', 1, 'assets/images/products/catalog/seeds.jpg', '2026-09-24 23:06:47', '2026-09-25 14:12:39'),
-(61, 21, 14, 'Moringa Leaf Powder', 'Cold-dehydrated Moringa oleifera leaf powder from Multan farms. Contains 92 nutrients, 46 antioxidants. Add to smoothies, atta, soup.', 'per 100g', 1, 'assets/images/products/catalog/seeds.jpg', '2026-09-24 23:06:47', '2026-09-25 14:12:39'),
+(61, 21, 14, 'Moringa Leaf Powder', '[REMOVED BY PLATFORM MODERATION] Cold-dehydrated Moringa oleifera leaf powder from Multan farms. Contains 92 nutrients, 46 antioxidants. Add to smoothies, atta, soup.', 'per 100g', 1, 'assets/images/products/catalog/seeds.jpg', '2026-09-24 23:06:47', '2026-10-30 16:00:26'),
 (62, 21, 14, 'Raw Cacao Nibs', 'Unroasted, stone-crushed Theobroma cacao nibs. 70%+ flavanols, zero sugar added. Intense bitter-chocolate crunch — smoothies or snacks.', 'per 150g', 1, 'assets/images/products/catalog/seeds.jpg', '2026-09-24 23:06:47', '2026-09-25 14:12:39'),
 (63, 21, 14, 'Hemp Seed Hearts', 'Hulled hemp hearts — mild nutty flavor, highest plant-based complete protein (33g/100g). Sprinkle on salads, yogurt, avocado toast.', 'per 250g', 1, 'assets/images/products/catalog/seeds.jpg', '2026-09-24 23:06:47', '2026-09-25 14:12:39'),
-(64, 21, 2, 'Dried Mulberries (Toot)', 'Sun-dried white mulberries from Baltistan highland orchards. Natural iron source, caramel-sweet, moreish superfood snack.', 'per 200g', 1, 'assets/images/products/catalog/apples.jpg', '2026-09-24 23:06:47', '2026-09-25 14:12:39');
+(64, 21, 2, 'Dried Mulberries (Toot)', '[REMOVED BY PLATFORM MODERATION] Sun-dried white mulberries from Baltistan highland orchards. Natural iron source, caramel-sweet, moreish superfood snack.', 'kg', 1, 'assets/images/products/catalog/apples.jpg', '2026-09-24 23:06:47', '2026-11-03 20:53:35');
 
 -- --------------------------------------------------------
 
@@ -2128,8 +2340,7 @@ INSERT INTO `product_categories` (`category_id`, `category_name`, `description`,
 (14, 'Superfoods & Seeds', 'Chia, flax, hemp, moringa and ancient grains', NULL, 1, '2026-09-24 23:06:47'),
 (15, 'Artisan Preserves', 'Achaar, chutneys, jams and fermented goods', NULL, 1, '2026-09-24 23:06:47'),
 (16, 'Free-Range Poultry', 'Farm eggs and free-range chicken', NULL, 1, '2026-09-24 23:06:47'),
-(17, 'Whole Grains & Flour', 'Stone-ground flours, rice and millet', NULL, 1, '2026-09-24 23:06:47'),
-(18, 'traf', 'auehgoueiouiaheoui', '', 1, '2026-09-26 13:38:52');
+(17, 'Whole Grains & Flour', 'Stone-ground flours, rice and millet', NULL, 1, '2026-09-24 23:06:47');
 
 -- --------------------------------------------------------
 
@@ -2299,7 +2510,10 @@ INSERT INTO `product_reviews` (`review_id`, `order_id`, `product_id`, `customer_
 (59, 68, 48, 27, 4, 'Fresh basil smelled incredible right out of the bag. Only 4 stars because a few leaves had slight browning at the edges.', 1, '2026-09-24 23:08:11'),
 (60, 70, 27, 30, 5, 'Oyster mushrooms had the most delicate texture. Pan-fried in olive oil with garlic — restaurant quality at home. Absolutely outstanding.', 1, '2026-09-24 23:08:11'),
 (61, 72, 33, 31, 4, 'Fresh basil smelled incredible right out of the bag. Only 4 stars because a few leaves had slight browning at the edges.', 1, '2026-09-24 23:08:11'),
-(62, 105, 51, 37, 5, 'fresh vegetables', 1, '2026-09-27 10:53:56');
+(62, 105, 51, 37, 5, 'fresh vegetables', 1, '2026-09-27 10:53:56'),
+(63, 103, 63, 37, 5, 'taste was good', 1, '2026-10-30 15:54:03'),
+(64, 101, 63, 37, 5, 'good', 1, '2026-11-02 21:47:47'),
+(65, 108, 64, 37, 5, 'good', 1, '2026-11-03 20:49:29');
 
 -- --------------------------------------------------------
 
@@ -2361,7 +2575,34 @@ INSERT INTO `users` (`user_id`, `username`, `email`, `password_hash`, `role`, `s
 (34, 'hamid_awan', 'hamid.awan@live.com', '$2y$10$sZR0lxS6kQu71ZnCoAJU0edsAO0dNWrVQHQg7bpCAtFiXAYM/M3fe', 'customer', 'active', '0311-0001112', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&sig=13', '2026-09-24 23:06:46', '2026-09-24 23:06:46'),
 (35, 'nabila_javed', 'nabila.javed@gmail.com', '$2y$10$2TRdpFlNZH7eTl8Nu.1zrOOtMW6Gt98UsfgXaaj/y5t9/yNWafghK', 'customer', 'active', '0300-3334445', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80&sig=14', '2026-09-24 23:06:46', '2026-09-24 23:06:46'),
 (36, 'tariq_mehmood', 'tariq.mehmood2@gmail.com', '$2y$10$uhPvJKzeLhCTlAKRnD8aneC4kMPPVgy2wr3qGoGUTizJ4eJ4RLIwe', 'customer', 'suspended', '0321-6667778', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&sig=15', '2026-09-24 23:06:47', '2026-09-27 10:59:04'),
-(37, 'abdul_rafay', 'abdulrafayaptech32@gmail.com', '$2y$10$/j0NxVSjrgPttleacQV89OEZk.3h28O7KInWcPFK5KCzpZpIifxQ6', 'customer', 'active', '+923182489041', NULL, '2026-09-25 15:53:35', '2026-09-26 19:55:12');
+(37, 'abdul_rafay', 'abdulrafayaptech32@gmail.com', '$2y$10$UQg7eRy2stlnLQtPSF43y.xUoK06nXCIYRs1axq3S4fIInqYiil66', 'customer', 'active', '+923182489041', NULL, '2026-09-25 15:53:35', '2026-10-30 15:33:45'),
+(38, 'abdul_khan', 'abdulrafaykhanaptech@gmail.com', '$2y$10$12WdcRXaOBm5YWookAsCNe9q/G8HnU.L.XOmWmSJD0NyqCM2MVziy', 'customer', 'active', '+923182489041', NULL, '2026-10-30 16:05:39', '2026-10-30 16:05:39'),
+(39, 'ahmed_pk', 'ahmed12@gmail.com', '$2y$10$PxEZtEX04IeZRP1Arhlw7.c4fMpmxYIjVNGsfFbk2Iq9E6Jdwj/xq', 'farmer', 'active', '03400099988', 'uploads/profiles/farmer_39_1793358469.jpg', '2026-10-30 16:07:19', '2026-10-30 16:07:49');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `view_admin_contact_inquiries`
+-- (See below for the actual view)
+--
+CREATE TABLE `view_admin_contact_inquiries` (
+`id` int(11)
+,`name` varchar(100)
+,`email` varchar(120)
+,`phone` varchar(30)
+,`subject` varchar(150)
+,`message` text
+,`admin_reply` text
+,`replied_at` datetime
+,`replied_by` int(11)
+,`status` enum('unread','read','replied')
+,`ip_address` varchar(45)
+,`created_at` datetime
+,`updated_at` datetime
+,`replied_by_username` varchar(50)
+,`replied_by_email` varchar(100)
+,`ticket_number` varchar(9)
+);
 
 -- --------------------------------------------------------
 
@@ -2608,18 +2849,21 @@ INSERT INTO `weekly_inventory` (`inventory_id`, `product_id`, `stall_id`, `day_o
 (225, 60, 29, 'Friday', 41.00, 155.00, 1, '2026-09-24 23:06:47'),
 (226, 60, 29, 'Saturday', 42.00, 155.00, 1, '2026-09-24 23:06:47'),
 (227, 60, 29, 'Sunday', 19.00, 155.00, 1, '2026-09-24 23:06:47'),
-(228, 61, 29, 'Friday', 34.00, 223.00, 1, '2026-09-24 23:06:47'),
-(229, 61, 29, 'Saturday', 41.00, 223.00, 1, '2026-09-24 23:06:47'),
-(230, 61, 29, 'Sunday', 23.00, 223.00, 1, '2026-09-24 23:06:47'),
 (231, 62, 29, 'Friday', 25.00, 522.00, 1, '2026-09-24 23:06:47'),
 (232, 62, 29, 'Saturday', 49.00, 522.00, 1, '2026-09-24 23:06:47'),
 (233, 62, 29, 'Sunday', 46.00, 522.00, 1, '2026-09-24 23:06:47'),
 (234, 63, 29, 'Friday', 35.00, 210.00, 1, '2026-09-24 23:06:47'),
 (235, 63, 29, 'Saturday', 55.00, 210.00, 1, '2026-09-24 23:06:47'),
-(236, 63, 29, 'Sunday', 43.00, 210.00, 1, '2026-09-24 23:06:47'),
-(237, 64, 29, 'Friday', 34.00, 357.00, 1, '2026-09-24 23:06:47'),
-(238, 64, 29, 'Saturday', 47.00, 357.00, 1, '2026-09-24 23:06:47'),
-(239, 64, 29, 'Sunday', 33.00, 357.00, 1, '2026-09-24 23:06:47');
+(236, 63, 29, 'Sunday', 43.00, 210.00, 1, '2026-09-24 23:06:47');
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `view_admin_contact_inquiries`
+--
+DROP TABLE IF EXISTS `view_admin_contact_inquiries`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_admin_contact_inquiries`  AS SELECT `cm`.`id` AS `id`, `cm`.`name` AS `name`, `cm`.`email` AS `email`, `cm`.`phone` AS `phone`, `cm`.`subject` AS `subject`, `cm`.`message` AS `message`, `cm`.`admin_reply` AS `admin_reply`, `cm`.`replied_at` AS `replied_at`, `cm`.`replied_by` AS `replied_by`, `cm`.`status` AS `status`, `cm`.`ip_address` AS `ip_address`, `cm`.`created_at` AS `created_at`, `cm`.`updated_at` AS `updated_at`, `u`.`username` AS `replied_by_username`, `u`.`email` AS `replied_by_email`, concat('INQ-',lpad(`cm`.`id`,5,'0')) AS `ticket_number` FROM (`contact_messages` `cm` left join `users` `u` on(`cm`.`replied_by` = `u`.`user_id`)) ;
 
 --
 -- Indexes for dumped tables
@@ -2819,37 +3063,37 @@ ALTER TABLE `ai_chatbot_faqs`
 -- AUTO_INCREMENT for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `cart_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `cart_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `farmer_market_stalls`
 --
 ALTER TABLE `farmer_market_stalls`
-  MODIFY `stall_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `stall_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `farmer_reviews`
 --
 ALTER TABLE `farmer_reviews`
-  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `favorite_farmers`
 --
 ALTER TABLE `favorite_farmers`
-  MODIFY `favorite_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `favorite_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `favorite_products`
 --
 ALTER TABLE `favorite_products`
-  MODIFY `favorite_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `favorite_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `markets`
@@ -2861,37 +3105,37 @@ ALTER TABLE `markets`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=210;
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=350;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=109;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=229;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=236;
 
 --
 -- AUTO_INCREMENT for table `order_messages`
 --
 ALTER TABLE `order_messages`
-  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=166;
+  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=178;
 
 --
 -- AUTO_INCREMENT for table `pickup_slots`
 --
 ALTER TABLE `pickup_slots`
-  MODIFY `pickup_slot_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=707;
+  MODIFY `pickup_slot_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=715;
 
 --
 -- AUTO_INCREMENT for table `platform_announcements`
 --
 ALTER TABLE `platform_announcements`
-  MODIFY `announcement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `announcement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -2915,13 +3159,13 @@ ALTER TABLE `product_images`
 -- AUTO_INCREMENT for table `product_reviews`
 --
 ALTER TABLE `product_reviews`
-  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `weekly_inventory`
